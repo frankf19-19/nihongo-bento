@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.4.2 — 靜音模式也能出聲 ===== */
+/* ===== Build v2.4.3 — audioSession 官方媒體通道 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -607,7 +607,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.4.2・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.4.3・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -855,6 +855,12 @@ function pickMsg(a){ return a[Math.floor(Math.random()*a.length)]; }
 })();
 
 /* ================= 發音(手機相容強化版) ================= */
+/* iOS 16.4+ 官方 AudioSession API:把整頁音訊宣告為「媒體播放」,
+   靜音開關不再消音(含系統語音),音量由音量鍵的媒體音量控制 */
+function setPlaybackSession(){
+  try{ if(navigator.audioSession) navigator.audioSession.type = "playback"; }catch(e){}
+}
+setPlaybackSession();
 let jpVoice = null, lastUtter = null;
 function pickVoice(){
   try{
@@ -883,6 +889,7 @@ function speak(text){
         window.speechSynthesis.speak(u);
       }catch(e){}
     };
+    setPlaybackSession(); /* 每次發音前再確認一次媒體通道,防被系統重設 */
     /* iOS 上 cancel() 後立刻 speak() 會把新語音吃掉,必須隔一拍 */
     if(window.speechSynthesis.speaking || window.speechSynthesis.pending){
       window.speechSynthesis.cancel();
@@ -917,6 +924,7 @@ function engageMediaChannel(){
 }
 /* 手機音訊解鎖:使用者第一次觸碰畫面時喚醒語音與音效引擎 */
 function unlockAudio(){
+  setPlaybackSession();
   engageMediaChannel();
   try{
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -941,6 +949,7 @@ document.addEventListener("touchend", unlockAudio, {passive:true});
 document.addEventListener("click", unlockAudio);
 /* 從背景切回來時,喚醒被暫停的語音引擎 */
 document.addEventListener("visibilitychange", function(){
+  try{ if(!document.hidden) setPlaybackSession(); }catch(e){}
   try{ if(!document.hidden && "speechSynthesis" in window) window.speechSynthesis.resume(); }catch(e){}
   try{ if(!document.hidden && window.__mediaCh) window.__mediaCh.play().catch(function(){}); }catch(e){}
 });
