@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>日語便當 Nihongo Bento｜互動日文學習</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#FBEFF2">
@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.3.0 — 動畫特效・音效・吉祥物 ===== */
+/* ===== Build v2.4.0 — 手機 App 級體驗 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -61,8 +61,10 @@ body{
   color:var(--ink);
   font-family:"Zen Maru Gothic","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   line-height:1.65; min-height:100vh;
+  overscroll-behavior-y:contain;
 }
-button{font-family:inherit; cursor:pointer; color:inherit;}
+button{font-family:inherit; cursor:pointer; color:inherit; -webkit-tap-highlight-color:transparent; touch-action:manipulation; -webkit-user-select:none; user-select:none;}
+html{-webkit-text-size-adjust:100%;}
 /* ===== 頂部 ===== */
 header{
   background:var(--surface);
@@ -369,12 +371,28 @@ footer{
 }
 .tabbar button .ic{font-size:1.28rem; line-height:1.2; font-weight:900;}
 .tabbar button.active{color:var(--pink-deep); background:var(--pink-soft); border-color:var(--pink);}
+.tabbar button:active{transform:scale(.88);}
+@keyframes tab-boing{0%{transform:scale(1);}45%{transform:scale(1.3) translateY(-3px);}100%{transform:scale(1);}}
+.tabbar button.active .ic{animation:tab-boing .35s ease;}
 .tabbar button:focus-visible{outline:3px solid var(--butter); outline-offset:2px;}
 @media (min-width:768px){ .tabbar{display:none;} }
 @media (max-width:767px){
   nav#mainNav{display:none;}
   main{padding-bottom:120px;}
   footer{padding-bottom:calc(96px + env(safe-area-inset-bottom));}
+  header{
+    position:sticky; top:0; z-index:20;
+    padding:calc(8px + env(safe-area-inset-top)) 16px 8px;
+    background:var(--surface);
+    background:color-mix(in srgb, var(--surface) 86%, transparent);
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  }
+  .logo{font-size:1.12rem;}
+  .logo small{font-size:.58rem;}
+  .streak-pill{margin-left:auto; font-size:.8rem; padding:5px 12px;}
+  .quiz-opts button{min-height:56px;}
+  .tabbar button{padding:7px 8px;}
+  .tabbar button .ic{font-size:1.42rem;}
 }
 @media (prefers-reduced-motion: reduce){
   *{transition:none!important; animation:none!important;}
@@ -483,7 +501,7 @@ footer{
 <!-- ============ 單字卡 ============ -->
 <section id="page-vocab" hidden>
   <h2 class="page-title">N5 單字卡</h2>
-  <p class="page-sub">點卡片翻面看中文意思,用「唸給我聽」練發音。</p>
+  <p class="page-sub">點卡片翻面看中文意思,左右滑動換卡片,用「唸給我聽」練發音。</p>
   <div class="subtabs" id="vocabCatTabs"></div>
   <div class="flashcard-wrap">
     <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="翻面看意思">
@@ -589,7 +607,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.3.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.4.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -781,6 +799,9 @@ setInterval(function(){
 
 /* ===== 可愛特效:音效・星星彩花・櫻花飄落 ===== */
 function sfx(type){
+  try{
+    if(navigator.vibrate) navigator.vibrate(type==="bad" ? 40 : type==="great" ? [15,50,15,50,15] : 12);
+  }catch(e){}
   try{
     const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
     if(!window.__ac) window.__ac = new AC();
@@ -1071,6 +1092,22 @@ document.getElementById("fcPrev").addEventListener("click", ()=>{
 document.getElementById("fcNext").addEventListener("click", ()=>{
   const n = VOCAB[vocabCat].length; fcIdx = (fcIdx+1)%n; renderFlashcard();
 });
+let fcTouchX = null, fcTouchY = null;
+fcEl.addEventListener("touchstart", e=>{
+  fcTouchX = e.touches[0].clientX; fcTouchY = e.touches[0].clientY;
+}, {passive:true});
+fcEl.addEventListener("touchend", e=>{
+  if(fcTouchX===null) return;
+  const dx = e.changedTouches[0].clientX - fcTouchX;
+  const dy = e.changedTouches[0].clientY - fcTouchY;
+  fcTouchX = null;
+  if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)*1.5){
+    const n = VOCAB[vocabCat].length;
+    fcIdx = dx < 0 ? (fcIdx+1)%n : (fcIdx-1+n)%n;
+    renderFlashcard();
+    try{ if(navigator.vibrate) navigator.vibrate(8); }catch(err){}
+  }
+}, {passive:true});
 
 /* ================= 文法 ================= */
 const gList = document.getElementById("grammarList");
