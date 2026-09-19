@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.6.2 — 發音全面校正+稽核閘門 ===== */
+/* ===== Build v2.7.0 — 会話道場(情境對話) ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -353,6 +353,24 @@ header, nav, main, footer, .tabbar{position:relative; z-index:1;}
 .quiz-opts button.wrong{animation:shake .3s ease;}
 @keyframes badge-pop{0%{transform:scale(.4); opacity:0;}70%{transform:scale(1.12);}100%{transform:scale(1); opacity:1;}}
 .lvl-emoji, .lvl-badge{animation:badge-pop .5s ease;}
+/* ===== 会話道場 ===== */
+.dojo-chat{background:var(--surface); border:2px solid var(--line); border-radius:20px; box-shadow:0 4px 0 var(--card-shadow); padding:14px; min-height:220px; margin-bottom:14px; display:flex; flex-direction:column; gap:10px;}
+.bub{max-width:86%; border-radius:16px; padding:10px 13px; font-weight:700; line-height:1.55; animation:pop-in .25s ease;}
+.bub .jp{font-size:1.02rem;}
+.bub .zh{font-size:.78rem; color:var(--ink2); margin-top:2px;}
+.bub .ro{font-size:.72rem; color:var(--ink2); opacity:.85;}
+.bub.bot{align-self:flex-start; background:var(--surface2); border:2px solid var(--line);}
+.bub.user{align-self:flex-end; background:var(--pink-soft); border:2px solid var(--pink);}
+.bub .re-speak{border:none; background:none; font-size:.95rem; padding:0 2px; vertical-align:middle;}
+.dojo-choices{display:flex; flex-direction:column; gap:9px;}
+.dojo-choices button{
+  border:2px solid var(--line); background:var(--surface); color:var(--ink);
+  border-radius:16px; padding:11px 13px; text-align:left; font-weight:700;
+  box-shadow:0 3px 0 var(--card-shadow);
+}
+.dojo-choices button:active{transform:translateY(2px); box-shadow:none;}
+.dojo-choices button small{display:block; color:var(--ink2); font-size:.74rem; font-weight:700;}
+.b-dojo{grid-column:span 6; background:var(--butter-soft)!important; border-color:var(--butter)!important;}
 footer{
   text-align:center; color:var(--ink2); font-size:.78rem; padding:20px 10px 30px; font-weight:700;
 }
@@ -413,6 +431,7 @@ footer{
   <button data-page="vocabquiz">單字測驗</button>
   <button data-page="grammar">文法</button>
   <button data-page="phrases">旅遊會話</button>
+  <button data-page="dojo">会話道場</button>
   <button data-page="game">配對遊戲</button>
   <button data-page="level">程度檢定</button>
   <button data-page="progress">我的進度</button>
@@ -463,6 +482,11 @@ footer{
       <span class="b-title">🏅 日語程度檢定</span>
       <span class="b-desc">20 題綜合測驗:假名・單字・文法・會話,測出你現在的程度</span>
       <span class="b-glyph">検</span>
+    </button>
+    <button class="b-dojo" data-go="dojo">
+      <span class="b-title">🗣️ 会話道場</span>
+      <span class="b-desc">和 AI 角色實戰對話:餐廳點餐・飯店入住・迷路問路,每一句都有真人語音</span>
+      <span class="b-glyph">話</span>
     </button>
   </div>
   <p class="home-tip">小提示:發音和音效走「媒體音量」,靜音模式也能播放,大小聲用音量鍵調整。iPhone 的發音使用線上真人語音(需要網路);其他裝置使用內建語音。</p>
@@ -554,6 +578,15 @@ footer{
   <div id="phraseList"></div>
 </section>
 
+<!-- ============ 会話道場 ============ -->
+<section id="page-dojo" hidden>
+  <h2 class="page-title">会話道場</h2>
+  <p class="page-sub">選一個情境,和 AI 角色一來一往練對話。角色說的每一句都會唸給你聽,你從選項選台詞回應。</p>
+  <div class="subtabs" id="dojoTabs"></div>
+  <div class="dojo-chat" id="dojoChat"></div>
+  <div class="dojo-choices" id="dojoChoices"></div>
+</section>
+
 <!-- ============ 配對遊戲 ============ -->
 <section id="page-game" hidden>
   <h2 class="page-title">假名配對遊戲</h2>
@@ -611,7 +644,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.6.2・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.7.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -774,7 +807,7 @@ function renderStreak(){
 function isMastered(kana){ return (store.mastery[kana]||0) >= 3; }
 
 /* ===== 使用紀錄(隨時記錄,存在使用者自己的瀏覽器) ===== */
-const EV_LABEL = {open:"開啟 App", page:"切換頁面", kana:"點五十音", speak:"聽發音", card:"翻單字卡", quiz_done:"完成測驗", grammar:"研讀文法", match_done:"完成配對", level_done:"完成程度檢定"};
+const EV_LABEL = {open:"開啟 App", page:"切換頁面", kana:"點五十音", speak:"聽發音", card:"翻單字卡", quiz_done:"完成測驗", grammar:"研讀文法", match_done:"完成配對", level_done:"完成程度檢定", dojo_done:"完成情境對話"};
 function logEvent(e, d){
   try{
     if(!store.daily) store.daily = {};
@@ -1022,7 +1055,7 @@ document.addEventListener("visibilitychange", function(){
 });
 
 /* ================= 導覽 ================= */
-const pages = ["home","kana","kanaquiz","vocab","vocabquiz","grammar","phrases","game","level","progress"];
+const pages = ["home","kana","kanaquiz","vocab","vocabquiz","grammar","phrases","dojo","game","level","progress"];
 function goPage(name){
   pages.forEach(p=>{
     document.getElementById("page-"+p).hidden = (p!==name);
@@ -1030,7 +1063,7 @@ function goPage(name){
   document.querySelectorAll("#mainNav button").forEach(b=>{
     b.classList.toggle("active", b.dataset.page===name);
   });
-  const TAB_MAP = {home:"home",kana:"kana",kanaquiz:"kana",vocab:"vocab",vocabquiz:"vocab",grammar:"home",phrases:"phrases",game:"home",level:"home",progress:"progress"};
+  const TAB_MAP = {home:"home",kana:"kana",kanaquiz:"kana",vocab:"vocab",vocabquiz:"vocab",grammar:"home",phrases:"phrases",game:"home",level:"home",dojo:"phrases",progress:"progress"};
   document.querySelectorAll("#tabBar button").forEach(b=>{
     b.classList.toggle("active", b.dataset.page===TAB_MAP[name]);
   });
@@ -1040,6 +1073,7 @@ function goPage(name){
   if(name==="vocabquiz") renderVocabQuizSetup();
   if(name==="progress") renderProgress();
   if(name==="level") renderLevelSetup();
+  if(name==="dojo") initDojo();
   if(name==="game" && !matchState.started) newMatchGame();
   logEvent("page", name);
   const sec = document.getElementById("page-"+name);
@@ -1305,6 +1339,111 @@ function renderPhrases(){
 }
 renderPhrases();
 
+/* ================= 会話道場 ================= */
+/* 每句格式:["日文","romaji","中文"]——CI 會自動為所有句子合成語音並稽核發音 */
+const DOJO = [
+ {t:"🍜 餐廳點餐", s:[
+  {b:["いらっしゃいませ!何名様ですか?","irasshaimase! nanmeisama desu ka","歡迎光臨!請問幾位?"],
+   c:[[["一人です","hitori desu","一位"],1],[["二人です","futari desu","兩位"],1]]},
+  {b:["こちらへどうぞ。メニューです。","kochira e douzo. menyuu desu","這邊請,這是菜單。"],
+   c:[[["おすすめは何ですか","osusume wa nan desu ka","有什麼推薦的?"],2],[["これをください","kore o kudasai","請給我這個"],3]]},
+  {b:["ラーメンがおすすめです。","raamen ga osusume desu","我們的拉麵很推薦喔。"],
+   c:[[["それをください","sore o kudasai","那就給我那個"],3]]},
+  {b:["かしこまりました。少々お待ちください。","kashikomarimashita. shoushou omachi kudasai","好的,請稍等一下。"],
+   c:[[["お会計お願いします","okaikei onegai shimasu","(用餐後)請幫我結帳"],4]]},
+  {b:["ありがとうございました!またどうぞ!","arigatou gozaimashita! mata douzo","謝謝光臨!歡迎再來!"], c:[]}
+ ]},
+ {t:"🏨 飯店入住", s:[
+  {b:["いらっしゃいませ。ご予約はありますか?","irasshaimase. goyoyaku wa arimasu ka","歡迎光臨。請問有預約嗎?"],
+   c:[[["予約しています","yoyaku shite imasu","我有預約"],1],[["予約していません","yoyaku shite imasen","我沒有預約"],2]]},
+  {b:["お名前をお願いします。","onamae o onegai shimasu","請告訴我您的大名。"],
+   c:[[["はい、お願いします","hai, onegai shimasu","好的,麻煩了"],3]]},
+  {b:["空室がございます。ご安心ください。","kuushitsu ga gozaimasu. goanshin kudasai","還有空房,請放心。"],
+   c:[[["チェックインお願いします","chekku in onegai shimasu","我要辦入住"],3]]},
+  {b:["お部屋は五階です。","oheya wa gokai desu","您的房間在五樓。"],
+   c:[[["Wi-Fiのパスワードは何ですか","waifai no pasuwaado wa nan desu ka","Wi-Fi 密碼是什麼?"],4],[["朝食は何時からですか","choushoku wa nanji kara desu ka","早餐幾點開始?"],5]]},
+  {b:["こちらに書いてあります。","kochira ni kaite arimasu","寫在這張卡片上。"],
+   c:[[["ありがとうございます","arigatou gozaimasu","謝謝"],6]]},
+  {b:["朝食は七時からです。","choushoku wa shichiji kara desu","早餐七點開始供應。"],
+   c:[[["ありがとうございます","arigatou gozaimasu","謝謝"],6]]},
+  {b:["ごゆっくりどうぞ!","goyukkuri douzo","請好好休息!"], c:[]}
+ ]},
+ {t:"🗺️ 迷路問路", s:[
+  {b:["はい、何でしょうか?","hai, nan deshou ka","(路人)是的,有什麼事嗎?"],
+   c:[[["駅はどこですか","eki wa doko desu ka","車站在哪裡?"],1],[["道に迷いました","michi ni mayoimashita","我迷路了"],2]]},
+  {b:["駅はあそこです。まっすぐ行ってください。","eki wa asoko desu. massugu itte kudasai","車站在那邊,直走就到了。"],
+   c:[[["ありがとうございます","arigatou gozaimasu","謝謝"],4],[["もう一度お願いします","mou ichido onegai shimasu","請再說一次"],3]]},
+  {b:["大丈夫ですよ。どこに行きますか?","daijoubu desu yo. doko ni ikimasu ka","沒關係喔。你要去哪裡?"],
+   c:[[["駅はどこですか","eki wa doko desu ka","車站在哪裡?"],1]]},
+  {b:["まっすぐです。あそこですよ。","massugu desu. asoko desu yo","直走,就在那邊喔。"],
+   c:[[["ありがとうございます","arigatou gozaimasu","謝謝"],4]]},
+  {b:["どういたしまして!気をつけて!","dou itashimashite! ki o tsukete","不客氣!路上小心!"], c:[]}
+ ]}
+];
+let dojoScene = 0;
+const dojoTabsEl = document.getElementById("dojoTabs");
+DOJO.forEach((sc,i)=>{
+  const b = document.createElement("button");
+  b.textContent = sc.t; b.dataset.dojo = i;
+  if(i===0) b.classList.add("active");
+  dojoTabsEl.appendChild(b);
+});
+dojoTabsEl.addEventListener("click", e=>{
+  const b = e.target.closest("button[data-dojo]"); if(!b) return;
+  dojoScene = +b.dataset.dojo;
+  dojoTabsEl.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
+  startDojo();
+});
+function dojoBubble(kind, line){
+  const chat = document.getElementById("dojoChat");
+  const d = document.createElement("div");
+  d.className = "bub " + kind;
+  d.innerHTML = '<div class="jp">' + line[0] + ' <button class="re-speak">🔊</button></div>' +
+    '<div class="ro">' + line[1] + '</div><div class="zh">' + line[2] + '</div>';
+  d.querySelector(".re-speak").addEventListener("click", ()=>{ speak(line[0]); logEvent("speak", line[0]); });
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+function dojoStep(idx){
+  const sc = DOJO[dojoScene];
+  const st = sc.s[idx];
+  dojoBubble("bot", st.b);
+  setTimeout(()=>{ speak(st.b[0]); }, 350);
+  const box = document.getElementById("dojoChoices");
+  box.innerHTML = "";
+  if(!st.c.length){
+    const done = document.createElement("button");
+    done.innerHTML = "🎉 對話完成!再練一次<small>タップしてもう一回</small>";
+    done.addEventListener("click", ()=>{ sfx("great"); startDojo(); });
+    box.appendChild(done);
+    touchStreak(); logEvent("dojo_done", sc.t);
+    sfx("good");
+    return;
+  }
+  st.c.forEach(ch=>{
+    const b = document.createElement("button");
+    b.innerHTML = ch[0][0] + "<small>" + ch[0][2] + "・" + ch[0][1] + "</small>";
+    b.addEventListener("click", ()=>{
+      dojoBubble("user", ch[0]);
+      speak(ch[0][0]); touchStreak(); logEvent("speak", ch[0][0]);
+      box.innerHTML = "";
+      setTimeout(()=>{ dojoStep(ch[1]); }, 1300);
+    });
+    box.appendChild(b);
+  });
+}
+function startDojo(){
+  document.getElementById("dojoChat").innerHTML = "";
+  dojoStep(0);
+}
+let dojoStarted = false;
+function initDojo(){
+  if(dojoStarted) return;
+  dojoStarted = true;
+  startDojo();
+}
+
 /* ================= 配對遊戲 ================= */
 let matchState = {started:false, first:null, lock:false, moves:0, pairs:0, type:"hira"};
 document.getElementById("gameTypeTabs").addEventListener("click", e=>{
@@ -1524,7 +1663,7 @@ function renderProgress(){
   chart.innerHTML = bars;
   const totals = {};
   Object.keys(daily).forEach(k=>{ const n=daily[k].n||{}; Object.keys(n).forEach(e=>{ totals[e]=(totals[e]||0)+n[e]; }); });
-  const order = ["open","page","kana","speak","card","quiz_done","grammar","match_done","level_done"];
+  const order = ["open","page","kana","speak","card","quiz_done","grammar","match_done","level_done","dojo_done"];
   document.getElementById("usageGrid").innerHTML = order.map(e=>'<div><b>'+(totals[e]||0)+'</b>'+EV_LABEL[e]+'</div>').join("");
   const el = document.getElementById("eventList");
   if(!(store.events||[]).length){

@@ -44,6 +44,10 @@ jobs:
           pb = s.split("const PHRASES = {")[1].split("};")[0]
           for jp, ro in re.findall(r'\["([^"]+)","([^"]+)","[^"]*"\]', pb):
               texts.add(jp); ro_map[jp] = ro
+          if "const DOJO = [" in s:
+              db = s.split("const DOJO = [")[1].split("\n];")[0]
+              for jp, ro in re.findall(r'\["([^"]+)","([^"]+)","[^"]*"\]', db):
+                  texts.add(jp); ro_map[jp] = ro
           texts.add("こんにちは")
           texts = sorted(texts)
           VOICE = "/tmp/htsvoice-tohoku-f01-master/tohoku-f01-neutral.htsvoice"
@@ -93,7 +97,7 @@ jobs:
                   out.append(p)
               return out
           KEEP = {"こんにちは": "konnichiwa", "こんばんは": "konbanwa"}
-          SENT_FIX = [("何ですか", "なんですか")]
+          SENT_FIX = [("何ですか", "なんですか"), ("何でしょうか", "なんでしょうか")]
           plan = []
           for t in texts:
               if t in KEEP: plan.append((t, t, romaji_to_ph(KEEP[t])))
