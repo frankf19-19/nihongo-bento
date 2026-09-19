@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.2.0 — 使用紀錄 + 程度檢定 ===== */
+/* ===== Build v2.3.0 — 動畫特效・音效・吉祥物 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -333,6 +333,24 @@ p.page-sub{color:var(--ink2); margin:2px 0 20px; font-size:.93rem;}
 .lvl-row .fill{display:block; height:100%; background:var(--pink); border-radius:999px;}
 .lvl-row .val{width:38px; text-align:right; color:var(--ink2);}
 .b-level{grid-column:span 6; background:var(--sky-soft)!important; border-color:var(--sky)!important;}
+/* ===== 動態可愛特效 ===== */
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-4px) rotate(5deg);}}
+.bento-icon{display:inline-block; animation:bob 2.6s ease-in-out infinite;}
+@keyframes flame{0%,100%{transform:scale(1);}50%{transform:scale(1.3) rotate(-8deg);}}
+.streak-pill .flame{display:inline-block; animation:flame 1.5s ease-in-out infinite;}
+@keyframes pop-in{0%{opacity:0; transform:translateY(14px) scale(.985);}100%{opacity:1; transform:none;}}
+section.page-enter{animation:pop-in .3s ease;}
+@keyframes rise{0%{opacity:1; transform:translate(0,0) scale(.6) rotate(0);}100%{opacity:0; transform:translate(var(--dx), var(--dy)) scale(1.35) rotate(50deg);}}
+.burst{position:fixed; pointer-events:none; z-index:99; font-size:1.4rem; animation:rise .9s ease-out forwards;}
+@keyframes fall{0%{transform:translateY(-6vh) translateX(0) rotate(0);}100%{transform:translateY(110vh) translateX(7vw) rotate(320deg);}}
+.petal{position:fixed; top:-30px; z-index:0; pointer-events:none; opacity:.45; animation:fall linear infinite;}
+header, nav, main, footer, .tabbar{position:relative; z-index:1;}
+@keyframes match-pop{0%{transform:scale(.8);}55%{transform:scale(1.16);}100%{transform:scale(1);}}
+.match-card.matched{animation:match-pop .4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+.quiz-opts button.wrong{animation:shake .3s ease;}
+@keyframes badge-pop{0%{transform:scale(.4); opacity:0;}70%{transform:scale(1.12);}100%{transform:scale(1); opacity:1;}}
+.lvl-emoji, .lvl-badge{animation:badge-pop .5s ease;}
 footer{
   text-align:center; color:var(--ink2); font-size:.78rem; padding:20px 10px 30px; font-weight:700;
 }
@@ -365,7 +383,7 @@ footer{
 </head>
 <body>
 <header>
-  <div class="logo">🍱 日語便當<small>NIHONGO BENTO・互動日文學習</small></div>
+  <div class="logo"><span class="bento-icon">🍱</span> 日語便當<small>NIHONGO BENTO・互動日文學習</small></div>
   <div class="streak-pill" id="streakPill">🔥 連續 0 天</div>
 </header>
 
@@ -571,7 +589,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.2.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.3.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -729,7 +747,7 @@ function touchStreak(){
   saveStore(); renderStreak();
 }
 function renderStreak(){
-  document.getElementById("streakPill").textContent = "🔥 連續 " + (store.streak||0) + " 天";
+  document.getElementById("streakPill").innerHTML = '<span class="flame">🔥</span> 連續 ' + (store.streak||0) + " 天";
 }
 function isMastered(kana){ return (store.mastery[kana]||0) >= 3; }
 
@@ -760,6 +778,59 @@ setInterval(function(){
     saveStore();
   }catch(err){}
 }, 10000);
+
+/* ===== 可愛特效:音效・星星彩花・櫻花飄落 ===== */
+function sfx(type){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+    if(!window.__ac) window.__ac = new AC();
+    const ac = window.__ac, t = ac.currentTime;
+    const notes = type==="great" ? [[660,0],[880,.09],[1174,.18]] : type==="good" ? [[660,0],[880,.09]] : [[220,0],[175,.12]];
+    notes.forEach(function(nt){
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = nt[0];
+      g.gain.setValueAtTime(.001, t+nt[1]);
+      g.gain.exponentialRampToValueAtTime(.1, t+nt[1]+.02);
+      g.gain.exponentialRampToValueAtTime(.001, t+nt[1]+.22);
+      o.connect(g); g.connect(ac.destination);
+      o.start(t+nt[1]); o.stop(t+nt[1]+.25);
+    });
+  }catch(e){}
+}
+function burst(x, y, big){
+  try{
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const em = ["🌸","✨","⭐","🍡","💮","🎀"];
+    const n = big ? 18 : 8;
+    for(let i=0;i<n;i++){
+      const sp = document.createElement("span");
+      sp.className = "burst"; sp.textContent = em[Math.floor(Math.random()*em.length)];
+      sp.style.left = x+"px"; sp.style.top = y+"px";
+      sp.style.setProperty("--dx", (Math.random()*180-90)+"px");
+      sp.style.setProperty("--dy", (-(Math.random()*130+50))+"px");
+      document.body.appendChild(sp);
+      setTimeout(function(){ sp.remove(); }, 950);
+    }
+  }catch(e){}
+}
+const GOOD_MSG = ["やった〜!答對了!","すごい!好厲害!","ピンポン!正解!","太神啦,就是這個!","完全掌握了!"];
+const BAD_MSG = ["惜しい〜差一點!","沒關係,記住它!","下次一定!","あれれ?再想想~"];
+function pickMsg(a){ return a[Math.floor(Math.random()*a.length)]; }
+(function(){
+  try{
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const em = ["🌸","🌸","💮","🍡"];
+    for(let i=0;i<6;i++){
+      const p = document.createElement("span");
+      p.className = "petal"; p.textContent = em[i%em.length];
+      p.style.left = (5+Math.random()*90)+"vw";
+      p.style.animationDuration = (9+Math.random()*8)+"s";
+      p.style.animationDelay = (-Math.random()*12)+"s";
+      p.style.fontSize = (.8+Math.random()*.6)+"rem";
+      document.body.appendChild(p);
+    }
+  }catch(e){}
+})();
 
 /* ================= 發音 ================= */
 function speak(text){
@@ -796,6 +867,8 @@ function goPage(name){
   if(name==="level") renderLevelSetup();
   if(name==="game" && !matchState.started) newMatchGame();
   logEvent("page", name);
+  const sec = document.getElementById("page-"+name);
+  sec.classList.remove("page-enter"); void sec.offsetWidth; sec.classList.add("page-enter");
   window.scrollTo({top:0});
 }
 document.getElementById("mainNav").addEventListener("click", e=>{
@@ -868,11 +941,14 @@ function makeQuiz(box, pool, qKey, optKey, opts){
         const right = c[optKey]===q[optKey];
         if(right){
           b.classList.add("correct"); score++;
-          fb.textContent = "答對了!"; fb.className = "quiz-fb good";
+          const rc = b.getBoundingClientRect();
+          burst(rc.left+rc.width/2, rc.top); sfx("good");
+          fb.textContent = pickMsg(GOOD_MSG); fb.className = "quiz-fb good";
         }else{
           b.classList.add("wrong");
           optBox.querySelectorAll("button").forEach(x=>{ if(x.textContent===q[optKey]) x.classList.add("correct"); });
-          fb.textContent = "正確答案是「"+q[optKey]+"」"; fb.className = "quiz-fb bad";
+          sfx("bad");
+          fb.textContent = pickMsg(BAD_MSG) + " 正解是「"+q[optKey]+"」"; fb.className = "quiz-fb bad";
         }
         if(opts.onAnswer) opts.onAnswer(q, right);
         if(opts.speakOn) speak(q[opts.speakOn]);
@@ -888,6 +964,8 @@ function makeQuiz(box, pool, qKey, optKey, opts){
     logEvent("quiz_done", opts.label + " " + score + "/10");
     store.history = store.history.slice(0,30);
     saveStore();
+    sfx(score>=7 ? "great" : "good");
+    if(score>=9) burst(window.innerWidth/2, window.innerHeight/3, true);
     let msg = score>=9 ? "太強了!根本是日語職人 🍣" : score>=7 ? "很不錯,再吃幾格便當就滿分了!" : score>=4 ? "有進步空間,多翻幾次五十音表吧!" : "沒關係,慢慢來,便當每天都在 🍱";
     box.innerHTML =
       '<div class="quiz-meta"><span>'+opts.label+'</span><span>完成</span></div>' +
@@ -1078,12 +1156,15 @@ function flipMatch(btn, card){
   const f = matchState.first; matchState.first = null;
   if(f.card.id === card.id && f.btn !== btn){
     f.btn.classList.add("matched"); btn.classList.add("matched");
+    const rc = btn.getBoundingClientRect();
+    burst(rc.left+rc.width/2, rc.top); sfx("good");
     matchState.pairs++; updateMatchInfo();
     if(matchState.pairs===8){
       touchStreak();
       const done = document.getElementById("matchDone");
       done.hidden = false;
       done.textContent = "全部配對完成!共用了 " + matchState.moves + " 步 🎉";
+      sfx("great"); burst(window.innerWidth/2, window.innerHeight/3, true);
       logEvent("match_done", matchState.moves + " 步");
     }
   }else{
@@ -1182,11 +1263,14 @@ function runLevelTest(){
         if(right){
           b.classList.add("correct"); score++;
           catRight[q.cat]=(catRight[q.cat]||0)+1;
-          fb.textContent = "答對了!"; fb.className = "quiz-fb good";
+          const rc = b.getBoundingClientRect();
+          burst(rc.left+rc.width/2, rc.top); sfx("good");
+          fb.textContent = pickMsg(GOOD_MSG); fb.className = "quiz-fb good";
         }else{
           b.classList.add("wrong");
           optBox.querySelectorAll("button").forEach(x=>{ if(x.textContent===q.ans) x.classList.add("correct"); });
-          fb.textContent = "正確答案是「"+q.ans+"」"; fb.className = "quiz-fb bad";
+          sfx("bad");
+          fb.textContent = pickMsg(BAD_MSG) + " 正解是「"+q.ans+"」"; fb.className = "quiz-fb bad";
         }
         if(q.speak) speak(q.speak);
         setTimeout(()=>{ idx++; idx<qs.length ? renderQ() : renderEnd(); }, 1100);
@@ -1197,6 +1281,8 @@ function runLevelTest(){
   function renderEnd(){
     touchStreak();
     const rank = levelRank(score);
+    sfx(score>=12 ? "great" : "good");
+    if(score>=15) burst(window.innerWidth/2, window.innerHeight/3, true);
     store.level = {score:score, label:rank.label, date:todayStr()};
     saveStore();
     logEvent("level_done", rank.label + " " + score + "/20");
