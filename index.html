@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.7.6 — 語音對話 ===== */
+/* ===== Build v2.7.7 — 漢字顯示開關 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -533,6 +533,7 @@ footer{
   <h2 class="page-title">N5 單字卡</h2>
   <p class="page-sub">點卡片翻面看中文意思,左右滑動換卡片,用「唸給我聽」練發音。</p>
   <div class="subtabs" id="vocabCatTabs"></div>
+  <div style="text-align:center; margin:-4px 0 12px;"><button class="toggle-romaji kanji-toggle" type="button">顯示漢字:開</button></div>
   <div class="flashcard-wrap">
     <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="翻面看意思">
       <div class="inner">
@@ -654,7 +655,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.7.6・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.7.7・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -1297,15 +1298,32 @@ function renderKanaQuizSetup(){
   });
 }
 
+/* ---- 漢字顯示開關(單字卡/單字測驗/程度檢定共用,設定會記住) ---- */
+function kanjiOn(){ return store.kanjiOn !== false; }
+function setKanjiToggleUI(){
+  document.querySelectorAll(".kanji-toggle").forEach(function(b){
+    b.classList.toggle("on", kanjiOn());
+    b.textContent = kanjiOn() ? "顯示漢字:開" : "顯示漢字:關";
+  });
+}
+document.addEventListener("click", function(e){
+  const b = e.target.closest(".kanji-toggle"); if(!b) return;
+  store.kanjiOn = !kanjiOn(); saveStore();
+  setKanjiToggleUI();
+  try{ renderFlashcard(); }catch(err){}
+  logEvent("page", kanjiOn() ? "開啟漢字" : "隱藏漢字");
+});
+
 /* ---- 單字測驗 ---- */
 function vocabPool(){
   const pool = [];
-  Object.values(VOCAB).forEach(list=>list.forEach(w=>pool.push({jp:w[1]+"("+w[0]+")", zh:w[3], kana:w[0]})));
+  Object.values(VOCAB).forEach(list=>list.forEach(w=>pool.push({jp: kanjiOn() ? (w[1]+"("+w[0]+")") : w[0], zh:w[3], kana:w[0]})));
   return pool;
 }
 function renderVocabQuizSetup(){
   const box = document.getElementById("vocabQuizBox");
-  box.innerHTML = '<div class="quiz-setup"><p style="font-weight:700; margin-bottom:6px;">共 '+vocabPool().length+' 個單字隨機出題,每次 10 題。</p><button class="big-btn" id="vqStart">開始測驗</button></div>';
+  box.innerHTML = '<div class="quiz-setup"><p style="font-weight:700; margin-bottom:6px;">共 '+vocabPool().length+' 個單字隨機出題,每次 10 題。</p><div style="margin-bottom:12px;"><button class="toggle-romaji kanji-toggle" type="button">顯示漢字:開</button></div><button class="big-btn" id="vqStart">開始測驗</button></div>';
+  setKanjiToggleUI();
   box.querySelector("#vqStart").addEventListener("click", ()=>{
     makeQuiz(box, vocabPool(), "jp", "zh", {
       label:"單字測驗", smallQ:true, speakStart:"kana",
@@ -1334,10 +1352,10 @@ function renderFlashcard(){
   const list = VOCAB[vocabCat];
   const w = list[fcIdx];
   fcEl.classList.remove("flipped");
-  document.getElementById("fcFrontMain").textContent = w[1];
-  document.getElementById("fcFrontSub").textContent = w[0] + "・" + w[2];
+  document.getElementById("fcFrontMain").textContent = kanjiOn() ? w[1] : w[0];
+  document.getElementById("fcFrontSub").textContent = kanjiOn() ? (w[0] + "・" + w[2]) : w[2];
   document.getElementById("fcBackMain").textContent = w[3];
-  document.getElementById("fcBackSub").textContent = w[1] + "(" + w[0] + ")";
+  document.getElementById("fcBackSub").textContent = kanjiOn() ? (w[1] + "(" + w[0] + ")") : w[0];
   document.getElementById("fcCount").textContent = (fcIdx+1) + " / " + list.length;
 }
 fcEl.addEventListener("click", e=>{
@@ -1917,7 +1935,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.7.6・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.7.7・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
@@ -1938,6 +1956,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
 
 /* ================= 初始化 ================= */
 logEvent("open");
+setKanjiToggleUI();
 loadSpriteMap();
 renderStreak();
 renderKanaGrid();
