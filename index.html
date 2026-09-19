@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.7.5 — AI 對話上線 ===== */
+/* ===== Build v2.7.6 — 語音對話 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -371,6 +371,8 @@ header, nav, main, footer, .tabbar{position:relative; z-index:1;}
 .dojo-choices button:active{transform:translateY(2px); box-shadow:none;}
 .dojo-choices button small{display:block; color:var(--ink2); font-size:.74rem; font-weight:700;}
 .b-dojo{grid-column:span 6; background:var(--butter-soft)!important; border-color:var(--butter)!important;}
+#aiMic.listening{background:var(--pink-soft)!important; border-color:var(--pink)!important; animation:mic-pulse 1s ease-in-out infinite;}
+@keyframes mic-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
 footer{
   text-align:center; color:var(--ink2); font-size:.78rem; padding:20px 10px 30px; font-weight:700;
 }
@@ -589,6 +591,10 @@ footer{
     <input id="aiText" type="text" placeholder="打字聊天(中文或日文都可以)" autocomplete="off" style="flex:1; min-width:0; border:2px solid var(--line); border-radius:14px; padding:11px 12px; font-weight:700; font-size:16px; background:var(--surface); color:var(--ink);">
     <button class="big-btn" id="aiSend" style="width:auto; padding:11px 16px; margin:0;">送出</button>
   </div>
+  <div id="aiMicRow" hidden style="display:flex; gap:8px; margin-top:8px;">
+    <button class="big-btn secondary" id="aiMic" style="flex:1; margin:0;">🎤 用說的(日文)</button>
+    <button class="big-btn secondary" id="aiLang" style="width:auto; padding:11px 14px; margin:0;">切換中文</button>
+  </div>
 </section>
 
 <!-- ============ 配對遊戲 ============ -->
@@ -648,7 +654,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.7.5・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.7.6・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -1466,6 +1472,7 @@ dojoTabsEl.addEventListener("click", e=>{
   dojoTabsEl.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
   if(b.dataset.dojo === "ai"){ startAiChat(); return; }
   document.getElementById("aiInputRow").hidden = true;
+  document.getElementById("aiMicRow").hidden = true;
   dojoScene = +b.dataset.dojo;
   startDojo();
 });
@@ -1560,10 +1567,12 @@ function startAiChat(){
   const row = document.getElementById("aiInputRow");
   if(!AI_ENDPOINT){
     row.hidden = true;
+    document.getElementById("aiMicRow").hidden = true;
     plainBubble("bot", "🤖 AI 自由對話正在準備中(免費 AI 後端接線中),快好了!先玩旁邊的情境對話吧。");
     return;
   }
   row.hidden = false;
+  document.getElementById("aiMicRow").hidden = !(window.SpeechRecognition || window.webkitSpeechRecognition);
   aiHistory = [];
   aiReplyBubble("こんにちは!今日は何を話しますか?\nkonnichiwa! kyou wa nani o hanashimasu ka?\n你好!今天想聊什麼呢?");
   aiHistory.push({role:"assistant", content:"こんにちは!今日は何を話しますか?"});
@@ -1597,6 +1606,48 @@ async function aiSendMsg(){
 }
 document.getElementById("aiSend").addEventListener("click", aiSendMsg);
 document.getElementById("aiText").addEventListener("keydown", function(e){ if(e.key === "Enter") aiSendMsg(); });
+
+/* ---- 語音輸入:按 🎤 說話 → 自動辨識 → 自動送給 AI(瀏覽器內建辨識,免費) ---- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recLang = "ja-JP", recognizing = false, recObj = null;
+const micBtn = document.getElementById("aiMic");
+const langBtn = document.getElementById("aiLang");
+function micIdleLabel(){ micBtn.textContent = "🎤 用說的(" + (recLang === "ja-JP" ? "日文" : "中文") + ")"; }
+langBtn.addEventListener("click", function(){
+  recLang = (recLang === "ja-JP") ? "zh-TW" : "ja-JP";
+  langBtn.textContent = (recLang === "ja-JP") ? "切換中文" : "切換日文";
+  micIdleLabel();
+});
+micBtn.addEventListener("click", function(){
+  if(!SR){ plainBubble("bot", "這個瀏覽器不支援語音輸入,請改用打字(iPhone 請用 Safari 開啟)。"); return; }
+  if(recognizing){ try{ recObj.stop(); }catch(e){} return; }
+  /* 開始聆聽前先停掉正在播的語音,避免被麥克風收進去 */
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  if(spriteNode){ try{ spriteNode.stop(); }catch(e){} }
+  const r = new SR();
+  recObj = r;
+  r.lang = recLang; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+  const inp = document.getElementById("aiText");
+  recognizing = true;
+  micBtn.classList.add("listening");
+  micBtn.textContent = "🔴 聆聽中…說完再點一下";
+  r.onresult = function(e){
+    let t = "";
+    for(let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+    inp.value = t;
+  };
+  r.onerror = function(e){
+    recognizing = false; micBtn.classList.remove("listening"); micIdleLabel();
+    if(e.error === "not-allowed" || e.error === "service-not-allowed"){
+      plainBubble("bot", "需要麥克風權限才能語音對話——請在瀏覽器詢問時按「允許」。");
+    }
+  };
+  r.onend = function(){
+    recognizing = false; micBtn.classList.remove("listening"); micIdleLabel();
+    if(inp.value.trim()) aiSendMsg();
+  };
+  try{ r.start(); }catch(e){ recognizing = false; micBtn.classList.remove("listening"); micIdleLabel(); }
+});
 
 /* ================= 配對遊戲 ================= */
 let matchState = {started:false, first:null, lock:false, moves:0, pairs:0, type:"hira"};
@@ -1866,7 +1917,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.7.5・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.7.6・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
