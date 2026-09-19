@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.7.4 — 假名放慢 + AI 自由對話 ===== */
+/* ===== Build v2.7.5 — AI 對話上線 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -648,7 +648,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.7.4・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.7.5・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -1520,7 +1520,7 @@ function initDojo(){
 }
 
 /* ---- AI 自由對話 ---- */
-const AI_ENDPOINT = ""; /* Cloudflare Worker 網址,後端部署後填入 */
+const AI_ENDPOINT = "https://nihongo-ai.frankccc199.workers.dev"; /* Cloudflare Workers AI 後端 */
 let aiHistory = [], aiBusy = false;
 function plainBubble(kind, text, speakText){
   const chat = document.getElementById("dojoChat");
@@ -1866,7 +1866,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.7.4・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.7.5・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
