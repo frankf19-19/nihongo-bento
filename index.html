@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.7.2 — 取樣精準播放(Web Audio) ===== */
+/* ===== Build v2.7.3 — 精準引擎加固 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -644,7 +644,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.7.2・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.7.3・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -959,7 +959,25 @@ function loadSpriteBuffer(){
       return new Promise(function(res, rej){ window.__ac.decodeAudioData(ab, res, rej); });
     })
     .then(function(buf){ spriteBuf = buf; spriteLoading = false; })
-    .catch(function(){ spriteLoading = false; });
+    .catch(function(){
+      spriteLoading = false;
+      /* 首次載入偶發失敗(如 SW 交接瞬間):稍後自動重試一次 */
+      if(!window.__bufRetry){ window.__bufRetry = true; setTimeout(loadSpriteBuffer, 4000); }
+    });
+}
+/* 用 Web Audio 精準播放一段;成功回 true */
+function playViaBuffer(seg){
+  if(!spriteBuf || !window.__ac) return false;
+  try{
+    if(window.__ac.state === "suspended") window.__ac.resume();
+    if(spriteNode){ try{ spriteNode.stop(); }catch(e2){} }
+    const node = window.__ac.createBufferSource();
+    node.buffer = spriteBuf;
+    node.connect(window.__ac.destination);
+    node.start(0, seg[0] / 1000, seg[1] / 1000 + 0.05);
+    spriteNode = node;
+    return true;
+  }catch(e3){ return false; }
 }
 function speakViaSprite(text){
   return new Promise(function(resolve, reject){
@@ -967,21 +985,25 @@ function speakViaSprite(text){
       if(!spriteMap || !spriteMap[text]) return reject(new Error("無此語音"));
       const seg = spriteMap[text];
       /* 首選:Web Audio 取樣精準播放 */
-      if(spriteBuf && window.__ac){
-        try{
-          if(window.__ac.state === "suspended") window.__ac.resume();
-          if(spriteNode){ try{ spriteNode.stop(); }catch(e2){} }
-          const node = window.__ac.createBufferSource();
-          node.buffer = spriteBuf;
-          node.connect(window.__ac.destination);
-          node.start(0, seg[0] / 1000, seg[1] / 1000 + 0.05);
-          spriteNode = node;
-          resolve();
-          return;
-        }catch(e3){}
-      }
+      if(playViaBuffer(seg)){ resolve(); return; }
       if(!spriteBuf) loadSpriteBuffer();
-      /* 備援:audio 元素跳段播放 */
+      if(IS_IOS){
+        /* iPhone 的元素跳段不可靠,寧可等解碼完成再用精準引擎播(最多 6 秒) */
+        let waited = 0;
+        const iv = setInterval(function(){
+          waited += 250;
+          if(spriteBuf){
+            clearInterval(iv);
+            if(playViaBuffer(seg)) resolve();
+            else reject(new Error("引擎啟動失敗"));
+          }else if(waited >= 6000){
+            clearInterval(iv);
+            reject(new Error("音檔載入逾時"));
+          }
+        }, 250);
+        return;
+      }
+      /* 非 iPhone 備援:audio 元素跳段播放 */
       const a = ensureSpriteAudio();
       clearTimeout(spriteTimer);
       const go = function(){
@@ -1756,7 +1778,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.7.2・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.7.3・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
