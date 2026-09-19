@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.0.0 — 櫻花糖果風全新介面 ===== */
+/* ===== Build v2.1.0 — 櫻花糖果風 + 使用紀錄 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -143,7 +143,6 @@ p.page-sub{color:var(--ink2); margin:2px 0 20px; font-size:.93rem;}
 .subtabs button.active{border-color:var(--pink-deep); background:var(--pink); color:#fff; box-shadow:0 2px 0 var(--pink-deep);}
 .subtabs button:active{transform:translateY(1px); box-shadow:none;}
 .subtabs button:focus-visible{outline:3px solid var(--butter); outline-offset:2px;}
-
 /* ===== 五十音 ===== */
 .kana-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:9px;}
 .kana-card{
@@ -240,7 +239,6 @@ p.page-sub{color:var(--ink2); margin:2px 0 20px; font-size:.93rem;}
   box-shadow:0 3px 0 var(--card-shadow);
 }
 .speak-btn:active{transform:translateY(2px); box-shadow:none;}
-
 /* ===== 文法 ===== */
 .grammar-item{
   background:var(--surface); border:2px solid var(--line); border-radius:20px;
@@ -317,6 +315,15 @@ p.page-sub{color:var(--ink2); margin:2px 0 20px; font-size:.93rem;}
 .history-list div{padding:10px 0; border-bottom:2px dashed var(--line); font-size:.92rem; display:flex; justify-content:space-between; gap:10px; font-weight:700;}
 .history-list div:last-child{border-bottom:none;}
 .history-empty{color:var(--ink2); text-align:center; padding:18px 0;}
+/* ===== 使用紀錄 ===== */
+.usage-chart{display:flex; align-items:flex-end; gap:8px; height:130px; background:var(--surface); border:2px solid var(--line); border-radius:20px; box-shadow:0 4px 0 var(--card-shadow); padding:14px 14px 10px; margin-bottom:22px;}
+.usage-chart .bar{flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:3px; height:100%;}
+.usage-chart .bar i{display:block; width:68%; background:var(--pink); border-radius:6px 6px 0 0; min-height:3px;}
+.usage-chart .bar b{font-size:.64rem; color:var(--pink-deep);}
+.usage-chart .bar span{font-size:.62rem; color:var(--ink2); font-weight:700;}
+.usage-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:22px;}
+.usage-grid div{background:var(--surface); border:2px solid var(--line); border-radius:14px; box-shadow:0 3px 0 var(--card-shadow); padding:10px 6px; text-align:center; font-weight:700; font-size:.78rem; color:var(--ink2);}
+.usage-grid div b{display:block; font-size:1.2rem; color:var(--ink);}
 footer{
   text-align:center; color:var(--ink2); font-size:.78rem; padding:20px 10px 30px; font-weight:700;
 }
@@ -517,7 +524,14 @@ footer{
     <div class="stat-card"><div class="num" id="stQuizzes">0</div><div class="lbl">完成測驗次數</div></div>
     <div class="stat-card"><div class="num" id="stBest">—</div><div class="lbl">最佳成績</div></div>
     <div class="stat-card"><div class="num" id="stStreak">0</div><div class="lbl">連續學習天數</div></div>
+    <div class="stat-card"><div class="num" id="stTime">0 分</div><div class="lbl">累計學習時間</div></div>
   </div>
+  <h2 class="page-title" style="font-size:1.1rem;">最近 7 天學習時間(分鐘)</h2>
+  <div class="usage-chart" id="usageChart"></div>
+  <h2 class="page-title" style="font-size:1.1rem;">功能使用統計</h2>
+  <div class="usage-grid" id="usageGrid"></div>
+  <h2 class="page-title" style="font-size:1.1rem;">最近活動</h2>
+  <div class="history-list" id="eventList" style="margin-bottom:22px;"></div>
   <h2 class="page-title" style="font-size:1.1rem;">最近 10 次測驗</h2>
   <div class="history-list" id="historyList"></div>
   <div style="max-width:400px; margin:20px auto 0;">
@@ -534,7 +548,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.0.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.1.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -674,7 +688,7 @@ function loadStore(){
     const raw = localStorage.getItem(STORE_KEY);
     if(raw){ const d = JSON.parse(raw); if(d && typeof d==="object") return d; }
   }catch(e){}
-  return {mastery:{}, history:[], streak:0, lastDay:""};
+  return {mastery:{}, history:[], streak:0, lastDay:"", daily:{}, events:[]};
 }
 function saveStore(){
   try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
@@ -695,6 +709,34 @@ function renderStreak(){
   document.getElementById("streakPill").textContent = "🔥 連續 " + (store.streak||0) + " 天";
 }
 function isMastered(kana){ return (store.mastery[kana]||0) >= 3; }
+
+/* ===== 使用紀錄(隨時記錄,存在使用者自己的瀏覽器) ===== */
+const EV_LABEL = {open:"開啟 App", page:"切換頁面", kana:"點五十音", speak:"聽發音", card:"翻單字卡", quiz_done:"完成測驗", grammar:"研讀文法", match_done:"完成配對"};
+function logEvent(e, d){
+  try{
+    if(!store.daily) store.daily = {};
+    if(!store.events) store.events = [];
+    const day = todayStr();
+    const rec = store.daily[day] || (store.daily[day] = {sec:0, n:{}});
+    if(!rec.n) rec.n = {};
+    rec.n[e] = (rec.n[e]||0) + 1;
+    store.events.unshift({t:Date.now(), e:e, d:String(d||"")});
+    if(store.events.length > 400) store.events.length = 400;
+    const days = Object.keys(store.daily);
+    if(days.length > 60){ days.sort(); delete store.daily[days[0]]; }
+    saveStore();
+  }catch(err){}
+}
+setInterval(function(){
+  try{
+    if(document.visibilityState !== "visible") return;
+    if(!store.daily) store.daily = {};
+    const day = todayStr();
+    const rec = store.daily[day] || (store.daily[day] = {sec:0, n:{}});
+    rec.sec = (rec.sec||0) + 10;
+    saveStore();
+  }catch(err){}
+}, 10000);
 
 /* ================= 發音 ================= */
 function speak(text){
@@ -729,6 +771,7 @@ function goPage(name){
   if(name==="vocabquiz") renderVocabQuizSetup();
   if(name==="progress") renderProgress();
   if(name==="game" && !matchState.started) newMatchGame();
+  logEvent("page", name);
   window.scrollTo({top:0});
 }
 document.getElementById("mainNav").addEventListener("click", e=>{
@@ -769,7 +812,7 @@ function renderKanaGrid(){
     const btn = document.createElement("button");
     btn.className = "kana-card" + (isMastered(item.kana) ? " mastered" : "");
     btn.innerHTML = '<span class="k">'+item.kana+'</span><span class="r">'+(showRomaji?item.romaji:"")+'</span>';
-    btn.addEventListener("click", ()=>{ speak(item.kana); touchStreak(); });
+    btn.addEventListener("click", ()=>{ speak(item.kana); touchStreak(); logEvent("kana", item.kana); });
     grid.appendChild(btn);
   });
 }
@@ -818,6 +861,7 @@ function makeQuiz(box, pool, qKey, optKey, opts){
   function renderEnd(){
     touchStreak();
     store.history.unshift({type:opts.label, score:score, date:todayStr()});
+    logEvent("quiz_done", opts.label + " " + score + "/10");
     store.history = store.history.slice(0,30);
     saveStore();
     let msg = score>=9 ? "太強了!根本是日語職人 🍣" : score>=7 ? "很不錯,再吃幾格便當就滿分了!" : score>=4 ? "有進步空間,多翻幾次五十音表吧!" : "沒關係,慢慢來,便當每天都在 🍱";
@@ -911,13 +955,13 @@ function renderFlashcard(){
 }
 fcEl.addEventListener("click", e=>{
   if(e.target.id==="fcSpeak") return;
-  fcEl.classList.toggle("flipped"); touchStreak();
+  fcEl.classList.toggle("flipped"); touchStreak(); logEvent("card", VOCAB[vocabCat][fcIdx][1]);
 });
 fcEl.addEventListener("keydown", e=>{
   if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fcEl.classList.toggle("flipped"); }
 });
 document.getElementById("fcSpeak").addEventListener("click", e=>{
-  e.stopPropagation(); speak(VOCAB[vocabCat][fcIdx][0]); touchStreak();
+  e.stopPropagation(); speak(VOCAB[vocabCat][fcIdx][0]); touchStreak(); logEvent("speak", VOCAB[vocabCat][fcIdx][0]);
 });
 document.getElementById("fcPrev").addEventListener("click", ()=>{
   const n = VOCAB[vocabCat].length; fcIdx = (fcIdx-1+n)%n; renderFlashcard();
@@ -935,7 +979,7 @@ GRAMMAR.forEach(g=>{
   item.innerHTML =
     '<button><span class="g-pattern">'+g.p+'</span><span class="g-name">'+g.n+'</span></button>' +
     '<div class="grammar-body"><p class="g-exp">'+g.exp+'</p>'+exHtml+'</div>';
-  item.querySelector("button").addEventListener("click", ()=>{ item.classList.toggle("open"); touchStreak(); });
+  item.querySelector("button").addEventListener("click", ()=>{ item.classList.toggle("open"); touchStreak(); if(item.classList.contains("open")) logEvent("grammar", g.p); });
   gList.appendChild(item);
 });
 
@@ -962,7 +1006,7 @@ function renderPhrases(){
     row.className = "phrase-row";
     row.innerHTML = '<span class="jp">'+p[0]+'</span><span class="zh">'+p[2]+'</span>' +
       '<button class="mini-speak">🔊 唸</button><span class="romaji">'+p[1]+'</span>';
-    row.querySelector(".mini-speak").addEventListener("click", ()=>{ speak(p[0]); touchStreak(); });
+    row.querySelector(".mini-speak").addEventListener("click", ()=>{ speak(p[0]); touchStreak(); logEvent("speak", p[0]); });
     wrap.appendChild(row);
   });
 }
@@ -1016,6 +1060,7 @@ function flipMatch(btn, card){
       const done = document.getElementById("matchDone");
       done.hidden = false;
       done.textContent = "全部配對完成!共用了 " + matchState.moves + " 步 🎉";
+      logEvent("match_done", matchState.moves + " 步");
     }
   }else{
     matchState.lock = true;
@@ -1038,6 +1083,37 @@ function renderProgress(){
   const best = store.history.length ? Math.max(...store.history.map(h=>h.score)) : null;
   document.getElementById("stBest").textContent = best===null ? "—" : best + " / 10";
   document.getElementById("stStreak").textContent = store.streak || 0;
+  const daily = store.daily || {};
+  const totalSec = Object.keys(daily).reduce((a,k)=>a+(daily[k].sec||0),0);
+  document.getElementById("stTime").textContent = Math.round(totalSec/60) + " 分";
+  const chart = document.getElementById("usageChart");
+  let bars = "", maxSec = 60;
+  const dayKeys = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date(Date.now() - i*86400000);
+    dayKeys.push({key:d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(), lbl:(d.getMonth()+1)+"/"+d.getDate()});
+  }
+  dayKeys.forEach(x=>{ const sc=(daily[x.key]&&daily[x.key].sec)||0; if(sc>maxSec) maxSec=sc; });
+  dayKeys.forEach(x=>{
+    const sc = (daily[x.key]&&daily[x.key].sec)||0;
+    const h = Math.round(sc/maxSec*100);
+    bars += '<div class="bar"><b>'+Math.round(sc/60)+'</b><i style="height:'+h+'%"></i><span>'+x.lbl+'</span></div>';
+  });
+  chart.innerHTML = bars;
+  const totals = {};
+  Object.keys(daily).forEach(k=>{ const n=daily[k].n||{}; Object.keys(n).forEach(e=>{ totals[e]=(totals[e]||0)+n[e]; }); });
+  const order = ["open","page","kana","speak","card","quiz_done","grammar","match_done"];
+  document.getElementById("usageGrid").innerHTML = order.map(e=>'<div><b>'+(totals[e]||0)+'</b>'+EV_LABEL[e]+'</div>').join("");
+  const el = document.getElementById("eventList");
+  if(!(store.events||[]).length){
+    el.innerHTML = '<div class="history-empty" style="border:none;">還沒有活動紀錄,去點點五十音吧!</div>';
+  }else{
+    el.innerHTML = store.events.slice(0,20).map(ev=>{
+      const dt = new Date(ev.t);
+      const ts = (dt.getMonth()+1)+"/"+dt.getDate()+" "+String(dt.getHours()).padStart(2,"0")+":"+String(dt.getMinutes()).padStart(2,"0");
+      return '<div><span>'+ts+'・'+(EV_LABEL[ev.e]||ev.e)+'</span><span style="font-weight:900;">'+ev.d+'</span></div>';
+    }).join("");
+  }
   const hl = document.getElementById("historyList");
   if(!store.history.length){
     hl.innerHTML = '<div class="history-empty" style="border:none;">還沒有測驗紀錄,先去玩一場假名測驗吧!</div>';
@@ -1049,7 +1125,7 @@ function renderProgress(){
 }
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   if(!confirm("確定要清除所有學習紀錄嗎?清除後無法復原。")) return;
-  store = {mastery:{}, history:[], streak:0, lastDay:""};
+  store = {mastery:{}, history:[], streak:0, lastDay:"", daily:{}, events:[]};
   saveStore(); renderStreak(); renderProgress(); renderKanaGrid();
 });
 
@@ -1066,6 +1142,7 @@ if("serviceWorker" in navigator){
 }
 
 /* ================= 初始化 ================= */
+logEvent("open");
 renderStreak();
 renderKanaGrid();
 </script>
