@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日語便當 Nihongo Bento｜互動日文學習</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#1B3350">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="日語便當">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
+<style>
+/* ===== Build v1.1.0 ===== */
+:root{
+  --bg:#F2F6F7; --surface:#FFFFFF; --surface2:#EAF1F3;
+  --ink:#22333F; --ink2:#5B707D;
+  --indigo:#274866; --indigo-deep:#1B3350; --indigo-soft:#DDE8F0;
+  --accent:#E9A23B; --accent-soft:#FBEFD9;
+  --sakura:#E58CA0; --sakura-soft:#FBE7EC;
+  --line:#D6E0E4; --ok:#3E8E62; --bad:#C75146;
+  --radius:14px; --shadow:0 2px 10px rgba(27,51,80,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1922; --surface:#1A2731; --surface2:#152029;
+    --ink:#E8EEF2; --ink2:#9AAEBB;
+    --indigo:#7FA6CC; --indigo-deep:#0E1B2B; --indigo-soft:#233648;
+    --accent:#E9A23B; --accent-soft:#3A2F17;
+    --sakura:#E58CA0; --sakura-soft:#3B242C;
+    --line:#2C3E4C; --shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1922; --surface:#1A2731; --surface2:#152029;
+  --ink:#E8EEF2; --ink2:#9AAEBB;
+  --indigo:#7FA6CC; --indigo-deep:#0E1B2B; --indigo-soft:#233648;
+  --accent:#E9A23B; --accent-soft:#3A2F17;
+  --sakura:#E58CA0; --sakura-soft:#3B242C;
+  --line:#2C3E4C; --shadow:0 2px 10px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Zen Maru Gothic","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  line-height:1.65; min-height:100vh;
+}
+button{font-family:inherit; cursor:pointer;}
+/* ===== 頂部 ===== */
+header{
+  background:var(--indigo-deep); color:#F2F6F7;
+  padding:14px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.logo{font-weight:900; font-size:1.25rem; letter-spacing:.03em;}
+.logo small{font-weight:500; font-size:.72rem; opacity:.75; display:block; letter-spacing:.12em;}
+.streak-pill{
+  margin-left:auto; background:rgba(255,255,255,.12); border-radius:999px;
+  padding:4px 14px; font-size:.85rem; font-weight:700;
+}
+/* ===== 導覽 ===== */
+nav{
+  display:flex; gap:4px; overflow-x:auto; padding:8px 12px;
+  background:var(--surface); border-bottom:2px solid var(--line);
+  position:sticky; top:0; z-index:20; scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none;}
+nav button{
+  border:none; background:none; color:var(--ink2);
+  padding:8px 14px; border-radius:999px; font-size:.95rem; font-weight:700; white-space:nowrap;
+}
+nav button.active{background:var(--indigo); color:#fff;}
+nav button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+main{max-width:960px; margin:0 auto; padding:22px 16px 70px;}
+section[hidden]{display:none;}
+h2.page-title{font-size:1.45rem; font-weight:900; margin-bottom:4px;}
+p.page-sub{color:var(--ink2); margin-bottom:18px; font-size:.95rem;}
+/* ===== 便當首頁 ===== */
+.bento{
+  display:grid; gap:12px;
+  grid-template-columns:repeat(6,1fr);
+  background:var(--indigo-deep); padding:14px; border-radius:22px;
+}
+.bento button{
+  position:relative; overflow:hidden; text-align:left;
+  border:none; border-radius:14px; padding:18px 16px;
+  background:var(--surface); color:var(--ink); min-height:118px;
+  transition:transform .12s ease;
+}
+.bento button:hover{transform:translateY(-2px);}
+.bento button:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
+.bento .b-title{font-weight:900; font-size:1.1rem; display:block;}
+.bento .b-desc{font-size:.82rem; color:var(--ink2); display:block; margin-top:4px; max-width:75%;}
+.bento .b-glyph{
+  position:absolute; right:-6px; bottom:-22px; font-size:5.2rem; font-weight:900;
+  opacity:.13; line-height:1; pointer-events:none;
+}
+.b-kana{grid-column:span 4; background:var(--indigo-soft)!important;}
+.b-quiz{grid-column:span 2; background:var(--accent-soft)!important;}
+.b-vocab{grid-column:span 2; background:var(--sakura-soft)!important;}
+.b-grammar{grid-column:span 2;}
+.b-phrase{grid-column:span 2;}
+.b-game{grid-column:span 3; background:var(--accent-soft)!important;}
+.b-progress{grid-column:span 3;}
+@media (max-width:640px){
+  .b-kana{grid-column:span 6;}
+  .b-quiz,.b-vocab{grid-column:span 3;}
+  .b-grammar,.b-phrase{grid-column:span 3;}
+  .b-game,.b-progress{grid-column:span 6;}
+}
+.home-tip{margin-top:16px; font-size:.85rem; color:var(--ink2);}
+/* ===== 子分頁列 ===== */
+.subtabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.subtabs button{
+  border:2px solid var(--line); background:var(--surface); color:var(--ink2);
+  border-radius:999px; padding:5px 14px; font-weight:700; font-size:.88rem;
+}
+.subtabs button.active{border-color:var(--indigo); background:var(--indigo); color:#fff;}
+.subtabs button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+/* ===== 五十音 ===== */
+.kana-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
+@media (max-width:520px){.kana-grid{grid-template-columns:repeat(5,1fr); gap:6px;}}
+.kana-card{
+  border:none; border-radius:12px; background:var(--surface); box-shadow:var(--shadow);
+  padding:10px 4px 8px; text-align:center; min-height:70px;
+}
+.kana-card:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.kana-card .k{font-size:1.55rem; font-weight:700; display:block; line-height:1.3;}
+.kana-card .r{font-size:.75rem; color:var(--ink2); display:block; min-height:1.1em;}
+.kana-card.mastered .k{color:var(--ok);}
+.kana-card.empty{background:transparent; box-shadow:none; pointer-events:none;}
+.kana-tools{display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap;}
+.toggle-romaji{
+  border:2px solid var(--indigo); background:var(--surface); color:var(--indigo);
+  border-radius:999px; padding:5px 14px; font-weight:700; font-size:.88rem;
+}
+.toggle-romaji.on{background:var(--indigo); color:#fff;}
+.hint{font-size:.82rem; color:var(--ink2);}
+/* ===== 測驗 ===== */
+.quiz-box{background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; max-width:560px; margin:0 auto;}
+.quiz-q{font-size:3.4rem; font-weight:900; text-align:center; margin:10px 0 6px;}
+.quiz-q.small{font-size:1.6rem;}
+.quiz-meta{display:flex; justify-content:space-between; font-size:.85rem; color:var(--ink2); font-weight:700;}
+.quiz-opts{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px;}
+.quiz-opts button{
+  border:2px solid var(--line); background:var(--surface2); color:var(--ink);
+  border-radius:12px; padding:14px 8px; font-size:1.05rem; font-weight:700;
+}
+.quiz-opts button:hover{border-color:var(--indigo);}
+.quiz-opts button.correct{border-color:var(--ok); background:var(--ok); color:#fff;}
+.quiz-opts button.wrong{border-color:var(--bad); background:var(--bad); color:#fff;}
+.quiz-opts button:disabled{cursor:default;}
+.quiz-fb{text-align:center; min-height:1.6em; margin-top:12px; font-weight:700;}
+.quiz-fb.good{color:var(--ok);} .quiz-fb.bad{color:var(--bad);}
+.big-btn{
+  display:block; width:100%; border:none; border-radius:12px;
+  background:var(--indigo); color:#fff; font-size:1.05rem; font-weight:900;
+  padding:13px; margin-top:16px;
+}
+.big-btn.secondary{background:var(--surface2); color:var(--ink); border:2px solid var(--line);}
+.big-btn:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
+.quiz-setup label{display:block; font-weight:700; margin:14px 0 6px;}
+.result-big{font-size:2.6rem; font-weight:900; text-align:center; margin:8px 0;}
+/* ===== 單字卡 ===== */
+.flashcard-wrap{max-width:480px; margin:0 auto;}
+.flashcard{
+  perspective:1000px; height:250px; margin-bottom:14px; cursor:pointer;
+}
+.flashcard .inner{
+  position:relative; width:100%; height:100%;
+  transform-style:preserve-3d; transition:transform .45s ease;
+}
+.flashcard.flipped .inner{transform:rotateY(180deg);}
+.flashcard .face{
+  position:absolute; inset:0; backface-visibility:hidden;
+  background:var(--surface); border-radius:18px; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; justify-content:center; align-items:center; gap:6px;
+  padding:20px; text-align:center;
+}
+.flashcard .back{transform:rotateY(180deg); background:var(--indigo); color:#fff;}
+.fc-main{font-size:2.4rem; font-weight:900; line-height:1.3;}
+.fc-sub{font-size:1rem; color:var(--ink2);}
+.back .fc-sub{color:rgba(255,255,255,.8);}
+.fc-nav{display:flex; gap:10px; align-items:center; justify-content:center;}
+.fc-nav button{
+  border:2px solid var(--line); background:var(--surface); color:var(--ink);
+  border-radius:999px; padding:8px 20px; font-weight:900; font-size:1rem;
+}
+.fc-count{font-weight:700; color:var(--ink2); font-size:.9rem;}
+.speak-btn{
+  border:none; background:var(--accent); color:#3A2A08; border-radius:999px;
+  padding:6px 16px; font-weight:900; font-size:.9rem; margin-top:8px;
+}
+/* ===== 文法 ===== */
+.grammar-item{
+  background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow);
+  margin-bottom:12px; overflow:hidden;
+}
+.grammar-item > button{
+  width:100%; border:none; background:none; color:var(--ink);
+  padding:16px 18px; text-align:left; display:flex; align-items:baseline; gap:10px;
+}
+.grammar-item .g-pattern{font-weight:900; font-size:1.08rem;}
+.grammar-item .g-name{color:var(--ink2); font-size:.88rem;}
+.grammar-body{padding:0 18px 16px; display:none;}
+.grammar-item.open .grammar-body{display:block;}
+.g-exp{margin-bottom:10px; font-size:.95rem;}
+.g-ex{
+  background:var(--surface2); border-left:4px solid var(--accent);
+  border-radius:8px; padding:10px 14px; margin-top:8px;
+}
+.g-ex .jp{font-weight:700; font-size:1.02rem;}
+.g-ex .zh{color:var(--ink2); font-size:.88rem;}
+/* ===== 會話 ===== */
+.phrase-row{
+  background:var(--surface); border-radius:12px; box-shadow:var(--shadow);
+  padding:14px 16px; margin-bottom:10px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.phrase-row .jp{font-weight:900; font-size:1.08rem; flex:1 1 240px;}
+.phrase-row .zh{color:var(--ink2); font-size:.9rem; flex:1 1 140px;}
+.phrase-row .romaji{color:var(--ink2); font-size:.8rem; width:100%;}
+.mini-speak{
+  border:none; background:var(--accent-soft); color:var(--ink); border-radius:999px;
+  padding:5px 13px; font-weight:900; font-size:.85rem;
+}
+/* ===== 配對遊戲 ===== */
+.match-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:520px; margin:0 auto;}
+.match-card{
+  border:none; border-radius:12px; height:78px;
+  background:var(--indigo); color:var(--indigo); font-size:1.35rem; font-weight:900;
+}
+.match-card.revealed{background:var(--surface); color:var(--ink); box-shadow:var(--shadow);}
+.match-card.matched{background:var(--ok); color:#fff; cursor:default;}
+.match-info{display:flex; justify-content:space-between; max-width:520px; margin:0 auto 14px; font-weight:700; color:var(--ink2);}
+.match-done{text-align:center; margin-top:16px; font-weight:900; color:var(--ok); font-size:1.15rem;}
+/* ===== 進度 ===== */
+.stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px;}
+.stat-card{background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; text-align:center;}
+.stat-card .num{font-size:2rem; font-weight:900; color:var(--indigo);}
+.stat-card .lbl{font-size:.85rem; color:var(--ink2); font-weight:700;}
+.history-list{background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:6px 18px;}
+.history-list div{padding:10px 0; border-bottom:1px solid var(--line); font-size:.92rem; display:flex; justify-content:space-between; gap:10px;}
+.history-list div:last-child{border-bottom:none;}
+.history-empty{color:var(--ink2); text-align:center; padding:18px 0;}
+footer{
+  text-align:center; color:var(--ink2); font-size:.78rem; padding:20px 10px 30px;
+}
+/* ===== 底部 App 導覽列(手機) ===== */
+.tabbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:30;
+  display:flex; justify-content:space-around;
+  background:var(--surface); border-top:2px solid var(--line);
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+.tabbar button{
+  border:none; background:none; color:var(--ink2);
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  font-size:.68rem; font-weight:700; padding:4px 8px; border-radius:12px; flex:1;
+}
+.tabbar button .ic{font-size:1.3rem; line-height:1.2; font-weight:900;}
+.tabbar button.active{color:var(--indigo);}
+.tabbar button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+@media (min-width:768px){ .tabbar{display:none;} }
+@media (max-width:767px){
+  nav#mainNav{display:none;}
+  main{padding-bottom:110px;}
+  footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important; animation:none!important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">日語便當<small>NIHONGO BENTO・互動日文學習</small></div>
+  <div class="streak-pill" id="streakPill">🔥 連續 0 天</div>
+</header>
+
+<nav id="mainNav">
+  <button data-page="home" class="active">首頁</button>
+  <button data-page="kana">五十音</button>
+  <button data-page="kanaquiz">假名測驗</button>
+  <button data-page="vocab">單字卡</button>
+  <button data-page="vocabquiz">單字測驗</button>
+  <button data-page="grammar">文法</button>
+  <button data-page="phrases">旅遊會話</button>
+  <button data-page="game">配對遊戲</button>
+  <button data-page="progress">我的進度</button>
+</nav>
+
+<main>
+<!-- ============ 首頁 ============ -->
+<section id="page-home">
+  <h2 class="page-title">今天想吃哪一格?</h2>
+  <p class="page-sub">從五十音打底,一路吃到旅遊會話。每一格都是一道菜,慢慢夾、天天吃。</p>
+  <div class="bento">
+    <button class="b-kana" data-go="kana">
+      <span class="b-title">五十音表</span>
+      <span class="b-desc">平假名・片假名・濁音・拗音,點一下就唸給你聽</span>
+      <span class="b-glyph">あ</span>
+    </button>
+    <button class="b-quiz" data-go="kanaquiz">
+      <span class="b-title">假名測驗</span>
+      <span class="b-desc">10 題快問快答</span>
+      <span class="b-glyph">ん</span>
+    </button>
+    <button class="b-vocab" data-go="vocab">
+      <span class="b-title">單字卡</span>
+      <span class="b-desc">N5 常用字,翻卡記憶</span>
+      <span class="b-glyph">語</span>
+    </button>
+    <button class="b-grammar" data-go="grammar">
+      <span class="b-title">基礎文法</span>
+      <span class="b-desc">10 個入門句型</span>
+      <span class="b-glyph">文</span>
+    </button>
+    <button class="b-phrase" data-go="phrases">
+      <span class="b-title">旅遊會話</span>
+      <span class="b-desc">機場到居酒屋都能開口</span>
+      <span class="b-glyph">旅</span>
+    </button>
+    <button class="b-game" data-go="game">
+      <span class="b-title">假名配對遊戲</span>
+      <span class="b-desc">翻牌配對,邊玩邊記</span>
+      <span class="b-glyph">遊</span>
+    </button>
+    <button class="b-progress" data-go="progress">
+      <span class="b-title">我的進度</span>
+      <span class="b-desc">已精通假名、測驗紀錄、連續學習天數</span>
+      <span class="b-glyph">進</span>
+    </button>
+  </div>
+  <p class="home-tip">小提示:發音功能使用瀏覽器內建語音,第一次點「唸給我聽」時,部分手機需要等一兩秒載入日文語音。</p>
+</section>
+
+<!-- ============ 五十音 ============ -->
+<section id="page-kana" hidden>
+  <h2 class="page-title">五十音表</h2>
+  <p class="page-sub">點任一個假名會唸出發音;答對測驗 3 次以上的假名會變成綠色,代表你已精通。</p>
+  <div class="subtabs" id="kanaTypeTabs">
+    <button data-ktype="hira" class="active">平假名</button>
+    <button data-ktype="kata">片假名</button>
+  </div>
+  <div class="subtabs" id="kanaSetTabs">
+    <button data-kset="seion" class="active">清音</button>
+    <button data-kset="dakuon">濁音・半濁音</button>
+    <button data-kset="youon">拗音</button>
+  </div>
+  <div class="kana-tools">
+    <button class="toggle-romaji on" id="toggleRomaji">顯示羅馬拼音</button>
+    <span class="hint">綠色 = 已精通</span>
+  </div>
+  <div class="kana-grid" id="kanaGrid"></div>
+  <div style="max-width:400px; margin:22px auto 0;">
+    <button class="big-btn" data-go="kanaquiz">去玩假名測驗</button>
+  </div>
+</section>
+
+<!-- ============ 假名測驗 ============ -->
+<section id="page-kanaquiz" hidden>
+  <h2 class="page-title">假名測驗</h2>
+  <p class="page-sub">看假名選出正確的羅馬拼音,共 10 題。同一個假名答對 3 次就算精通。</p>
+  <div class="quiz-box" id="kanaQuizBox"></div>
+</section>
+
+<!-- ============ 單字卡 ============ -->
+<section id="page-vocab" hidden>
+  <h2 class="page-title">N5 單字卡</h2>
+  <p class="page-sub">點卡片翻面看中文意思,用「唸給我聽」練發音。</p>
+  <div class="subtabs" id="vocabCatTabs"></div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="翻面看意思">
+      <div class="inner">
+        <div class="face front">
+          <div class="fc-main" id="fcFrontMain"></div>
+          <div class="fc-sub" id="fcFrontSub"></div>
+          <button class="speak-btn" id="fcSpeak">🔊 唸給我聽</button>
+        </div>
+        <div class="face back">
+          <div class="fc-main" id="fcBackMain"></div>
+          <div class="fc-sub" id="fcBackSub"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-nav">
+      <button id="fcPrev">← 上一張</button>
+      <span class="fc-count" id="fcCount"></span>
+      <button id="fcNext">下一張 →</button>
+    </div>
+    <div style="margin-top:22px;">
+      <button class="big-btn" data-go="vocabquiz">去玩單字測驗</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 單字測驗 ============ -->
+<section id="page-vocabquiz" hidden>
+  <h2 class="page-title">單字測驗</h2>
+  <p class="page-sub">看日文選出正確的中文意思,共 10 題,從全部分類隨機出題。</p>
+  <div class="quiz-box" id="vocabQuizBox"></div>
+</section>
+
+<!-- ============ 文法 ============ -->
+<section id="page-grammar" hidden>
+  <h2 class="page-title">基礎文法 10 選</h2>
+  <p class="page-sub">初學最常用的 10 個句型,點開看說明和例句。</p>
+  <div id="grammarList"></div>
+</section>
+
+<!-- ============ 旅遊會話 ============ -->
+<section id="page-phrases" hidden>
+  <h2 class="page-title">旅遊會話</h2>
+  <p class="page-sub">依情境分類,每一句都可以點「唸」聽發音,出發前照著練最有感。</p>
+  <div class="subtabs" id="phraseTabs"></div>
+  <div id="phraseList"></div>
+</section>
+
+<!-- ============ 配對遊戲 ============ -->
+<section id="page-game" hidden>
+  <h2 class="page-title">假名配對遊戲</h2>
+  <p class="page-sub">翻開兩張牌,把假名和它的羅馬拼音配成對。步數越少越厲害!</p>
+  <div class="subtabs" id="gameTypeTabs">
+    <button data-gtype="hira" class="active">平假名</button>
+    <button data-gtype="kata">片假名</button>
+  </div>
+  <div class="match-info"><span id="matchMoves">步數:0</span><span id="matchPairs">配對:0 / 8</span></div>
+  <div class="match-grid" id="matchGrid"></div>
+  <div class="match-done" id="matchDone" hidden></div>
+  <div style="max-width:520px; margin:16px auto 0;">
+    <button class="big-btn secondary" id="matchRestart">重新開始</button>
+  </div>
+</section>
+
+<!-- ============ 進度 ============ -->
+<section id="page-progress" hidden>
+  <h2 class="page-title">我的進度</h2>
+  <p class="page-sub">紀錄存在你自己的瀏覽器裡,換裝置不會同步。</p>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num" id="stMastered">0</div><div class="lbl">已精通假名</div></div>
+    <div class="stat-card"><div class="num" id="stQuizzes">0</div><div class="lbl">完成測驗次數</div></div>
+    <div class="stat-card"><div class="num" id="stBest">—</div><div class="lbl">最佳成績</div></div>
+    <div class="stat-card"><div class="num" id="stStreak">0</div><div class="lbl">連續學習天數</div></div>
+  </div>
+  <h2 class="page-title" style="font-size:1.1rem;">最近 10 次測驗</h2>
+  <div class="history-list" id="historyList"></div>
+  <div style="max-width:400px; margin:20px auto 0;">
+    <button class="big-btn secondary" id="resetBtn">清除所有紀錄</button>
+  </div>
+</section>
+</main>
+
+<div class="tabbar" id="tabBar">
+  <button data-page="home" class="active"><span class="ic">🍱</span>首頁</button>
+  <button data-page="kana"><span class="ic">あ</span>五十音</button>
+  <button data-page="vocab"><span class="ic">📚</span>單字</button>
+  <button data-page="phrases"><span class="ic">💬</span>會話</button>
+  <button data-page="progress"><span class="ic">📊</span>進度</button>
+</div>
+
+<footer>日語便當 Nihongo Bento・Build v1.1.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+
+<script>
+"use strict";
+/* ================= 資料 ================= */
+const SEION_R = ["a","i","u","e","o","ka","ki","ku","ke","ko","sa","shi","su","se","so","ta","chi","tsu","te","to","na","ni","nu","ne","no","ha","hi","fu","he","ho","ma","mi","mu","me","mo","ya","yu","yo","ra","ri","ru","re","ro","wa","wo","n"];
+const SEION_H = [..."あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん"];
+const SEION_K = [..."アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン"];
+const DAK_R = ["ga","gi","gu","ge","go","za","ji","zu","ze","zo","da","dji","dzu","de","do","ba","bi","bu","be","bo","pa","pi","pu","pe","po"];
+const DAK_H = [..."がぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ"];
+const DAK_K = [..."ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ"];
+const YOU_R = ["kya","kyu","kyo","sha","shu","sho","cha","chu","cho","nya","nyu","nyo","hya","hyu","hyo","mya","myu","myo","rya","ryu","ryo","gya","gyu","gyo","ja","ju","jo","bya","byu","byo","pya","pyu","pyo"];
+const YOU_H = ["きゃ","きゅ","きょ","しゃ","しゅ","しょ","ちゃ","ちゅ","ちょ","にゃ","にゅ","にょ","ひゃ","ひゅ","ひょ","みゃ","みゅ","みょ","りゃ","りゅ","りょ","ぎゃ","ぎゅ","ぎょ","じゃ","じゅ","じょ","びゃ","びゅ","びょ","ぴゃ","ぴゅ","ぴょ"];
+const YOU_K = ["キャ","キュ","キョ","シャ","シュ","ショ","チャ","チュ","チョ","ニャ","ニュ","ニョ","ヒャ","ヒュ","ヒョ","ミャ","ミュ","ミョ","リャ","リュ","リョ","ギャ","ギュ","ギョ","ジャ","ジュ","ジョ","ビャ","ビュ","ビョ","ピャ","ピュ","ピョ"];
+
+function buildKana(type, set){
+  const chars = set==="seion" ? (type==="hira"?SEION_H:SEION_K)
+              : set==="dakuon" ? (type==="hira"?DAK_H:DAK_K)
+              : (type==="hira"?YOU_H:YOU_K);
+  const romaji = set==="seion" ? SEION_R : set==="dakuon" ? DAK_R : YOU_R;
+  return chars.map((c,i)=>({kana:c, romaji:romaji[i]}));
+}
+const ALL_KANA = [
+  ...buildKana("hira","seion"), ...buildKana("kata","seion"),
+  ...buildKana("hira","dakuon"), ...buildKana("kata","dakuon"),
+  ...buildKana("hira","youon"), ...buildKana("kata","youon")
+];
+
+const VOCAB = {
+  "數字":[
+    ["いち","一","ichi","1"],["に","二","ni","2"],["さん","三","san","3"],["よん","四","yon","4"],["ご","五","go","5"],
+    ["ろく","六","roku","6"],["なな","七","nana","7"],["はち","八","hachi","8"],["きゅう","九","kyuu","9"],["じゅう","十","juu","10"]
+  ],
+  "時間":[
+    ["きょう","今日","kyou","今天"],["あした","明日","ashita","明天"],["きのう","昨日","kinou","昨天"],["いま","今","ima","現在"],
+    ["あさ","朝","asa","早上"],["よる","夜","yoru","晚上"],["しゅうまつ","週末","shuumatsu","週末"],["まいにち","毎日","mainichi","每天"]
+  ],
+  "人・家族":[
+    ["わたし","私","watashi","我"],["かぞく","家族","kazoku","家人"],["ちち","父","chichi","(我的)父親"],["はは","母","haha","(我的)母親"],
+    ["ともだち","友達","tomodachi","朋友"],["せんせい","先生","sensei","老師"],["ひと","人","hito","人"],["こども","子供","kodomo","小孩"]
+  ],
+  "食物":[
+    ["ごはん","ご飯","gohan","米飯/一餐"],["みず","水","mizu","水"],["おちゃ","お茶","ocha","茶"],["にく","肉","niku","肉"],
+    ["さかな","魚","sakana","魚"],["たまご","卵","tamago","蛋"],["くだもの","果物","kudamono","水果"],["ラーメン","ラーメン","raamen","拉麵"]
+  ],
+  "交通・場所":[
+    ["えき","駅","eki","車站"],["でんしゃ","電車","densha","電車"],["くうこう","空港","kuukou","機場"],["ホテル","ホテル","hoteru","飯店"],
+    ["みせ","店","mise","商店"],["トイレ","トイレ","toire","廁所"],["ぎんこう","銀行","ginkou","銀行"],["びょういん","病院","byouin","醫院"]
+  ],
+  "動詞":[
+    ["たべます","食べます","tabemasu","吃"],["のみます","飲みます","nomimasu","喝"],["いきます","行きます","ikimasu","去"],["きます","来ます","kimasu","來"],
+    ["みます","見ます","mimasu","看"],["ききます","聞きます","kikimasu","聽/問"],["かいます","買います","kaimasu","買"],["ねます","寝ます","nemasu","睡覺"]
+  ],
+  "形容詞":[
+    ["おいしい","美味しい","oishii","好吃"],["たかい","高い","takai","貴;高"],["やすい","安い","yasui","便宜"],["おおきい","大きい","ookii","大"],
+    ["ちいさい","小さい","chiisai","小"],["あたらしい","新しい","atarashii","新"],["たのしい","楽しい","tanoshii","開心;有趣"],["さむい","寒い","samui","寒冷"]
+  ]
+};
+
+const GRAMMAR = [
+  {p:"AはBです", n:"A是B", exp:"最基本的判斷句。「は」在這裡唸 wa,是提示主題的助詞;「です」讓句子變得有禮貌。否定形是「じゃありません」。",
+   ex:[["わたしは台湾人です。","我是台灣人。"],["これはラーメンじゃありません。","這不是拉麵。"]]},
+  {p:"AはBですか", n:"疑問句", exp:"句尾加「か」就變成問句,語調上揚,不需要問號也可以。回答用「はい(是)/いいえ(不是)」。",
+   ex:[["これはお茶ですか。","這是茶嗎?"],["はい、お茶です。","是的,是茶。"]]},
+  {p:"名詞 + も", n:"也", exp:"「も」取代「は」,表示「也」。前面提過某件事,後面說另一個相同情況時使用。",
+   ex:[["わたしも行きます。","我也去。"],["これも千円です。","這個也是一千日圓。"]]},
+  {p:"AのB", n:"A的B", exp:"「の」連接兩個名詞,表示所屬或修飾,和中文的「的」很像,但順序一樣是「擁有者の物品」。",
+   ex:[["わたしの本です。","是我的書。"],["日本のビールが好きです。","我喜歡日本的啤酒。"]]},
+  {p:"名詞 + を + 動詞ます", n:"做~", exp:"「を」標示動作的對象(受詞)。「~ます」是動詞的禮貌形,現在和未來都可以用。",
+   ex:[["ラーメンを食べます。","吃拉麵。"],["水を飲みます。","喝水。"]]},
+  {p:"場所 + へ / に 行きます", n:"去某地", exp:"「へ」(唸 e)和「に」都可以表示移動的方向或目的地,搭配「行きます(去)/来ます(來)/帰ります(回去)」。",
+   ex:[["東京へ行きます。","去東京。"],["ホテルに帰ります。","回飯店。"]]},
+  {p:"場所 + で + 動詞", n:"在某地做~", exp:"「で」標示動作發生的地點,注意和表示目的地的「に/へ」不同:有「做動作」就用「で」。",
+   ex:[["駅で友達に会います。","在車站和朋友見面。"],["コンビニでお茶を買います。","在便利商店買茶。"]]},
+  {p:"時間 + に", n:"在幾點", exp:"具體時刻(七時、三月三日)後面加「に」;「今日、明日、毎日」這類相對時間不加「に」。",
+   ex:[["七時に起きます。","七點起床。"],["明日、空港へ行きます。","明天去機場。"]]},
+  {p:"~があります / います", n:"有~;在~", exp:"表示存在。無生命的東西用「あります」,人和動物用「います」。地點用「に」標示。",
+   ex:[["駅にコンビニがあります。","車站有便利商店。"],["部屋に猫がいます。","房間裡有貓。"]]},
+  {p:"~てください", n:"請做~", exp:"動詞改成「て形」再加「ください」,是禮貌的請求。旅遊時超好用,例如請對方再說一次、請幫忙寫下來。",
+   ex:[["もう一度言ってください。","請再說一次。"],["ここに書いてください。","請寫在這裡。"]]}
+];
+
+const PHRASES = {
+  "打招呼":[
+    ["おはようございます","ohayou gozaimasu","早安"],
+    ["こんにちは","konnichiwa","你好(白天)"],
+    ["こんばんは","konbanwa","晚上好"],
+    ["ありがとうございます","arigatou gozaimasu","謝謝"],
+    ["すみません","sumimasen","不好意思/請問"],
+    ["さようなら","sayounara","再見"]
+  ],
+  "餐廳":[
+    ["メニューをください","menyuu o kudasai","請給我菜單"],
+    ["これをください","kore o kudasai","請給我這個"],
+    ["おすすめは何ですか","osusume wa nan desu ka","有什麼推薦的?"],
+    ["水をください","mizu o kudasai","請給我水"],
+    ["お会計お願いします","okaikei onegai shimasu","請幫我結帳"],
+    ["おいしかったです","oishikatta desu","(吃完後)很好吃"]
+  ],
+  "購物":[
+    ["いくらですか","ikura desu ka","多少錢?"],
+    ["これは何ですか","kore wa nan desu ka","這是什麼?"],
+    ["ちょっと高いです","chotto takai desu","有點貴"],
+    ["カードで払えますか","kaado de haraemasu ka","可以刷卡嗎?"],
+    ["袋をください","fukuro o kudasai","請給我袋子"],
+    ["試着できますか","shichaku dekimasu ka","可以試穿嗎?"]
+  ],
+  "交通":[
+    ["駅はどこですか","eki wa doko desu ka","車站在哪裡?"],
+    ["この電車は東京に行きますか","kono densha wa toukyou ni ikimasu ka","這班電車去東京嗎?"],
+    ["切符はどこで買えますか","kippu wa doko de kaemasu ka","車票在哪裡買?"],
+    ["タクシーを呼んでください","takushii o yonde kudasai","請幫我叫計程車"],
+    ["ここで降ります","koko de orimasu","我在這裡下車"],
+    ["何時に着きますか","nanji ni tsukimasu ka","幾點會到?"]
+  ],
+  "飯店":[
+    ["チェックインお願いします","chekku in onegai shimasu","我要辦入住"],
+    ["予約しています","yoyaku shite imasu","我有預約"],
+    ["荷物を預かってもらえますか","nimotsu o azukatte moraemasu ka","可以寄放行李嗎?"],
+    ["Wi-Fiのパスワードは何ですか","waifai no pasuwaado wa nan desu ka","Wi-Fi 密碼是什麼?"],
+    ["朝食は何時からですか","choushoku wa nanji kara desu ka","早餐幾點開始?"],
+    ["チェックアウトお願いします","chekku auto onegai shimasu","我要退房"]
+  ],
+  "緊急・求助":[
+    ["助けてください","tasukete kudasai","請幫幫我"],
+    ["道に迷いました","michi ni mayoimashita","我迷路了"],
+    ["日本語がわかりません","nihongo ga wakarimasen","我不懂日文"],
+    ["英語を話せますか","eigo o hanasemasu ka","你會說英文嗎?"],
+    ["病院はどこですか","byouin wa doko desu ka","醫院在哪裡?"],
+    ["もう一度お願いします","mou ichido onegai shimasu","請再說一次"]
+  ]
+};
+
+/* ================= 儲存 ================= */
+const STORE_KEY = "nihongoBento_v1";
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ const d = JSON.parse(raw); if(d && typeof d==="object") return d; }
+  }catch(e){}
+  return {mastery:{}, history:[], streak:0, lastDay:""};
+}
+function saveStore(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
+}
+let store = loadStore();
+
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function touchStreak(){
+  const t = todayStr();
+  if(store.lastDay === t) return;
+  const y = new Date(Date.now()-86400000);
+  const yStr = y.getFullYear()+"-"+(y.getMonth()+1)+"-"+y.getDate();
+  store.streak = (store.lastDay === yStr) ? (store.streak||0)+1 : 1;
+  store.lastDay = t;
+  saveStore(); renderStreak();
+}
+function renderStreak(){
+  document.getElementById("streakPill").textContent = "🔥 連續 " + (store.streak||0) + " 天";
+}
+function isMastered(kana){ return (store.mastery[kana]||0) >= 3; }
+
+/* ================= 發音 ================= */
+function speak(text){
+  try{
+    if(!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ja-JP"; u.rate = 0.85;
+    const jv = window.speechSynthesis.getVoices().find(v=>v.lang && v.lang.startsWith("ja"));
+    if(jv) u.voice = jv;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+try{ if("speechSynthesis" in window) window.speechSynthesis.getVoices(); }catch(e){}
+
+/* ================= 導覽 ================= */
+const pages = ["home","kana","kanaquiz","vocab","vocabquiz","grammar","phrases","game","progress"];
+function goPage(name){
+  pages.forEach(p=>{
+    document.getElementById("page-"+p).hidden = (p!==name);
+  });
+  document.querySelectorAll("#mainNav button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.page===name);
+  });
+  const TAB_MAP = {home:"home",kana:"kana",kanaquiz:"kana",vocab:"vocab",vocabquiz:"vocab",grammar:"home",phrases:"phrases",game:"home",progress:"progress"};
+  document.querySelectorAll("#tabBar button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.page===TAB_MAP[name]);
+  });
+  if(name==="kana") renderKanaGrid();
+  if(name==="kanaquiz") renderKanaQuizSetup();
+  if(name==="vocab") renderFlashcard();
+  if(name==="vocabquiz") renderVocabQuizSetup();
+  if(name==="progress") renderProgress();
+  if(name==="game" && !matchState.started) newMatchGame();
+  window.scrollTo({top:0});
+}
+document.getElementById("mainNav").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-page]");
+  if(b) goPage(b.dataset.page);
+});
+document.querySelectorAll("[data-go]").forEach(b=>{
+  b.addEventListener("click", ()=>goPage(b.dataset.go));
+});
+
+/* ================= 五十音表 ================= */
+let kanaType = "hira", kanaSet = "seion", showRomaji = true;
+document.getElementById("kanaTypeTabs").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-ktype]"); if(!b) return;
+  kanaType = b.dataset.ktype;
+  document.querySelectorAll("#kanaTypeTabs button").forEach(x=>x.classList.toggle("active",x===b));
+  renderKanaGrid();
+});
+document.getElementById("kanaSetTabs").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-kset]"); if(!b) return;
+  kanaSet = b.dataset.kset;
+  document.querySelectorAll("#kanaSetTabs button").forEach(x=>x.classList.toggle("active",x===b));
+  renderKanaGrid();
+});
+document.getElementById("toggleRomaji").addEventListener("click", function(){
+  showRomaji = !showRomaji;
+  this.classList.toggle("on", showRomaji);
+  this.textContent = showRomaji ? "顯示羅馬拼音" : "隱藏羅馬拼音";
+  renderKanaGrid();
+});
+function renderKanaGrid(){
+  const grid = document.getElementById("kanaGrid");
+  const list = buildKana(kanaType, kanaSet);
+  grid.innerHTML = "";
+  const cols = kanaSet==="youon" ? 3 : 5;
+  grid.style.gridTemplateColumns = "repeat("+cols+",1fr)";
+  list.forEach(item=>{
+    const btn = document.createElement("button");
+    btn.className = "kana-card" + (isMastered(item.kana) ? " mastered" : "");
+    btn.innerHTML = '<span class="k">'+item.kana+'</span><span class="r">'+(showRomaji?item.romaji:"")+'</span>';
+    btn.addEventListener("click", ()=>{ speak(item.kana); touchStreak(); });
+    grid.appendChild(btn);
+  });
+}
+
+/* ================= 測驗引擎 ================= */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function makeQuiz(box, pool, qKey, optKey, opts){
+  const questions = shuffle(pool).slice(0,10);
+  let idx = 0, score = 0;
+  function renderQ(){
+    const q = questions[idx];
+    const wrong = shuffle(pool.filter(p=>p[optKey]!==q[optKey])).slice(0,3);
+    const choices = shuffle([q, ...wrong]);
+    box.innerHTML =
+      '<div class="quiz-meta"><span>第 '+(idx+1)+' / 10 題</span><span>得分 '+score+'</span></div>' +
+      '<div class="quiz-q '+(opts.smallQ?"small":"")+'">'+q[qKey]+'</div>' +
+      '<div class="quiz-opts"></div><div class="quiz-fb"></div>';
+    const optBox = box.querySelector(".quiz-opts");
+    const fb = box.querySelector(".quiz-fb");
+    choices.forEach(c=>{
+      const b = document.createElement("button");
+      b.textContent = c[optKey];
+      b.addEventListener("click", ()=>{
+        optBox.querySelectorAll("button").forEach(x=>x.disabled=true);
+        const right = c[optKey]===q[optKey];
+        if(right){
+          b.classList.add("correct"); score++;
+          fb.textContent = "答對了!"; fb.className = "quiz-fb good";
+        }else{
+          b.classList.add("wrong");
+          optBox.querySelectorAll("button").forEach(x=>{ if(x.textContent===q[optKey]) x.classList.add("correct"); });
+          fb.textContent = "正確答案是「"+q[optKey]+"」"; fb.className = "quiz-fb bad";
+        }
+        if(opts.onAnswer) opts.onAnswer(q, right);
+        if(opts.speakOn) speak(q[opts.speakOn]);
+        setTimeout(()=>{ idx++; idx<10 ? renderQ() : renderEnd(); }, 1100);
+      });
+      optBox.appendChild(b);
+    });
+    if(opts.speakStart) speak(q[opts.speakStart]);
+  }
+  function renderEnd(){
+    touchStreak();
+    store.history.unshift({type:opts.label, score:score, date:todayStr()});
+    store.history = store.history.slice(0,30);
+    saveStore();
+    let msg = score>=9 ? "太強了!根本是日語職人 🍣" : score>=7 ? "很不錯,再吃幾格便當就滿分了!" : score>=4 ? "有進步空間,多翻幾次五十音表吧!" : "沒關係,慢慢來,便當每天都在 🍱";
+    box.innerHTML =
+      '<div class="quiz-meta"><span>'+opts.label+'</span><span>完成</span></div>' +
+      '<div class="result-big">'+score+' / 10</div>' +
+      '<p style="text-align:center; font-weight:700;">'+msg+'</p>' +
+      '<button class="big-btn" id="againBtn">再玩一次</button>';
+    box.querySelector("#againBtn").addEventListener("click", opts.restart);
+  }
+  renderQ();
+}
+
+/* ---- 假名測驗 ---- */
+function renderKanaQuizSetup(){
+  const box = document.getElementById("kanaQuizBox");
+  box.innerHTML =
+    '<div class="quiz-setup">' +
+    '<label>範圍</label>' +
+    '<div class="subtabs" id="kqScope">' +
+      '<button data-s="hira-seion" class="active">平假名・清音</button>' +
+      '<button data-s="kata-seion">片假名・清音</button>' +
+      '<button data-s="hira-all">平假名・全部</button>' +
+      '<button data-s="kata-all">片假名・全部</button>' +
+      '<button data-s="mix">混合大亂鬥</button>' +
+    '</div>' +
+    '<button class="big-btn" id="kqStart">開始測驗</button></div>';
+  let scope = "hira-seion";
+  box.querySelector("#kqScope").addEventListener("click", e=>{
+    const b = e.target.closest("button[data-s]"); if(!b) return;
+    scope = b.dataset.s;
+    box.querySelectorAll("#kqScope button").forEach(x=>x.classList.toggle("active",x===b));
+  });
+  box.querySelector("#kqStart").addEventListener("click", ()=>{
+    let pool;
+    if(scope==="hira-seion") pool = buildKana("hira","seion");
+    else if(scope==="kata-seion") pool = buildKana("kata","seion");
+    else if(scope==="hira-all") pool = [...buildKana("hira","seion"),...buildKana("hira","dakuon"),...buildKana("hira","youon")];
+    else if(scope==="kata-all") pool = [...buildKana("kata","seion"),...buildKana("kata","dakuon"),...buildKana("kata","youon")];
+    else pool = ALL_KANA;
+    makeQuiz(box, pool, "kana", "romaji", {
+      label:"假名測驗", speakOn:"kana",
+      onAnswer:(q,right)=>{ if(right){ store.mastery[q.kana]=(store.mastery[q.kana]||0)+1; saveStore(); } },
+      restart:renderKanaQuizSetup
+    });
+  });
+}
+
+/* ---- 單字測驗 ---- */
+function vocabPool(){
+  const pool = [];
+  Object.values(VOCAB).forEach(list=>list.forEach(w=>pool.push({jp:w[1]+"("+w[0]+")", zh:w[3], kana:w[0]})));
+  return pool;
+}
+function renderVocabQuizSetup(){
+  const box = document.getElementById("vocabQuizBox");
+  box.innerHTML = '<div class="quiz-setup"><p style="font-weight:700; margin-bottom:6px;">共 '+vocabPool().length+' 個單字隨機出題,每次 10 題。</p><button class="big-btn" id="vqStart">開始測驗</button></div>';
+  box.querySelector("#vqStart").addEventListener("click", ()=>{
+    makeQuiz(box, vocabPool(), "jp", "zh", {
+      label:"單字測驗", smallQ:true, speakStart:"kana",
+      restart:renderVocabQuizSetup
+    });
+  });
+}
+
+/* ================= 單字卡 ================= */
+let vocabCat = Object.keys(VOCAB)[0], fcIdx = 0;
+const catTabs = document.getElementById("vocabCatTabs");
+Object.keys(VOCAB).forEach((cat,i)=>{
+  const b = document.createElement("button");
+  b.textContent = cat; b.dataset.cat = cat;
+  if(i===0) b.classList.add("active");
+  catTabs.appendChild(b);
+});
+catTabs.addEventListener("click", e=>{
+  const b = e.target.closest("button[data-cat]"); if(!b) return;
+  vocabCat = b.dataset.cat; fcIdx = 0;
+  catTabs.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
+  renderFlashcard();
+});
+const fcEl = document.getElementById("flashcard");
+function renderFlashcard(){
+  const list = VOCAB[vocabCat];
+  const w = list[fcIdx];
+  fcEl.classList.remove("flipped");
+  document.getElementById("fcFrontMain").textContent = w[1];
+  document.getElementById("fcFrontSub").textContent = w[0] + "・" + w[2];
+  document.getElementById("fcBackMain").textContent = w[3];
+  document.getElementById("fcBackSub").textContent = w[1] + "(" + w[0] + ")";
+  document.getElementById("fcCount").textContent = (fcIdx+1) + " / " + list.length;
+}
+fcEl.addEventListener("click", e=>{
+  if(e.target.id==="fcSpeak") return;
+  fcEl.classList.toggle("flipped"); touchStreak();
+});
+fcEl.addEventListener("keydown", e=>{
+  if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fcEl.classList.toggle("flipped"); }
+});
+document.getElementById("fcSpeak").addEventListener("click", e=>{
+  e.stopPropagation(); speak(VOCAB[vocabCat][fcIdx][0]); touchStreak();
+});
+document.getElementById("fcPrev").addEventListener("click", ()=>{
+  const n = VOCAB[vocabCat].length; fcIdx = (fcIdx-1+n)%n; renderFlashcard();
+});
+document.getElementById("fcNext").addEventListener("click", ()=>{
+  const n = VOCAB[vocabCat].length; fcIdx = (fcIdx+1)%n; renderFlashcard();
+});
+
+/* ================= 文法 ================= */
+const gList = document.getElementById("grammarList");
+GRAMMAR.forEach(g=>{
+  const item = document.createElement("div");
+  item.className = "grammar-item";
+  let exHtml = g.ex.map(x=>'<div class="g-ex"><div class="jp">'+x[0]+'</div><div class="zh">'+x[1]+'</div></div>').join("");
+  item.innerHTML =
+    '<button><span class="g-pattern">'+g.p+'</span><span class="g-name">'+g.n+'</span></button>' +
+    '<div class="grammar-body"><p class="g-exp">'+g.exp+'</p>'+exHtml+'</div>';
+  item.querySelector("button").addEventListener("click", ()=>{ item.classList.toggle("open"); touchStreak(); });
+  gList.appendChild(item);
+});
+
+/* ================= 旅遊會話 ================= */
+let phraseCat = Object.keys(PHRASES)[0];
+const pTabs = document.getElementById("phraseTabs");
+Object.keys(PHRASES).forEach((cat,i)=>{
+  const b = document.createElement("button");
+  b.textContent = cat; b.dataset.pcat = cat;
+  if(i===0) b.classList.add("active");
+  pTabs.appendChild(b);
+});
+pTabs.addEventListener("click", e=>{
+  const b = e.target.closest("button[data-pcat]"); if(!b) return;
+  phraseCat = b.dataset.pcat;
+  pTabs.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
+  renderPhrases();
+});
+function renderPhrases(){
+  const wrap = document.getElementById("phraseList");
+  wrap.innerHTML = "";
+  PHRASES[phraseCat].forEach(p=>{
+    const row = document.createElement("div");
+    row.className = "phrase-row";
+    row.innerHTML = '<span class="jp">'+p[0]+'</span><span class="zh">'+p[2]+'</span>' +
+      '<button class="mini-speak">🔊 唸</button><span class="romaji">'+p[1]+'</span>';
+    row.querySelector(".mini-speak").addEventListener("click", ()=>{ speak(p[0]); touchStreak(); });
+    wrap.appendChild(row);
+  });
+}
+renderPhrases();
+
+/* ================= 配對遊戲 ================= */
+let matchState = {started:false, first:null, lock:false, moves:0, pairs:0, type:"hira"};
+document.getElementById("gameTypeTabs").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-gtype]"); if(!b) return;
+  matchState.type = b.dataset.gtype;
+  document.querySelectorAll("#gameTypeTabs button").forEach(x=>x.classList.toggle("active",x===b));
+  newMatchGame();
+});
+document.getElementById("matchRestart").addEventListener("click", newMatchGame);
+function newMatchGame(){
+  matchState.started = true; matchState.first = null; matchState.lock = false;
+  matchState.moves = 0; matchState.pairs = 0;
+  document.getElementById("matchDone").hidden = true;
+  updateMatchInfo();
+  const pool = shuffle(buildKana(matchState.type,"seion")).slice(0,8);
+  const cards = shuffle([
+    ...pool.map(p=>({id:p.romaji, text:p.kana, isKana:true})),
+    ...pool.map(p=>({id:p.romaji, text:p.romaji, isKana:false}))
+  ]);
+  const grid = document.getElementById("matchGrid");
+  grid.innerHTML = "";
+  cards.forEach(c=>{
+    const b = document.createElement("button");
+    b.className = "match-card"; b.dataset.id = c.id;
+    b.textContent = c.text;
+    b.setAttribute("aria-label","蓋著的牌");
+    b.addEventListener("click", ()=>flipMatch(b, c));
+    grid.appendChild(b);
+  });
+}
+function flipMatch(btn, card){
+  if(matchState.lock || btn.classList.contains("revealed") || btn.classList.contains("matched")) return;
+  btn.classList.add("revealed");
+  if(card.isKana) speak(card.text);
+  if(!matchState.first){
+    matchState.first = {btn, card};
+    return;
+  }
+  matchState.moves++; updateMatchInfo();
+  const f = matchState.first; matchState.first = null;
+  if(f.card.id === card.id && f.btn !== btn){
+    f.btn.classList.add("matched"); btn.classList.add("matched");
+    matchState.pairs++; updateMatchInfo();
+    if(matchState.pairs===8){
+      touchStreak();
+      const done = document.getElementById("matchDone");
+      done.hidden = false;
+      done.textContent = "全部配對完成!共用了 " + matchState.moves + " 步 🎉";
+    }
+  }else{
+    matchState.lock = true;
+    setTimeout(()=>{
+      f.btn.classList.remove("revealed"); btn.classList.remove("revealed");
+      matchState.lock = false;
+    }, 800);
+  }
+}
+function updateMatchInfo(){
+  document.getElementById("matchMoves").textContent = "步數:" + matchState.moves;
+  document.getElementById("matchPairs").textContent = "配對:" + matchState.pairs + " / 8";
+}
+
+/* ================= 進度 ================= */
+function renderProgress(){
+  const mastered = Object.keys(store.mastery).filter(k=>store.mastery[k]>=3).length;
+  document.getElementById("stMastered").textContent = mastered + " / " + ALL_KANA.length;
+  document.getElementById("stQuizzes").textContent = store.history.length;
+  const best = store.history.length ? Math.max(...store.history.map(h=>h.score)) : null;
+  document.getElementById("stBest").textContent = best===null ? "—" : best + " / 10";
+  document.getElementById("stStreak").textContent = store.streak || 0;
+  const hl = document.getElementById("historyList");
+  if(!store.history.length){
+    hl.innerHTML = '<div class="history-empty" style="border:none;">還沒有測驗紀錄,先去玩一場假名測驗吧!</div>';
+  }else{
+    hl.innerHTML = store.history.slice(0,10).map(h=>
+      '<div><span>'+h.date+'・'+h.type+'</span><span style="font-weight:900;">'+h.score+' / 10</span></div>'
+    ).join("");
+  }
+}
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(!confirm("確定要清除所有學習紀錄嗎?清除後無法復原。")) return;
+  store = {mastery:{}, history:[], streak:0, lastDay:""};
+  saveStore(); renderStreak(); renderProgress(); renderKanaGrid();
+});
+
+document.getElementById("tabBar").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-page]");
+  if(b) goPage(b.dataset.page);
+});
+
+/* ================= PWA ================= */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  });
+}
+
+/* ================= 初始化 ================= */
+renderStreak();
+renderKanaGrid();
+</script>
+</body>
+</html>
