@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.4.1 — 手機發音修復 ===== */
+/* ===== Build v2.4.2 — 靜音模式也能出聲 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -465,7 +465,7 @@ footer{
       <span class="b-glyph">検</span>
     </button>
   </div>
-  <p class="home-tip">小提示:發音使用手機內建語音。📢 iPhone 請把側邊的靜音開關切回響鈴模式,靜音模式下聽不到發音和音效;第一次播放可能需要等一兩秒載入日文語音。</p>
+  <p class="home-tip">小提示:發音和音效走「媒體音量」,iPhone 開靜音模式也能播放(跟看影片一樣)。沒聲音時請按音量鍵把媒體音量調大;第一次播放可能需要等一兩秒載入日文語音。</p>
 </section>
 
 <!-- ============ 五十音 ============ -->
@@ -607,7 +607,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.4.1・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.4.2・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -892,8 +892,32 @@ function speak(text){
     }
   }catch(e){}
 }
+/* 讓 iPhone 靜音模式也能出聲:播放一段無聲媒體,把頁面音訊切到「媒體播放」通道(和 YouTube 同類、走媒體音量),而不是跟著鈴聲開關的提示音通道 */
+function silentWavURL(){
+  const n = 800, sr = 8000;
+  const buf = new ArrayBuffer(44 + n);
+  const v = new DataView(buf);
+  function ws(o, str){ for(let i=0;i<str.length;i++) v.setUint8(o+i, str.charCodeAt(i)); }
+  ws(0,"RIFF"); v.setUint32(4, 36+n, true); ws(8,"WAVE"); ws(12,"fmt ");
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,sr,true); v.setUint32(28,sr,true); v.setUint16(32,1,true); v.setUint16(34,8,true);
+  ws(36,"data"); v.setUint32(40,n,true);
+  for(let i=0;i<n;i++) v.setUint8(44+i,128);
+  return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
+}
+function engageMediaChannel(){
+  try{
+    if(window.__mediaCh) return;
+    const a = new Audio(silentWavURL());
+    a.loop = true; a.setAttribute("playsinline",""); a.preload = "auto";
+    const pr = a.play();
+    if(pr && pr.then) pr.then(function(){ window.__mediaCh = a; }).catch(function(){});
+    else window.__mediaCh = a;
+  }catch(e){}
+}
 /* 手機音訊解鎖:使用者第一次觸碰畫面時喚醒語音與音效引擎 */
 function unlockAudio(){
+  engageMediaChannel();
   try{
     const AC = window.AudioContext || window.webkitAudioContext;
     if(AC){
@@ -918,6 +942,7 @@ document.addEventListener("click", unlockAudio);
 /* 從背景切回來時,喚醒被暫停的語音引擎 */
 document.addEventListener("visibilitychange", function(){
   try{ if(!document.hidden && "speechSynthesis" in window) window.speechSynthesis.resume(); }catch(e){}
+  try{ if(!document.hidden && window.__mediaCh) window.__mediaCh.play().catch(function(){}); }catch(e){}
 });
 
 /* ================= 導覽 ================= */
