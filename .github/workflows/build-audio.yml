@@ -47,7 +47,7 @@ jobs:
           DIC = "/var/lib/mecab/dic/open-jtalk/naist-jdic"
           def synth(text, out):
               open("/tmp/in.txt", "w", encoding="utf-8").write(text)
-              subprocess.run(["open_jtalk", "-x", DIC, "-m", VOICE, "-r", "1.0", "-ow", out, "/tmp/in.txt"],
+              subprocess.run(["open_jtalk", "-x", DIC, "-m", VOICE, "-r", "0.8", "-ow", out, "/tmp/in.txt"],
                              check=True, capture_output=True)
           def read_wav(path):
               w = wave.open(path, "rb")
