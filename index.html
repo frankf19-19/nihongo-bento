@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.5.1 — 自動更新 + 聲音診斷 ===== */
+/* ===== Build v2.6.0 — 內建語音庫(離線發音) ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -611,7 +611,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.5.1・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.6.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -881,45 +881,51 @@ try{
   }
 }catch(e){}
 const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-let ttsAudio = null, ttsSrcIdx = 0;
-/* iPhone 專用:Apple 把系統語音鎖在鈴聲通道(靜音開關會消音、網頁無法解除),
-   所以 iPhone 改播線上真人語音音檔——音檔走媒體通道,靜音模式也能聽。
-   三個語音來源自動備援,3.5 秒沒出聲就換下一個,記住可用的來源 */
-const TTS_SOURCES = [
-  function(t){ return "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ja&q=" + encodeURIComponent(t); },
-  function(t){ return "https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=ja&q=" + encodeURIComponent(t); },
-  function(t){ return "https://api.streamelements.com/kappa/v2/speech?voice=Mizuki&text=" + encodeURIComponent(t); }
-];
-function playUrl(url){
+/* 內建語音庫:全部發音預先合成、打包成單一音檔放在網站自己身上,
+   走媒體通道(靜音模式照播)、離線可用、不依賴任何外部服務 */
+let spriteMap = null, spriteAudio = null, spriteTimer = null;
+function ensureSpriteAudio(){
+  if(!spriteAudio){
+    spriteAudio = new Audio("./audio/sprite.mp3");
+    spriteAudio.setAttribute("playsinline","");
+    spriteAudio.preload = "auto";
+  }
+  return spriteAudio;
+}
+function loadSpriteMap(){
+  if(spriteMap || window.__mapLoading) return;
+  window.__mapLoading = true;
+  fetch("./audio/sprite_map.json")
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(m){ spriteMap = m; window.__mapLoading = false; })
+    .catch(function(){ window.__mapLoading = false; });
+}
+function speakViaSprite(text){
   return new Promise(function(resolve, reject){
     try{
-      if(!ttsAudio){
-        ttsAudio = new Audio();
-        ttsAudio.setAttribute("playsinline","");
-        ttsAudio.preload = "auto";
+      if(!spriteMap || !spriteMap[text]) return reject(new Error("無此語音"));
+      const seg = spriteMap[text];
+      const a = ensureSpriteAudio();
+      clearTimeout(spriteTimer);
+      const go = function(){
+        try{
+          a.currentTime = seg[0] / 1000;
+          const pr = a.play();
+          if(pr && pr.then){
+            pr.then(function(){ resolve(); }).catch(function(){ reject(new Error("播放被擋")); });
+          }else{ resolve(); }
+          spriteTimer = setTimeout(function(){ try{ a.pause(); }catch(err){} }, seg[1] + 80);
+        }catch(e){ reject(e); }
+      };
+      if(a.readyState >= 2){ go(); }
+      else{
+        const tm = setTimeout(function(){ reject(new Error("音檔載入逾時")); }, 8000);
+        a.addEventListener("loadeddata", function h(){ clearTimeout(tm); a.removeEventListener("loadeddata", h); go(); });
+        a.addEventListener("error", function(){ clearTimeout(tm); reject(new Error("音檔載入失敗")); }, {once:true});
+        a.load();
       }
-      const a = ttsAudio;
-      let done = false;
-      const tm = setTimeout(function(){ fail(); }, 3500);
-      function fail(){ if(done) return; done = true; clearTimeout(tm); reject(new Error("src")); }
-      function good(){ if(done) return; done = true; clearTimeout(tm); resolve(); }
-      a.onerror = fail;
-      a.onplaying = good;
-      a.src = url;
-      const pr = a.play();
-      if(pr && pr.catch) pr.catch(fail);
     }catch(e){ reject(e); }
   });
-}
-function speakViaAudio(text){
-  function tryFrom(i){
-    if(i >= TTS_SOURCES.length) return Promise.reject(new Error("all"));
-    const idx = (ttsSrcIdx + i) % TTS_SOURCES.length;
-    return playUrl(TTS_SOURCES[idx](text)).then(function(){
-      ttsSrcIdx = idx; /* 這個來源可用,之後優先用它 */
-    }).catch(function(){ return tryFrom(i + 1); });
-  }
-  return tryFrom(0);
 }
 function speakViaSystem(text){
   try{
@@ -945,12 +951,8 @@ function speakViaSystem(text){
 }
 function speak(text){
   setPlaybackSession(); /* 每次發音前再確認一次媒體通道,防被系統重設 */
-  if(IS_IOS){
-    /* 線上語音失敗(離線、被擋)時自動退回系統語音 */
-    speakViaAudio(text).catch(function(){ speakViaSystem(text); });
-  }else{
-    speakViaSystem(text);
-  }
+  /* 全平台優先用內建語音庫(靜音模式照播、離線可用),失敗才退回系統語音 */
+  speakViaSprite(text).catch(function(){ speakViaSystem(text); });
 }
 /* 讓 iPhone 靜音模式也能出聲:播放一段無聲媒體,把頁面音訊切到「媒體播放」通道(和 YouTube 同類、走媒體音量),而不是跟著鈴聲開關的提示音通道 */
 function silentWavURL(){
@@ -979,19 +981,16 @@ function engageMediaChannel(){
 function unlockAudio(){
   setPlaybackSession();
   engageMediaChannel();
-  /* 在使用者手勢裡先「開光」發音用的 audio 元素,
-     之後備援來源在非手勢時間點呼叫 play() 才不會被 iOS 擋下 */
+  loadSpriteMap();
+  /* 在使用者手勢裡先「開光」語音庫的 audio 元素,
+     之後任何時間點呼叫 play() 才不會被 iOS 擋下 */
   try{
-    if(!ttsAudio){
-      ttsAudio = new Audio();
-      ttsAudio.setAttribute("playsinline","");
-      ttsAudio.preload = "auto";
-    }
-    if(!window.__ttsBlessed){
-      window.__ttsBlessed = true;
-      const b = ttsAudio; b.src = silentWavURL();
+    ensureSpriteAudio();
+    if(!window.__spriteBlessed){
+      window.__spriteBlessed = true;
+      const b = spriteAudio; b.muted = true;
       const p = b.play();
-      if(p && p.then) p.then(function(){ b.pause(); }).catch(function(){ window.__ttsBlessed = false; });
+      if(p && p.then) p.then(function(){ b.pause(); b.muted = false; try{ b.currentTime = 0; }catch(err){} }).catch(function(){ b.muted = false; window.__spriteBlessed = false; });
     }
   }catch(e){}
   try{
@@ -1574,25 +1573,19 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.5.1・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.6.0・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
   lines.push("① 已送出「叮咚叮」測試音效——有聽到嗎?"); show();
-  let voiced = false;
-  for(let i = 0; i < TTS_SOURCES.length; i++){
-    lines.push("② 線上語音來源 " + (i+1) + ":測試中…"); show();
-    try{
-      await playUrl(TTS_SOURCES[i]("こんにちは"));
-      lines[lines.length-1] = "② 線上語音來源 " + (i+1) + ":✅ 已播出(應聽到 konnichiwa)"; show();
-      voiced = true;
-      break;
-    }catch(e){
-      lines[lines.length-1] = "② 線上語音來源 " + (i+1) + ":❌ 失敗"; show();
-    }
-  }
-  if(!voiced){
-    lines.push("③ 三個線上來源都失敗 → 改試系統語音(靜音模式下會無聲)"); show();
+  lines.push("② 語音庫時間表:載入中…"); show();
+  if(!spriteMap){ loadSpriteMap(); await new Promise(function(r){ setTimeout(r, 2500); }); }
+  lines[lines.length-1] = "② 語音庫時間表:" + (spriteMap ? ("✅ 共 " + Object.keys(spriteMap).length + " 句") : "❌ 載入失敗(音檔可能還在自動產生中,幾分鐘後再試)"); show();
+  try{
+    await speakViaSprite("こんにちは");
+    lines.push("③ 語音庫發音:✅ 已播出(應聽到 konnichiwa 女聲)"); show();
+  }catch(e){
+    lines.push("③ 語音庫發音:❌ " + e.message + " → 改試系統語音(靜音模式下會無聲)"); show();
     speakViaSystem("こんにちは");
   }
   lines.push("―― 測試完成,請把這個畫面截圖回報 ――"); show();
@@ -1600,6 +1593,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
 
 /* ================= 初始化 ================= */
 logEvent("open");
+loadSpriteMap();
 renderStreak();
 renderKanaGrid();
 </script>

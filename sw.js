@@ -1,5 +1,5 @@
-/* 日語便當 Nihongo Bento — Service Worker Build v2.5.1 */
-const CACHE = "nihongo-bento-v2.5.1";
+/* 日語便當 Nihongo Bento — Service Worker Build v2.6.0 */
+const CACHE = "nihongo-bento-v2.6.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -11,7 +11,14 @@ const ASSETS = [
 
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then(c => c.addAll(ASSETS)
+        .then(() => Promise.all([
+          c.add("./audio/sprite.mp3").catch(() => {}),
+          c.add("./audio/sprite_map.json").catch(() => {})
+        ]))
+      )
+      .then(() => self.skipWaiting())
   );
 });
 

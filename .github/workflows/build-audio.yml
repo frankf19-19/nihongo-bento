@@ -1,0 +1,97 @@
+name: Build audio sprite
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - .github/workflows/build-audio.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: build-audio
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Japanese TTS engine
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q open-jtalk open-jtalk-mecab-naist-jdic ffmpeg unzip
+          curl -sL -o /tmp/tohoku.zip https://codeload.github.com/icn-lab/htsvoice-tohoku-f01/zip/refs/heads/master
+          unzip -o -q /tmp/tohoku.zip -d /tmp
+      - name: Synthesize all speech from index.html
+        run: |
+          python3 - << 'PY'
+          # -*- coding: utf-8 -*-
+          import re, json, subprocess, os, struct, wave
+          s = open("index.html", encoding="utf-8").read()
+          texts = set()
+          m = re.search(r'const SEION_H = \[\.\.\."([^"]+)"\]', s); texts.update(list(m.group(1)))
+          m = re.search(r'const SEION_K = \[\.\.\."([^"]+)"\]', s); texts.update(list(m.group(1)))
+          m = re.search(r'const DAK_H = \[\.\.\."([^"]+)"\]', s); texts.update(list(m.group(1)))
+          m = re.search(r'const DAK_K = \[\.\.\."([^"]+)"\]', s); texts.update(list(m.group(1)))
+          m = re.search(r'const YOU_H = \[([^\]]+)\]', s); texts.update(re.findall(r'"([^"]+)"', m.group(1)))
+          m = re.search(r'const YOU_K = \[([^\]]+)\]', s); texts.update(re.findall(r'"([^"]+)"', m.group(1)))
+          vb = s.split("const VOCAB = {")[1].split("};")[0]
+          for row in re.findall(r'\["([^"]+)","[^"]*","[^"]*","[^"]*"\]', vb):
+              texts.add(row)
+          pb = s.split("const PHRASES = {")[1].split("};")[0]
+          for row in re.findall(r'\["([^"]+)","[^"]*","[^"]*"\]', pb):
+              texts.add(row)
+          texts.add("こんにちは")
+          texts = sorted(texts)
+          VOICE = "/tmp/htsvoice-tohoku-f01-master/tohoku-f01-neutral.htsvoice"
+          DIC = "/var/lib/mecab/dic/open-jtalk/naist-jdic"
+          def synth(text, out):
+              open("/tmp/in.txt", "w", encoding="utf-8").write(text)
+              subprocess.run(["open_jtalk", "-x", DIC, "-m", VOICE, "-r", "1.0", "-ow", out, "/tmp/in.txt"],
+                             check=True, capture_output=True)
+          def read_wav(path):
+              w = wave.open(path, "rb")
+              sr = w.getframerate()
+              data = w.readframes(w.getnframes())
+              w.close()
+              return sr, data
+          def trim(data, sr, thresh=300):
+              n = len(data)//2
+              samples = struct.unpack("<%dh" % n, data)
+              st, en = 0, n
+              for i in range(n):
+                  if abs(samples[i]) > thresh: st = max(0, i - int(sr*0.02)); break
+              for i in range(n-1, -1, -1):
+                  if abs(samples[i]) > thresh: en = min(n, i + int(sr*0.06)); break
+              return struct.pack("<%dh" % (en-st), *samples[st:en])
+          sr0 = None
+          segments = []
+          out_pcm = bytearray()
+          GAP = b""
+          for t in texts:
+              synth(t, "/tmp/c.wav")
+              sr, data = read_wav("/tmp/c.wav")
+              if sr0 is None:
+                  sr0 = sr
+                  GAP = b"\x00\x00" * int(sr*0.12)
+              data = trim(data, sr)
+              segments.append((t, len(out_pcm)//2, len(data)//2))
+              out_pcm += data
+              out_pcm += GAP
+          w = wave.open("/tmp/sprite.wav", "wb")
+          w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr0)
+          w.writeframes(bytes(out_pcm)); w.close()
+          mp = {t: [round(st/sr0*1000), round(d/sr0*1000)] for t, st, d in segments}
+          json.dump(mp, open("/tmp/sprite_map.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+          print("clips:", len(mp), "total: %.1fs" % (len(out_pcm)/2/sr0))
+          PY
+          mkdir -p audio
+          ffmpeg -y -loglevel error -i /tmp/sprite.wav -ac 1 -ar 22050 -b:a 32k audio/sprite.mp3
+          cp /tmp/sprite_map.json audio/sprite_map.json
+          ls -la audio/
+      - name: Commit audio back to repo
+        run: |
+          git config user.name "audio-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add audio/sprite.mp3 audio/sprite_map.json
+          git diff --cached --quiet || (git commit -m "Build audio sprite (auto)" && git push)
