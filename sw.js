@@ -1,5 +1,5 @@
-/* 日語便當 Nihongo Bento — Service Worker Build v2.4.3 */
-const CACHE = "nihongo-bento-v2.4.3";
+/* 日語便當 Nihongo Bento — Service Worker Build v2.5.0 */
+const CACHE = "nihongo-bento-v2.5.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,6 +25,7 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  if (!e.request.url.startsWith(self.location.origin)) return; /* 跨域(線上語音等)交給瀏覽器原生處理 */
   e.respondWith(
     caches.match(e.request).then(hit => {
       const fetched = fetch(e.request).then(res => {

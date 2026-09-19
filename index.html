@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.4.3 — audioSession 官方媒體通道 ===== */
+/* ===== Build v2.5.0 — iPhone 真人語音發音 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -465,7 +465,7 @@ footer{
       <span class="b-glyph">検</span>
     </button>
   </div>
-  <p class="home-tip">小提示:發音和音效走「媒體音量」,iPhone 開靜音模式也能播放(跟看影片一樣)。沒聲音時請按音量鍵把媒體音量調大;第一次播放可能需要等一兩秒載入日文語音。</p>
+  <p class="home-tip">小提示:發音和音效走「媒體音量」,靜音模式也能播放,大小聲用音量鍵調整。iPhone 的發音使用線上真人語音(需要網路);其他裝置使用內建語音。</p>
 </section>
 
 <!-- ============ 五十音 ============ -->
@@ -607,7 +607,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.4.3・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.5.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -876,7 +876,48 @@ try{
     window.speechSynthesis.onvoiceschanged = pickVoice;
   }
 }catch(e){}
-function speak(text){
+const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let ttsAudio = null, ttsSrcIdx = 0;
+/* iPhone 專用:Apple 把系統語音鎖在鈴聲通道(靜音開關會消音、網頁無法解除),
+   所以 iPhone 改播線上真人語音音檔——音檔走媒體通道,靜音模式也能聽。
+   三個語音來源自動備援,3.5 秒沒出聲就換下一個,記住可用的來源 */
+const TTS_SOURCES = [
+  function(t){ return "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ja&q=" + encodeURIComponent(t); },
+  function(t){ return "https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=ja&q=" + encodeURIComponent(t); },
+  function(t){ return "https://api.streamelements.com/kappa/v2/speech?voice=Mizuki&text=" + encodeURIComponent(t); }
+];
+function playUrl(url){
+  return new Promise(function(resolve, reject){
+    try{
+      if(!ttsAudio){
+        ttsAudio = new Audio();
+        ttsAudio.setAttribute("playsinline","");
+        ttsAudio.preload = "auto";
+      }
+      const a = ttsAudio;
+      let done = false;
+      const tm = setTimeout(function(){ fail(); }, 3500);
+      function fail(){ if(done) return; done = true; clearTimeout(tm); reject(new Error("src")); }
+      function good(){ if(done) return; done = true; clearTimeout(tm); resolve(); }
+      a.onerror = fail;
+      a.onplaying = good;
+      a.src = url;
+      const pr = a.play();
+      if(pr && pr.catch) pr.catch(fail);
+    }catch(e){ reject(e); }
+  });
+}
+function speakViaAudio(text){
+  function tryFrom(i){
+    if(i >= TTS_SOURCES.length) return Promise.reject(new Error("all"));
+    const idx = (ttsSrcIdx + i) % TTS_SOURCES.length;
+    return playUrl(TTS_SOURCES[idx](text)).then(function(){
+      ttsSrcIdx = idx; /* 這個來源可用,之後優先用它 */
+    }).catch(function(){ return tryFrom(i + 1); });
+  }
+  return tryFrom(0);
+}
+function speakViaSystem(text){
   try{
     if(!("speechSynthesis" in window)) return;
     const go = function(){
@@ -889,7 +930,6 @@ function speak(text){
         window.speechSynthesis.speak(u);
       }catch(e){}
     };
-    setPlaybackSession(); /* 每次發音前再確認一次媒體通道,防被系統重設 */
     /* iOS 上 cancel() 後立刻 speak() 會把新語音吃掉,必須隔一拍 */
     if(window.speechSynthesis.speaking || window.speechSynthesis.pending){
       window.speechSynthesis.cancel();
@@ -898,6 +938,15 @@ function speak(text){
       go();
     }
   }catch(e){}
+}
+function speak(text){
+  setPlaybackSession(); /* 每次發音前再確認一次媒體通道,防被系統重設 */
+  if(IS_IOS){
+    /* 線上語音失敗(離線、被擋)時自動退回系統語音 */
+    speakViaAudio(text).catch(function(){ speakViaSystem(text); });
+  }else{
+    speakViaSystem(text);
+  }
 }
 /* 讓 iPhone 靜音模式也能出聲:播放一段無聲媒體,把頁面音訊切到「媒體播放」通道(和 YouTube 同類、走媒體音量),而不是跟著鈴聲開關的提示音通道 */
 function silentWavURL(){
