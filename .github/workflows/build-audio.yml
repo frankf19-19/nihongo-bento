@@ -154,6 +154,14 @@ jobs:
           mkdir -p audio
           ffmpeg -y -loglevel error -i /tmp/sprite.wav -ac 1 -ar 22050 -b:a 32k audio/sprite.mp3
           cp /tmp/sprite_map.json audio/sprite_map.json
+          python3 - << 'PY2'
+          import json, hashlib
+          h = hashlib.sha256(open("audio/sprite.mp3", "rb").read()).hexdigest()[:10]
+          mp = json.load(open("audio/sprite_map.json", encoding="utf-8"))
+          mp["__v"] = h
+          json.dump(mp, open("audio/sprite_map.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+          print("audio pair version:", h)
+          PY2
           ls -la audio/
       - name: Commit audio back to repo
         run: |

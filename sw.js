@@ -1,5 +1,5 @@
-/* 日語便當 Nihongo Bento — Service Worker Build v2.7.0 */
-const CACHE = "nihongo-bento-v2.7.0";
+/* 日語便當 Nihongo Bento — Service Worker Build v2.7.1 */
+const CACHE = "nihongo-bento-v2.7.1";
 const ASSETS = [
   "./",
   "./index.html",
@@ -11,14 +11,7 @@ const ASSETS = [
 
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open(CACHE)
-      .then(c => c.addAll(ASSETS)
-        .then(() => Promise.all([
-          c.add("./audio/sprite.mp3").catch(() => {}),
-          c.add("./audio/sprite_map.json").catch(() => {})
-        ]))
-      )
-      .then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
   );
 });
 
@@ -32,7 +25,20 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
-  if (!e.request.url.startsWith(self.location.origin)) return; /* 跨域(線上語音等)交給瀏覽器原生處理 */
+  if (!e.request.url.startsWith(self.location.origin)) return; /* 跨域交給瀏覽器原生處理 */
+  /* 語音時間表:網路優先(拿最新配對),離線才用快取 */
+  if (e.request.url.includes("sprite_map.json")) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(hit => {
       const fetched = fetch(e.request).then(res => {

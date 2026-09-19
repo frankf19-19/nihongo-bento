@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.7.0 — 会話道場(情境對話) ===== */
+/* ===== Build v2.7.1 — 語音庫配對鎖定 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -644,7 +644,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.7.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.7.1・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -916,21 +916,32 @@ try{
 const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 /* 內建語音庫:全部發音預先合成、打包成單一音檔放在網站自己身上,
    走媒體通道(靜音模式照播)、離線可用、不依賴任何外部服務 */
-let spriteMap = null, spriteAudio = null, spriteTimer = null;
+let spriteMap = null, spriteAudio = null, spriteTimer = null, spriteVer = "";
+function spriteSrc(){ return "./audio/sprite.mp3" + (spriteVer ? ("?v=" + spriteVer) : ""); }
 function ensureSpriteAudio(){
+  const want = spriteSrc();
   if(!spriteAudio){
-    spriteAudio = new Audio("./audio/sprite.mp3");
+    spriteAudio = new Audio(want);
     spriteAudio.setAttribute("playsinline","");
     spriteAudio.preload = "auto";
+  }else if(spriteAudio.getAttribute("data-src") !== want){
+    spriteAudio.src = want; /* 音檔更新時切換到配對的新版本 */
   }
+  spriteAudio.setAttribute("data-src", want);
   return spriteAudio;
 }
 function loadSpriteMap(){
   if(spriteMap || window.__mapLoading) return;
   window.__mapLoading = true;
-  fetch("./audio/sprite_map.json")
+  /* 時間表一律向網路拿最新版(離線時快取墊底);表內含音檔版本指紋,
+     音檔一律以指紋請求——兩者永遠成對,杜絕新舊錯配造成的亂放 */
+  fetch("./audio/sprite_map.json", {cache:"no-cache"})
     .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(m){ spriteMap = m; window.__mapLoading = false; })
+    .then(function(m){
+      if(m && m.__v){ spriteVer = m.__v; delete m.__v; }
+      spriteMap = m; window.__mapLoading = false;
+      if(m) ensureSpriteAudio(); /* 預先載入配對音檔 */
+    })
     .catch(function(){ window.__mapLoading = false; });
 }
 function speakViaSprite(text){
@@ -1712,14 +1723,14 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.6.2・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.7.1・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
   lines.push("① 已送出「叮咚叮」測試音效——有聽到嗎?"); show();
   lines.push("② 語音庫時間表:載入中…"); show();
   if(!spriteMap){ loadSpriteMap(); await new Promise(function(r){ setTimeout(r, 2500); }); }
-  lines[lines.length-1] = "② 語音庫時間表:" + (spriteMap ? ("✅ 共 " + Object.keys(spriteMap).length + " 句") : "❌ 載入失敗(音檔可能還在自動產生中,幾分鐘後再試)"); show();
+  lines[lines.length-1] = "② 語音庫時間表:" + (spriteMap ? ("✅ 共 " + Object.keys(spriteMap).length + " 句・配對指紋 " + (spriteVer || "無")) : "❌ 載入失敗(音檔可能還在自動產生中,幾分鐘後再試)"); show();
   try{
     await speakViaSprite("こんにちは");
     lines.push("③ 語音庫發音:✅ 已播出(應聽到 konnichiwa 女聲)"); show();
