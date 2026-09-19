@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.1.0 — 櫻花糖果風 + 使用紀錄 ===== */
+/* ===== Build v2.2.0 — 使用紀錄 + 程度檢定 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -324,6 +324,15 @@ p.page-sub{color:var(--ink2); margin:2px 0 20px; font-size:.93rem;}
 .usage-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:22px;}
 .usage-grid div{background:var(--surface); border:2px solid var(--line); border-radius:14px; box-shadow:0 3px 0 var(--card-shadow); padding:10px 6px; text-align:center; font-weight:700; font-size:.78rem; color:var(--ink2);}
 .usage-grid div b{display:block; font-size:1.2rem; color:var(--ink);}
+/* ===== 程度檢定 ===== */
+.lvl-emoji{font-size:3rem; text-align:center; line-height:1.2;}
+.lvl-badge{font-size:1.7rem; font-weight:900; text-align:center; color:var(--pink-deep);}
+.lvl-row{display:flex; align-items:center; gap:10px; margin:7px 0; font-size:.85rem; font-weight:900;}
+.lvl-row .name{width:44px;}
+.lvl-row .track{flex:1; height:14px; background:var(--surface2); border:2px solid var(--line); border-radius:999px; overflow:hidden; display:block;}
+.lvl-row .fill{display:block; height:100%; background:var(--pink); border-radius:999px;}
+.lvl-row .val{width:38px; text-align:right; color:var(--ink2);}
+.b-level{grid-column:span 6; background:var(--sky-soft)!important; border-color:var(--sky)!important;}
 footer{
   text-align:center; color:var(--ink2); font-size:.78rem; padding:20px 10px 30px; font-weight:700;
 }
@@ -369,6 +378,7 @@ footer{
   <button data-page="grammar">文法</button>
   <button data-page="phrases">旅遊會話</button>
   <button data-page="game">配對遊戲</button>
+  <button data-page="level">程度檢定</button>
   <button data-page="progress">我的進度</button>
 </nav>
 
@@ -412,6 +422,11 @@ footer{
       <span class="b-title">🌱 我的進度</span>
       <span class="b-desc">已精通假名、測驗紀錄、連續學習天數</span>
       <span class="b-glyph">進</span>
+    </button>
+    <button class="b-level" data-go="level">
+      <span class="b-title">🏅 日語程度檢定</span>
+      <span class="b-desc">20 題綜合測驗:假名・單字・文法・會話,測出你現在的程度</span>
+      <span class="b-glyph">検</span>
     </button>
   </div>
   <p class="home-tip">小提示:發音功能使用瀏覽器內建語音,第一次點「唸給我聽」時,部分手機需要等一兩秒載入日文語音。</p>
@@ -515,6 +530,13 @@ footer{
   </div>
 </section>
 
+<!-- ============ 程度檢定 ============ -->
+<section id="page-level" hidden>
+  <h2 class="page-title">日語程度檢定</h2>
+  <p class="page-sub">20 題綜合測驗,涵蓋假名、單字、文法、會話,測完立刻給你程度評級和弱點分析。</p>
+  <div class="quiz-box" id="levelBox"></div>
+</section>
+
 <!-- ============ 進度 ============ -->
 <section id="page-progress" hidden>
   <h2 class="page-title">我的進度</h2>
@@ -525,6 +547,7 @@ footer{
     <div class="stat-card"><div class="num" id="stBest">—</div><div class="lbl">最佳成績</div></div>
     <div class="stat-card"><div class="num" id="stStreak">0</div><div class="lbl">連續學習天數</div></div>
     <div class="stat-card"><div class="num" id="stTime">0 分</div><div class="lbl">累計學習時間</div></div>
+    <div class="stat-card"><div class="num" id="stLevel" style="font-size:1.05rem; line-height:1.5; padding-top:6px;">未檢定</div><div class="lbl">目前日語程度</div></div>
   </div>
   <h2 class="page-title" style="font-size:1.1rem;">最近 7 天學習時間(分鐘)</h2>
   <div class="usage-chart" id="usageChart"></div>
@@ -548,7 +571,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.1.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.2.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -711,7 +734,7 @@ function renderStreak(){
 function isMastered(kana){ return (store.mastery[kana]||0) >= 3; }
 
 /* ===== 使用紀錄(隨時記錄,存在使用者自己的瀏覽器) ===== */
-const EV_LABEL = {open:"開啟 App", page:"切換頁面", kana:"點五十音", speak:"聽發音", card:"翻單字卡", quiz_done:"完成測驗", grammar:"研讀文法", match_done:"完成配對"};
+const EV_LABEL = {open:"開啟 App", page:"切換頁面", kana:"點五十音", speak:"聽發音", card:"翻單字卡", quiz_done:"完成測驗", grammar:"研讀文法", match_done:"完成配對", level_done:"完成程度檢定"};
 function logEvent(e, d){
   try{
     if(!store.daily) store.daily = {};
@@ -753,7 +776,7 @@ function speak(text){
 try{ if("speechSynthesis" in window) window.speechSynthesis.getVoices(); }catch(e){}
 
 /* ================= 導覽 ================= */
-const pages = ["home","kana","kanaquiz","vocab","vocabquiz","grammar","phrases","game","progress"];
+const pages = ["home","kana","kanaquiz","vocab","vocabquiz","grammar","phrases","game","level","progress"];
 function goPage(name){
   pages.forEach(p=>{
     document.getElementById("page-"+p).hidden = (p!==name);
@@ -761,7 +784,7 @@ function goPage(name){
   document.querySelectorAll("#mainNav button").forEach(b=>{
     b.classList.toggle("active", b.dataset.page===name);
   });
-  const TAB_MAP = {home:"home",kana:"kana",kanaquiz:"kana",vocab:"vocab",vocabquiz:"vocab",grammar:"home",phrases:"phrases",game:"home",progress:"progress"};
+  const TAB_MAP = {home:"home",kana:"kana",kanaquiz:"kana",vocab:"vocab",vocabquiz:"vocab",grammar:"home",phrases:"phrases",game:"home",level:"home",progress:"progress"};
   document.querySelectorAll("#tabBar button").forEach(b=>{
     b.classList.toggle("active", b.dataset.page===TAB_MAP[name]);
   });
@@ -770,6 +793,7 @@ function goPage(name){
   if(name==="vocab") renderFlashcard();
   if(name==="vocabquiz") renderVocabQuizSetup();
   if(name==="progress") renderProgress();
+  if(name==="level") renderLevelSetup();
   if(name==="game" && !matchState.started) newMatchGame();
   logEvent("page", name);
   window.scrollTo({top:0});
@@ -1075,6 +1099,126 @@ function updateMatchInfo(){
   document.getElementById("matchPairs").textContent = "配對:" + matchState.pairs + " / 8";
 }
 
+/* ================= 程度檢定 ================= */
+const LEVEL_GRAMMAR = [
+  ["わたし＿学生です。","は",["は","を","で","へ"]],
+  ["ラーメン＿食べます。","を",["を","は","に","の"]],
+  ["東京＿行きます。","へ",["へ","を","が","は"]],
+  ["駅＿友達に会います。","で",["で","を","へ","の"]],
+  ["七時＿起きます。","に",["に","で","を","へ"]],
+  ["部屋に猫＿います。","が",["が","を","へ","で"]],
+  ["これはわたし＿本です。","の",["の","が","を","に"]],
+  ["もう一度言って＿。","ください",["ください","です","ます","でした"]]
+];
+const LEVEL_PHRASE = [
+  ["在餐廳吃完想結帳,要說?","お会計お願いします",["お会計お願いします","いくらですか","いただきます","おはようございます"]],
+  ["迷路了想問車站在哪,要說?","駅はどこですか",["駅はどこですか","切符をください","ここで降ります","何時ですか"]],
+  ["沒聽清楚,想請對方再說一次,要說?","もう一度お願いします",["もう一度お願いします","さようなら","はじめまして","おやすみなさい"]],
+  ["購物想問這個多少錢,要說?","いくらですか",["いくらですか","どこですか","だれですか","なんじですか"]],
+  ["到飯店櫃檯要辦入住,要說?","チェックインお願いします",["チェックインお願いします","チェックアウトお願いします","予約できますか","荷物はどこですか"]],
+  ["聽不懂對方的日文,要說?","日本語がわかりません",["日本語がわかりません","日本語が上手ですね","日本語を教えます","日本語で話します"]]
+];
+function buildLevelQuestions(){
+  const qs = [];
+  const kanaPick = (list, n) => shuffle(list).slice(0,n).forEach(k=>{
+    const wrong = shuffle(list.filter(x=>x.romaji!==k.romaji)).slice(0,3).map(x=>x.romaji);
+    qs.push({q:k.kana, big:true, opts:shuffle([k.romaji].concat(wrong)), ans:k.romaji, cat:"假名", speak:k.kana});
+  });
+  kanaPick(buildKana("hira","seion"), 4);
+  kanaPick(buildKana("kata","seion"), 2);
+  kanaPick(buildKana("hira","dakuon"), 1);
+  kanaPick(buildKana("hira","youon"), 1);
+  const vp = vocabPool();
+  shuffle(vp).slice(0,6).forEach(w=>{
+    const wrong = shuffle(vp.filter(x=>x.zh!==w.zh)).slice(0,3).map(x=>x.zh);
+    qs.push({q:w.jp, opts:shuffle([w.zh].concat(wrong)), ans:w.zh, cat:"單字", speak:w.kana});
+  });
+  shuffle(LEVEL_GRAMMAR).slice(0,4).forEach(g=>{
+    qs.push({q:g[0], opts:shuffle(g[2].slice()), ans:g[1], cat:"文法"});
+  });
+  shuffle(LEVEL_PHRASE).slice(0,2).forEach(p=>{
+    qs.push({q:p[0], opts:shuffle(p[2].slice()), ans:p[1], cat:"會話"});
+  });
+  return shuffle(qs);
+}
+function levelRank(score){
+  if(score>=18) return {label:"N5 合格實力", emoji:"🌸", tip:"基礎非常穩!可以開始接觸 N4 文法和更長的句子了。"};
+  if(score>=15) return {label:"N5 衝刺中", emoji:"🎏", tip:"實力接近 N5,把答錯的分類多練幾輪就到位了。"};
+  if(score>=10) return {label:"初級進行中", emoji:"🍡", tip:"有一定基礎了!建議每天單字卡和文法各練一輪。"};
+  if(score>=5)  return {label:"入門起步", emoji:"🍙", tip:"先把五十音表全部變綠,之後單字和文法會突然變簡單。"};
+  return {label:"五十音修行中", emoji:"🌱", tip:"從五十音表開始,每天點一點、唸一唸,很快就有感覺。"};
+}
+function renderLevelSetup(){
+  const box = document.getElementById("levelBox");
+  let last = "";
+  if(store.level && store.level.label){
+    last = '<p style="text-align:center; font-weight:700; color:var(--ink2); margin-bottom:4px;">上次結果:' + store.level.label + '(' + store.level.score + ' / 20・' + store.level.date + ')</p>';
+  }
+  box.innerHTML = '<div class="quiz-setup">' + last +
+    '<p style="font-weight:700; margin-bottom:6px;">20 題綜合測驗:假名 8 題、單字 6 題、文法 4 題、會話 2 題,做完立刻告訴你目前的程度。</p>' +
+    '<button class="big-btn" id="lvStart">開始檢定</button></div>';
+  box.querySelector("#lvStart").addEventListener("click", runLevelTest);
+}
+function runLevelTest(){
+  const box = document.getElementById("levelBox");
+  const qs = buildLevelQuestions();
+  const catTotal = {}, catRight = {};
+  qs.forEach(x=>{ catTotal[x.cat]=(catTotal[x.cat]||0)+1; });
+  let idx = 0, score = 0;
+  function renderQ(){
+    const q = qs[idx];
+    box.innerHTML =
+      '<div class="quiz-meta"><span>第 '+(idx+1)+' / 20 題・'+q.cat+'</span><span>得分 '+score+'</span></div>' +
+      '<div class="quiz-q '+(q.big?"":"small")+'">'+q.q+'</div>' +
+      '<div class="quiz-opts"></div><div class="quiz-fb"></div>';
+    const optBox = box.querySelector(".quiz-opts");
+    const fb = box.querySelector(".quiz-fb");
+    q.opts.forEach(c=>{
+      const b = document.createElement("button");
+      b.textContent = c;
+      b.addEventListener("click", ()=>{
+        optBox.querySelectorAll("button").forEach(x=>x.disabled=true);
+        const right = c===q.ans;
+        if(right){
+          b.classList.add("correct"); score++;
+          catRight[q.cat]=(catRight[q.cat]||0)+1;
+          fb.textContent = "答對了!"; fb.className = "quiz-fb good";
+        }else{
+          b.classList.add("wrong");
+          optBox.querySelectorAll("button").forEach(x=>{ if(x.textContent===q.ans) x.classList.add("correct"); });
+          fb.textContent = "正確答案是「"+q.ans+"」"; fb.className = "quiz-fb bad";
+        }
+        if(q.speak) speak(q.speak);
+        setTimeout(()=>{ idx++; idx<qs.length ? renderQ() : renderEnd(); }, 1100);
+      });
+      optBox.appendChild(b);
+    });
+  }
+  function renderEnd(){
+    touchStreak();
+    const rank = levelRank(score);
+    store.level = {score:score, label:rank.label, date:todayStr()};
+    saveStore();
+    logEvent("level_done", rank.label + " " + score + "/20");
+    const cats = ["假名","單字","文法","會話"];
+    let barHtml = "";
+    cats.forEach(c=>{
+      const t = catTotal[c]||0, r = catRight[c]||0;
+      const pct = t ? Math.round(r/t*100) : 0;
+      barHtml += '<div class="lvl-row"><span class="name">'+c+'</span><span class="track"><span class="fill" style="width:'+pct+'%"></span></span><span class="val">'+r+' / '+t+'</span></div>';
+    });
+    box.innerHTML =
+      '<div class="lvl-emoji">'+rank.emoji+'</div>' +
+      '<div class="lvl-badge">'+rank.label+'</div>' +
+      '<div class="result-big" style="font-size:1.6rem;">'+score+' / 20</div>' +
+      barHtml +
+      '<p style="text-align:center; font-weight:700; margin-top:10px;">'+rank.tip+'</p>' +
+      '<button class="big-btn" id="lvAgain">再測一次</button>';
+    box.querySelector("#lvAgain").addEventListener("click", renderLevelSetup);
+  }
+  renderQ();
+}
+
 /* ================= 進度 ================= */
 function renderProgress(){
   const mastered = Object.keys(store.mastery).filter(k=>store.mastery[k]>=3).length;
@@ -1086,6 +1230,7 @@ function renderProgress(){
   const daily = store.daily || {};
   const totalSec = Object.keys(daily).reduce((a,k)=>a+(daily[k].sec||0),0);
   document.getElementById("stTime").textContent = Math.round(totalSec/60) + " 分";
+  document.getElementById("stLevel").textContent = (store.level && store.level.label) ? store.level.label : "未檢定";
   const chart = document.getElementById("usageChart");
   let bars = "", maxSec = 60;
   const dayKeys = [];
@@ -1102,7 +1247,7 @@ function renderProgress(){
   chart.innerHTML = bars;
   const totals = {};
   Object.keys(daily).forEach(k=>{ const n=daily[k].n||{}; Object.keys(n).forEach(e=>{ totals[e]=(totals[e]||0)+n[e]; }); });
-  const order = ["open","page","kana","speak","card","quiz_done","grammar","match_done"];
+  const order = ["open","page","kana","speak","card","quiz_done","grammar","match_done","level_done"];
   document.getElementById("usageGrid").innerHTML = order.map(e=>'<div><b>'+(totals[e]||0)+'</b>'+EV_LABEL[e]+'</div>').join("");
   const el = document.getElementById("eventList");
   if(!(store.events||[]).length){
