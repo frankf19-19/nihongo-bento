@@ -100,15 +100,17 @@ jobs:
           SENT_FIX = [("何ですか", "なんですか"), ("何でしょうか", "なんでしょうか")]
           plan = []
           for t in texts:
-              if t in KEEP: plan.append((t, t, romaji_to_ph(KEEP[t])))
-              elif is_pure_kana(t): plan.append((t, kata(t), mora_expect(t)))
+              if t in KEEP: plan.append((t, t, romaji_to_ph(KEEP[t]), "0.8"))
+              elif is_pure_kana(t):
+                  rate = "0.65" if len(hira(t)) <= 2 else "0.75"
+                  plan.append((t, kata(t), mora_expect(t), rate))
               else:
                   st = t
                   for a, b in SENT_FIX: st = st.replace(a, b)
-                  plan.append((t, st, romaji_to_ph(ro_map[t])))
-          def synth(text, out):
+                  plan.append((t, st, romaji_to_ph(ro_map[t]), "0.8"))
+          def synth(text, out, rate):
               open("/tmp/in.txt", "w", encoding="utf-8").write(text)
-              subprocess.run(["open_jtalk", "-x", DIC, "-m", VOICE, "-r", "0.8", "-ow", out, "-ot", "/tmp/trace.txt", "/tmp/in.txt"],
+              subprocess.run(["open_jtalk", "-x", DIC, "-m", VOICE, "-r", rate, "-ow", out, "-ot", "/tmp/trace.txt", "/tmp/in.txt"],
                              check=True, capture_output=True)
           def trace_phonemes():
               tr = open("/tmp/trace.txt", encoding="utf-8", errors="ignore").read()
@@ -128,8 +130,8 @@ jobs:
                   if abs(samples[i]) > thresh: en = min(n, i + int(sr*0.06)); break
               return struct.pack("<%dh" % (en-st), *samples[st:en])
           sr0 = None; segments = []; out_pcm = bytearray(); GAP = b""; fails = []
-          for key, synth_text, exp in plan:
-              synth(synth_text, "/tmp/c.wav")
+          for key, synth_text, exp, rate in plan:
+              synth(synth_text, "/tmp/c.wav", rate)
               got = fold(trace_phonemes())
               if got != fold(exp):
                   fails.append((key, " ".join(fold(exp)), " ".join(got)))

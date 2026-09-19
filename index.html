@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.7.3 — 精準引擎加固 ===== */
+/* ===== Build v2.7.4 — 假名放慢 + AI 自由對話 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -585,6 +585,10 @@ footer{
   <div class="subtabs" id="dojoTabs"></div>
   <div class="dojo-chat" id="dojoChat"></div>
   <div class="dojo-choices" id="dojoChoices"></div>
+  <div id="aiInputRow" hidden style="display:flex; gap:8px; margin-top:4px;">
+    <input id="aiText" type="text" placeholder="打字聊天(中文或日文都可以)" autocomplete="off" style="flex:1; min-width:0; border:2px solid var(--line); border-radius:14px; padding:11px 12px; font-weight:700; font-size:16px; background:var(--surface); color:var(--ink);">
+    <button class="big-btn" id="aiSend" style="width:auto; padding:11px 16px; margin:0;">送出</button>
+  </div>
 </section>
 
 <!-- ============ 配對遊戲 ============ -->
@@ -644,7 +648,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.7.3・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.7.4・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -1454,10 +1458,15 @@ DOJO.forEach((sc,i)=>{
   if(i===0) b.classList.add("active");
   dojoTabsEl.appendChild(b);
 });
+const aiTabBtn = document.createElement("button");
+aiTabBtn.textContent = "🤖 AI 對話"; aiTabBtn.dataset.dojo = "ai";
+dojoTabsEl.appendChild(aiTabBtn);
 dojoTabsEl.addEventListener("click", e=>{
   const b = e.target.closest("button[data-dojo]"); if(!b) return;
-  dojoScene = +b.dataset.dojo;
   dojoTabsEl.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
+  if(b.dataset.dojo === "ai"){ startAiChat(); return; }
+  document.getElementById("aiInputRow").hidden = true;
+  dojoScene = +b.dataset.dojo;
   startDojo();
 });
 function dojoBubble(kind, line){
@@ -1509,6 +1518,85 @@ function initDojo(){
   dojoStarted = true;
   startDojo();
 }
+
+/* ---- AI 自由對話 ---- */
+const AI_ENDPOINT = ""; /* Cloudflare Worker 網址,後端部署後填入 */
+let aiHistory = [], aiBusy = false;
+function plainBubble(kind, text, speakText){
+  const chat = document.getElementById("dojoChat");
+  const d = document.createElement("div");
+  d.className = "bub " + kind;
+  d.innerHTML = '<div class="jp"></div>';
+  d.querySelector(".jp").textContent = text;
+  if(speakText){
+    const btn = document.createElement("button");
+    btn.className = "re-speak"; btn.textContent = "🔊";
+    btn.addEventListener("click", function(){ speakViaSystem(speakText); });
+    d.querySelector(".jp").appendChild(btn);
+  }
+  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+function aiReplyBubble(reply){
+  const lines = String(reply).trim().split("\n").map(function(x){ return x.trim(); }).filter(Boolean);
+  const jp = lines[0] || "", ro = lines[1] || "", zh = lines.slice(2).join(" ");
+  const chat = document.getElementById("dojoChat");
+  const d = document.createElement("div");
+  d.className = "bub bot";
+  d.innerHTML = '<div class="jp"></div><div class="ro"></div><div class="zh"></div>';
+  d.children[0].textContent = jp;
+  d.children[1].textContent = ro;
+  d.children[2].textContent = zh;
+  const btn = document.createElement("button");
+  btn.className = "re-speak"; btn.textContent = "🔊";
+  btn.addEventListener("click", function(){ speakViaSystem(jp); });
+  d.children[0].appendChild(btn);
+  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+  setTimeout(function(){ speakViaSystem(jp); }, 300);
+}
+function startAiChat(){
+  document.getElementById("dojoChoices").innerHTML = "";
+  document.getElementById("dojoChat").innerHTML = "";
+  const row = document.getElementById("aiInputRow");
+  if(!AI_ENDPOINT){
+    row.hidden = true;
+    plainBubble("bot", "🤖 AI 自由對話正在準備中(免費 AI 後端接線中),快好了!先玩旁邊的情境對話吧。");
+    return;
+  }
+  row.hidden = false;
+  aiHistory = [];
+  aiReplyBubble("こんにちは!今日は何を話しますか?\nkonnichiwa! kyou wa nani o hanashimasu ka?\n你好!今天想聊什麼呢?");
+  aiHistory.push({role:"assistant", content:"こんにちは!今日は何を話しますか?"});
+  logEvent("ai_chat", "開始");
+}
+async function aiSendMsg(){
+  if(aiBusy || !AI_ENDPOINT) return;
+  const inp = document.getElementById("aiText");
+  const t = inp.value.trim(); if(!t) return;
+  inp.value = "";
+  plainBubble("user", t);
+  aiHistory.push({role:"user", content:t});
+  aiBusy = true;
+  const thinking = plainBubble("bot", "…考え中…");
+  try{
+    const res = await fetch(AI_ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({messages: aiHistory.slice(-12)})});
+    const data = await res.json();
+    thinking.remove();
+    if(data && data.reply){
+      aiReplyBubble(data.reply);
+      aiHistory.push({role:"assistant", content: String(data.reply).split("\n")[0] || ""});
+      touchStreak(); logEvent("ai_chat");
+    }else{
+      plainBubble("bot", "😥 AI 暫時沒回應,再試一次看看");
+    }
+  }catch(e){
+    thinking.remove();
+    plainBubble("bot", "😥 連不上 AI,請確認網路後再試一次");
+  }
+  aiBusy = false;
+}
+document.getElementById("aiSend").addEventListener("click", aiSendMsg);
+document.getElementById("aiText").addEventListener("keydown", function(e){ if(e.key === "Enter") aiSendMsg(); });
 
 /* ================= 配對遊戲 ================= */
 let matchState = {started:false, first:null, lock:false, moves:0, pairs:0, type:"hira"};
@@ -1778,7 +1866,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.7.3・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.7.4・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
