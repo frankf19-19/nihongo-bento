@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.4.0 — 手機 App 級體驗 ===== */
+/* ===== Build v2.4.1 — 手機發音修復 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -465,7 +465,7 @@ footer{
       <span class="b-glyph">検</span>
     </button>
   </div>
-  <p class="home-tip">小提示:發音功能使用瀏覽器內建語音,第一次點「唸給我聽」時,部分手機需要等一兩秒載入日文語音。</p>
+  <p class="home-tip">小提示:發音使用手機內建語音。📢 iPhone 請把側邊的靜音開關切回響鈴模式,靜音模式下聽不到發音和音效;第一次播放可能需要等一兩秒載入日文語音。</p>
 </section>
 
 <!-- ============ 五十音 ============ -->
@@ -607,7 +607,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.4.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.4.1・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -805,6 +805,7 @@ function sfx(type){
   try{
     const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
     if(!window.__ac) window.__ac = new AC();
+    if(window.__ac.state === "suspended") window.__ac.resume();
     const ac = window.__ac, t = ac.currentTime;
     const notes = type==="great" ? [[660,0],[880,.09],[1174,.18]] : type==="good" ? [[660,0],[880,.09]] : [[220,0],[175,.12]];
     notes.forEach(function(nt){
@@ -853,19 +854,71 @@ function pickMsg(a){ return a[Math.floor(Math.random()*a.length)]; }
   }catch(e){}
 })();
 
-/* ================= 發音 ================= */
+/* ================= 發音(手機相容強化版) ================= */
+let jpVoice = null, lastUtter = null;
+function pickVoice(){
+  try{
+    const vs = window.speechSynthesis.getVoices();
+    if(vs && vs.length){
+      jpVoice = vs.find(v=>v.lang && v.lang.replace("_","-").toLowerCase().startsWith("ja")) || null;
+    }
+  }catch(e){}
+}
+try{
+  if("speechSynthesis" in window){
+    pickVoice();
+    window.speechSynthesis.onvoiceschanged = pickVoice;
+  }
+}catch(e){}
 function speak(text){
   try{
     if(!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ja-JP"; u.rate = 0.85;
-    const jv = window.speechSynthesis.getVoices().find(v=>v.lang && v.lang.startsWith("ja"));
-    if(jv) u.voice = jv;
-    window.speechSynthesis.speak(u);
+    const go = function(){
+      try{
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "ja-JP"; u.rate = 0.85; u.volume = 1;
+        if(!jpVoice) pickVoice();
+        if(jpVoice) u.voice = jpVoice;
+        lastUtter = u; /* 保留參照,避免行動瀏覽器把語音物件回收導致無聲 */
+        window.speechSynthesis.speak(u);
+      }catch(e){}
+    };
+    /* iOS 上 cancel() 後立刻 speak() 會把新語音吃掉,必須隔一拍 */
+    if(window.speechSynthesis.speaking || window.speechSynthesis.pending){
+      window.speechSynthesis.cancel();
+      setTimeout(go, 80);
+    }else{
+      go();
+    }
   }catch(e){}
 }
-try{ if("speechSynthesis" in window) window.speechSynthesis.getVoices(); }catch(e){}
+/* 手機音訊解鎖:使用者第一次觸碰畫面時喚醒語音與音效引擎 */
+function unlockAudio(){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(AC){
+      if(!window.__ac) window.__ac = new AC();
+      if(window.__ac.state === "suspended") window.__ac.resume();
+    }
+  }catch(e){}
+  try{
+    if("speechSynthesis" in window){
+      window.speechSynthesis.resume();
+      if(!window.__ttsUnlocked){
+        window.__ttsUnlocked = true;
+        const u = new SpeechSynthesisUtterance(" ");
+        u.volume = 0; u.lang = "ja-JP";
+        window.speechSynthesis.speak(u);
+      }
+    }
+  }catch(e){}
+}
+document.addEventListener("touchend", unlockAudio, {passive:true});
+document.addEventListener("click", unlockAudio);
+/* 從背景切回來時,喚醒被暫停的語音引擎 */
+document.addEventListener("visibilitychange", function(){
+  try{ if(!document.hidden && "speechSynthesis" in window) window.speechSynthesis.resume(); }catch(e){}
+});
 
 /* ================= 導覽 ================= */
 const pages = ["home","kana","kanaquiz","vocab","vocabquiz","grammar","phrases","game","level","progress"];
