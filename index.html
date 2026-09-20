@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.11.0 — N4 文法第二波 ===== */
+/* ===== Build v3.0.0 — N3 正式開課 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -665,7 +665,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.11.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v3.0.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -1606,6 +1606,266 @@ const VOCAB_N4 = {
 ["コンテスト","コンテスト","kontesuto","比賽"]
 ]
 };
+const VOCAB_N3 = {
+"動詞":[
+["あきらめます","諦めます","akiramemasu","放棄"],
+["あずけます","預けます","azukemasu","寄放"],
+["あたえます","与えます","ataemasu","給予"],
+["あつかいます","扱います","atsukaimasu","處理・對待"],
+["あらわします","表します","arawashimasu","表達"],
+["うたがいます","疑います","utagaimasu","懷疑"],
+["うしないます","失います","ushinaimasu","失去"],
+["おぎないます","補います","oginaimasu","補足"],
+["おそわります","教わります","osowarimasu","受教"],
+["かかわります","関わります","kakawarimasu","牽涉"],
+["かこみます","囲みます","kakomimasu","圍住"],
+["かさねます","重ねます","kasanemasu","疊・累積"],
+["かせぎます","稼ぎます","kasegimasu","賺"],
+["くわえます","加えます","kuwaemasu","加上"],
+["こぼします","こぼします","koboshimasu","灑出"],
+["ささえます","支えます","sasaemasu","支撐"],
+["さからいます","逆らいます","sakaraimasu","違抗"],
+["しずみます","沈みます","shizumimasu","下沉"],
+["しはらいます","支払います","shiharaimasu","支付"],
+["しめします","示します","shimeshimasu","表示・出示"],
+["せめます","責めます","sememasu","責備"],
+["そなえます","備えます","sonaemasu","防備"],
+["ためします","試します","tameshimasu","嘗試"],
+["つとめます","勤めます","tsutomemasu","任職"],
+["ととのえます","整えます","totonoemasu","整理・調整"],
+["ながめます","眺めます","nagamemasu","眺望"],
+["なぐさめます","慰めます","nagusamemasu","安慰"],
+["なぐります","殴ります","nagurimasu","毆打"],
+["ぬきます","抜きます","nukimasu","拔"],
+["のぞみます","望みます","nozomimasu","期望"],
+["はかります","測ります","hakarimasu","測量"],
+["はぶきます","省きます","habukimasu","省略"],
+["ひきうけます","引き受けます","hikiukemasu","承接"],
+["ふせぎます","防ぎます","fusegimasu","防止"],
+["ふるえます","震えます","furuemasu","發抖"],
+["まかせます","任せます","makasemasu","交託"],
+["まよいます","迷います","mayoimasu","迷惘・迷路"],
+["みとめます","認めます","mitomemasu","承認"],
+["むかいます","向かいます","mukaimasu","前往・面向"],
+["めざします","目指します","mezashimasu","以~為目標"],
+["もとめます","求めます","motomemasu","尋求"],
+["もやします","燃やします","moyashimasu","燃燒"],
+["やといます","雇います","yatoimasu","雇用"],
+["やぶれます","破れます","yaburemasu","破掉・輸"],
+["ゆずります","譲ります","yuzurimasu","讓"],
+["ゆるします","許します","yurushimasu","原諒"],
+["よごします","汚します","yogoshimasu","弄髒(他)"],
+["かんせいします","完成します","kanseishimasu","完成"],
+["しゅうりします","修理します","shuurishimasu","修理"],
+["せいりします","整理します","seirishimasu","整理"],
+["そうぞうします","想像します","souzoushimasu","想像"],
+["ちょうさします","調査します","chousashimasu","調查"],
+["はっけんします","発見します","hakkenshimasu","發現"],
+["はつめいします","発明します","hatsumeishimasu","發明"],
+["ほぞんします","保存します","hozonshimasu","保存"],
+["ゆうしょうします","優勝します","yuushoushimasu","奪冠"],
+["りかいします","理解します","rikaishimasu","理解"],
+["きろくします","記録します","kirokushimasu","記錄"],
+["けいさんします","計算します","keisanshimasu","計算"],
+["しょうめいします","証明します","shoumeishimasu","證明"],
+["せつやくします","節約します","setsuyakushimasu","節約"],
+["そんけいします","尊敬します","sonkeishimasu","尊敬"],
+["はんだんします","判断します","handanshimasu","判斷"],
+["ひょうかします","評価します","hyoukashimasu","評價"],
+["ぼしゅうします","募集します","boshuushimasu","招募"]
+],
+"名詞・生活":[
+["いき","息","iki","呼吸"],
+["あせ","汗","ase","汗"],
+["はだ","肌","hada","皮膚"],
+["ほね","骨","hone","骨頭"],
+["きず","傷","kizu","傷口"],
+["なみだ","涙","namida","眼淚"],
+["えがお","笑顔","egao","笑容"],
+["いんしょう","印象","inshou","印象"],
+["かんかく","感覚","kankaku","感覺(感官)"],
+["きおく","記憶","kioku","記憶"],
+["じょうたい","状態","joutai","狀態"],
+["せいかく","性格","seikaku","性格"],
+["たいど","態度","taido","態度"],
+["くせ","癖","kuse","習癖"],
+["ひみつ","秘密","himitsu","祕密"],
+["うわさ","噂","uwasa","傳聞"],
+["めいわく","迷惑","meiwaku","困擾"],
+["れい","例","rei","例子"],
+["ごかい","誤解","gokai","誤會"],
+["くろう","苦労","kurou","辛勞"],
+["どりょく","努力","doryoku","努力"],
+["しんらい","信頼","shinrai","信賴"],
+["ゆうき","勇気","yuuki","勇氣"],
+["ほこり","誇り","hokori","自豪"],
+["まんいん","満員","manin","客滿"],
+["ばめん","場面","bamen","場面"],
+["ようす","様子","yousu","樣子"]
+],
+"名詞・社会":[
+["かんきょう","環境","kankyou","環境"],
+["しげん","資源","shigen","資源"],
+["おせん","汚染","osen","汙染"],
+["さいがい","災害","saigai","災害"],
+["ひがい","被害","higai","受害"],
+["ひなん","避難","hinan","避難"],
+["きんし","禁止","kinshi","禁止"],
+["きょか","許可","kyoka","許可"],
+["せきにん","責任","sekinin","責任"],
+["けんり","権利","kenri","權利"],
+["ぎむ","義務","gimu","義務"],
+["へいきん","平均","heikin","平均"],
+["わりあい","割合","wariai","比例"],
+["ぞうか","増加","zouka","增加"],
+["げんしょう","減少","genshou","減少"],
+["けいこう","傾向","keikou","傾向"],
+["じょうほう","情報","jouhou","資訊"],
+["しりょう","資料","shiryou","資料"],
+["ないよう","内容","naiyou","內容"],
+["もくひょう","目標","mokuhyou","目標"],
+["かだい","課題","kadai","課題"],
+["じょうけん","条件","jouken","條件"],
+["たいしょう","対象","taishou","對象"],
+["はんい","範囲","hani","範圍"],
+["きじゅん","基準","kijun","基準"],
+["せいど","制度","seido","制度"],
+["そしき","組織","soshiki","組織"],
+["きぼ","規模","kibo","規模"],
+["しじょう","市場","shijou","市場"],
+["しょうひん","商品","shouhin","商品"],
+["しょうばい","商売","shoubai","生意"],
+["りえき","利益","rieki","利益"],
+["そんがい","損害","songai","損失"],
+["きょうりょく","協力","kyouryoku","協助"],
+["こうかん","交換","koukan","交換"],
+["こうりゅう","交流","kouryuu","交流"],
+["めんせつ","面接","mensetsu","面試"],
+["さいよう","採用","saiyou","錄取"],
+["たいしょく","退職","taishoku","離職"],
+["しゅうしょく","就職","shuushoku","就業"],
+["ほうこく","報告","houkoku","報告"],
+["かくにん","確認","kakunin","確認"]
+],
+"い形容詞":[
+["かしこい","賢い","kashikoi","聰明"],
+["くやしい","悔しい","kuyashii","不甘心"],
+["したしい","親しい","shitashii","親近"],
+["ずるい","ずるい","zurui","狡猾"],
+["するどい","鋭い","surudoi","敏銳"],
+["たのもしい","頼もしい","tanomoshii","可靠"],
+["なつかしい","懐かしい","natsukashii","懷念"],
+["まぶしい","眩しい","mabushii","刺眼"],
+["めでたい","めでたい","medetai","可喜可賀"],
+["ゆるい","緩い","yurui","鬆・緩"],
+["おさない","幼い","osanai","年幼"],
+["まずしい","貧しい","mazushii","貧窮"]
+],
+"な形容詞":[
+["じみ","地味","jimi","樸素"],
+["はで","派手","hade","花俏"],
+["びみょう","微妙","bimyou","微妙"],
+["ゆたか","豊か","yutaka","豐富"],
+["れいせい","冷静","reisei","冷靜"],
+["しんけん","真剣","shinken","認真(嚴肅)"],
+["すなお","素直","sunao","坦率"],
+["たいくつ","退屈","taikutsu","無聊"],
+["めんどう","面倒","mendou","麻煩"],
+["らんぼう","乱暴","ranbou","粗暴"],
+["おだやか","穏やか","odayaka","平穩"],
+["きちょう","貴重","kichou","珍貴"],
+["しんせん","新鮮","shinsen","新鮮"],
+["せいけつ","清潔","seiketsu","清潔"]
+],
+"副詞・接続":[
+["あらためて","改めて","aratamete","重新・再次"],
+["いきなり","いきなり","ikinari","突然"],
+["いったん","一旦","ittan","暫且"],
+["いよいよ","いよいよ","iyoiyo","終於(即將)"],
+["うっかり","うっかり","ukkari","不小心"],
+["かえって","かえって","kaette","反而"],
+["かなり","かなり","kanari","相當"],
+["ぐっすり","ぐっすり","gussuri","熟睡地"],
+["けっきょく","結局","kekkyoku","結果(最終)"],
+["さすが","さすが","sasuga","不愧是"],
+["さっそく","早速","sassoku","立刻"],
+["じつは","実は","jitsuwa","其實"],
+["しだいに","次第に","shidaini","逐漸"],
+["じっと","じっと","jitto","一動不動地"],
+["せっかく","せっかく","sekkaku","難得"],
+["そっと","そっと","sotto","悄悄地"],
+["たしかに","確かに","tashikani","的確"],
+["たちまち","たちまち","tachimachi","轉眼間"],
+["たとえ","たとえ","tatoe","即使"],
+["ついに","ついに","tsuini","終於(結果)"],
+["つねに","常に","tsuneni","經常"],
+["どうしても","どうしても","doushitemo","無論如何"],
+["とつぜん","突然","totsuzen","突然(書面)"],
+["なんとか","なんとか","nantoka","設法"],
+["のんびり","のんびり","nonbiri","悠閒地"],
+["ふと","ふと","futo","忽然"],
+["まさか","まさか","masaka","沒想到"],
+["まるで","まるで","marude","簡直"],
+["めったに","めったに","mettani","很少(不)"],
+["わざと","わざと","wazato","故意"],
+["わざわざ","わざわざ","wazawaza","特地"]
+],
+"時間・程度":[
+["いっしゅん","一瞬","isshun","一瞬間"],
+["かつて","かつて","katsute","曾經"],
+["げんざい","現在","genzai","現在"],
+["こんご","今後","kongo","今後"],
+["さきほど","先ほど","sakihodo","剛才(禮貌)"],
+["とうぶん","当分","toubun","暫時"],
+["のちほど","後ほど","nochihodo","稍後"],
+["はやめに","早めに","hayameni","提早"],
+["ふだん","普段","fudan","平常"],
+["まえもって","前もって","maemotte","事先"],
+["まもなく","まもなく","mamonaku","不久"],
+["やがて","やがて","yagate","不久之後"],
+["よなか","夜中","yonaka","半夜"]
+],
+"カタカナ語":[
+["アドバイス","アドバイス","adobaisu","建議"],
+["イメージ","イメージ","imeeji","形象"],
+["エネルギー","エネルギー","enerugii","能源・精力"],
+["メーカー","メーカー","meekaa","廠商"],
+["キャンセル","キャンセル","kyanseru","取消"],
+["コミュニケーション","コミュニケーション","komyunikeeshon","溝通"],
+["サイン","サイン","sain","簽名"],
+["システム","システム","shisutemu","系統"],
+["ショック","ショック","shokku","打擊"],
+["スタイル","スタイル","sutairu","風格"],
+["ストレス","ストレス","sutoresu","壓力"],
+["セミナー","セミナー","seminaa","講座"],
+["ダイエット","ダイエット","daietto","減肥"],
+["タイプ","タイプ","taipu","類型"],
+["データ","データ","deeta","數據"],
+["テーマ","テーマ","teema","主題"],
+["トラブル","トラブル","toraburu","糾紛"],
+["バランス","バランス","baransu","平衡"],
+["パターン","パターン","pataan","模式"],
+["ビジネス","ビジネス","bijinesu","商務"],
+["ベテラン","ベテラン","beteran","老手"],
+["ポイント","ポイント","pointo","重點・點數"],
+["マスコミ","マスコミ","masukomi","大眾媒體"],
+["ミス","ミス","misu","失誤"],
+["メリット","メリット","meritto","優點"],
+["デメリット","デメリット","demeritto","缺點"],
+["モデル","モデル","moderu","模特兒・模型"],
+["ライバル","ライバル","raibaru","對手"],
+["リサイクル","リサイクル","risaikuru","回收"],
+["リズム","リズム","rizumu","節奏"],
+["リラックス","リラックス","rirakkusu","放鬆"],
+["レベル","レベル","reberu","水準"],
+["ロボット","ロボット","robotto","機器人"],
+["スピード","スピード","supiido","速度"],
+["チャレンジ","チャレンジ","charenji","挑戰"],
+["ヒント","ヒント","hinto","提示"],
+["プラス","プラス","purasu","加分"],
+["マイナス","マイナス","mainasu","扣分"]
+]
+};
 
 const GRAMMAR = {
 "基本句型":[
@@ -1772,6 +2032,62 @@ const GRAMMAR_N4 = {
 {p:"~ほど~ないです",n:"沒有~那麼",exp:"AはBほど~ない,比較中程度較低的一方。",ex:[["今年は去年ほど寒くないです。","kotoshi wa kyonen hodo samukunai desu","今年沒有去年那麼冷。"]]},
 {p:"~という~",n:"叫做~的",exp:"名詞+という+名詞,介紹名稱。",ex:[["ひまわりという店を知っていますか。","himawari to iu mise o shitte imasu ka","你知道叫「ひまわり」的店嗎?"]]},
 {p:"~までに",n:"在~之前",exp:"期限「までに」;持續到某時點用「まで」。",ex:[["五時までにレポートを出してください。","goji made ni repooto o dashite kudasai","請在五點前交報告。"]]}
+]
+};
+const GRAMMAR_N3 = {
+"動詞・表現":[
+{p:"~ことがあります",n:"有時會~",exp:"辭書形+ことがあります,表示偶爾發生(た形+ことがある是經驗)。",ex:[["たまに朝ご飯を食べないことがあります。","tamani asagohan o tabenai koto ga arimasu","偶爾會不吃早餐。"]]},
+{p:"~ことはありません",n:"不必~",exp:"辭書形+ことはありません,表示沒有必要。",ex:[["そんなに急ぐことはありませんよ。","sonnani isogu koto wa arimasen yo","不必那麼急喔。"]]},
+{p:"~ばかりです",n:"淨是~;越來越~",exp:"名詞+ばかり(淨是);辭書形+ばかりだ(朝壞方向發展)。",ex:[["最近、仕事は増えるばかりです。","saikin shigoto wa fueru bakari desu","最近工作只增不減。"]]},
+{p:"~ところです(三態)",n:"正要/正在/剛剛~",exp:"辭書形+ところ(正要)、ている+ところ(正在)、た形+ところ(剛剛)。",ex:[["今から出かけるところです。","ima kara dekakeru tokoro desu","現在正要出門。"]]},
+{p:"~おかげで",n:"多虧~",exp:"好結果的原因,帶感謝。名詞の/普通形+おかげで。",ex:[["先生のおかげで、合格できました。","sensei no okage de goukaku dekimashita","多虧老師,我才能合格。"]]},
+{p:"~せいで",n:"都怪~",exp:"壞結果的原因,帶責怪。",ex:[["寝不足のせいで、頭が痛いです。","nebusoku no sei de atama ga itai desu","都怪睡眠不足,頭好痛。"]]},
+{p:"~くせに",n:"明明~卻(責難)",exp:"比「のに」更強的不滿,主語需相同。",ex:[["知っているくせに、教えてくれません。","shitte iru kuse ni oshiete kuremasen","明明知道卻不告訴我。"]]},
+{p:"~たびに",n:"每當~就",exp:"辭書形/名詞の+たびに,每次都伴隨發生。",ex:[["この歌を聞くたびに、学生時代を思い出します。","kono uta o kiku tabi ni gakusei jidai o omoidashimasu","每次聽這首歌,就想起學生時代。"]]}
+],
+"時・条件":[
+{p:"~うちに",n:"趁~;在~期間",exp:"趁狀態還在時做,或期間內不知不覺變化。",ex:[["明るいうちに帰りましょう。","akarui uchi ni kaerimashou","趁天還亮回家吧。"]]},
+{p:"~てからでないと",n:"不先~就不能",exp:"て形+からでないと+否定,先決條件。",ex:[["予約してからでないと、使えません。","yoyaku shite kara denai to tsukaemasen","不先預約就不能使用。"]]},
+{p:"~最中に",n:"正在~的時候(偏偏)",exp:"ている/名詞の+最中に,進行中被打斷。",ex:[["会議の最中に、電話が鳴りました。","kaigi no saichuu ni denwa ga narimashita","開會開到一半,電話響了。"]]},
+{p:"~ば~ほど",n:"越~越~",exp:"ば形+辭書形+ほど,程度隨之升高。",ex:[["練習すればするほど、上手になります。","renshuu sureba suru hodo jouzu ni narimasu","越練習就越熟練。"]]},
+{p:"~さえ~ば",n:"只要~就",exp:"名詞+さえ+ば形,唯一條件。",ex:[["時間さえあれば、どこへでも行きたいです。","jikan sae areba doko e demo ikitai desu","只要有時間,哪裡都想去。"]]},
+{p:"~としたら",n:"假如~的話",exp:"普通形+としたら,假定條件下的判斷。",ex:[["日本に住むとしたら、どこがいいですか。","nihon ni sumu to shitara doko ga ii desu ka","假如要住在日本,哪裡好呢?"]]},
+{p:"~たとたん",n:"一~就(突然)",exp:"た形+とたん,前項一發生後項立刻出現。",ex:[["ドアを開けたとたん、犬が飛び出しました。","doa o aketa totan inu ga tobidashimashita","一開門,狗就衝了出來。"]]}
+],
+"推量・判断":[
+{p:"~はずがありません",n:"不可能~",exp:"普通形+はずがない,依據判斷強烈否定可能性。",ex:[["まじめな彼が嘘をつくはずがありません。","majime na kare ga uso o tsuku hazu ga arimasen","認真的他不可能說謊。"]]},
+{p:"~に違いありません",n:"一定是~",exp:"普通形+に違いない,很有把握的推斷。",ex:[["この字は田中さんが書いたに違いありません。","kono ji wa tanaka san ga kaita ni chigai arimasen","這個字一定是田中先生寫的。"]]},
+{p:"~わけです",n:"難怪~;也就是說",exp:"接理由後的自然結論。",ex:[["電気がついていませんね。留守なわけです。","denki ga tsuite imasen ne rusu na wake desu","燈沒亮呢,難怪,原來不在家。"]]},
+{p:"~わけではありません",n:"並非~",exp:"部分否定「並不是說~」。",ex:[["肉が嫌いなわけではありません。","niku ga kirai na wake dewa arimasen","並不是討厭吃肉。"]]},
+{p:"~わけにはいきません",n:"不能~(情理上)",exp:"辭書形+わけにはいかない,道義或情況不允許。",ex:[["大事な会議ですから、休むわけにはいきません。","daiji na kaigi desu kara yasumu wake ni wa ikimasen","重要會議,不能請假。"]]},
+{p:"~みたいです",n:"好像~(口語)",exp:"「ようです」的口語形。",ex:[["外は雨が降っているみたいです。","soto wa ame ga futte iru mitai desu","外面好像在下雨。"]]},
+{p:"~っぽい",n:"~感的;容易~",exp:"名詞/ます形去ます+っぽい,帶有某種傾向。",ex:[["彼は忘れっぽいです。","kare wa wasureppoi desu","他很健忘。"]]}
+],
+"規則・義務":[
+{p:"使役受身(~させられます)",n:"被迫~",exp:"被別人強迫做不想做的事。",ex:[["子どものとき、野菜を食べさせられました。","kodomo no toki yasai o tabesaseraremashita","小時候被逼著吃蔬菜。"]]},
+{p:"~ように言われました",n:"被交代要~",exp:"間接引用命令「辭書形/ない形+ように言う」。",ex:[["医者に、お酒をやめるように言われました。","isha ni osake o yameru you ni iwaremashita","被醫生交代要戒酒。"]]},
+{p:"~ことになっています",n:"規定~",exp:"規則或慣例的存在。",ex:[["ここでは靴を脱ぐことになっています。","koko dewa kutsu o nugu koto ni natte imasu","這裡規定要脫鞋。"]]},
+{p:"~ことにしています",n:"習慣~(自我規定)",exp:"自己決定並持續的習慣。",ex:[["毎晩十一時に寝ることにしています。","maiban juuichiji ni neru koto ni shite imasu","我固定每晚十一點睡。"]]},
+{p:"~べきです",n:"應該~",exp:"辭書形+べきだ(する→すべき),道理上應當。",ex:[["約束は守るべきです。","yakusoku wa mamoru beki desu","約定應該遵守。"]]}
+],
+"助詞・接続":[
+{p:"~について",n:"關於~",exp:"名詞+について,談論的主題。",ex:[["日本の文化について発表します。","nihon no bunka ni tsuite happyou shimasu","要發表關於日本文化的報告。"]]},
+{p:"~によって",n:"依~而;由於~",exp:"依據、手段、原因、被動動作主等多用法。",ex:[["国によって、習慣が違います。","kuni ni yotte shuukan ga chigaimasu","習慣因國家而異。"]]},
+{p:"~に対して",n:"對~;相對於~",exp:"動作對象或對比。",ex:[["お客様に対して、丁寧に話してください。","okyakusama ni taishite teinei ni hanashite kudasai","請對客人說話有禮貌。"]]},
+{p:"~にとって",n:"對~而言",exp:"從某人立場來看的評價。",ex:[["わたしにとって、家族が一番大切です。","watashi ni totte kazoku ga ichiban taisetsu desu","對我而言,家人最重要。"]]},
+{p:"~として",n:"作為~",exp:"名詞+として,身分・立場。",ex:[["留学生として日本へ来ました。","ryuugakusei to shite nihon e kimashita","以留學生身分來到日本。"]]},
+{p:"~にしては",n:"就~來說(意外)",exp:"與該身分的預期不符。",ex:[["初めてにしては、上手ですね。","hajimete ni shite wa jouzu desu ne","以第一次來說,很不錯呢。"]]},
+{p:"~ばかりでなく~も",n:"不僅~也~",exp:"「だけでなく」的書面說法。",ex:[["彼は英語ばかりでなく、中国語も話せます。","kare wa eigo bakari denaku chuugokugo mo hanasemasu","他不僅會英語,也會中文。"]]}
+],
+"文末・その他":[
+{p:"~ということです",n:"據說~",exp:"傳聞的鄭重說法。",ex:[["ニュースによると、明日は台風が来るということです。","nyuusu ni yoru to ashita wa taifuu ga kuru to iu koto desu","據新聞說,明天颱風要來。"]]},
+{p:"~って",n:"~(口語引用)",exp:"「と/という」的口語縮約。",ex:[["田中さん、来週結婚するって。","tanaka san raishuu kekkon suru tte","聽說田中先生下週要結婚。"]]},
+{p:"~ずつ",n:"各~;每次~",exp:"數量詞+ずつ,平均分配或逐次。",ex:[["毎日少しずつ覚えましょう。","mainichi sukoshi zutsu oboemashou","每天一點一點地記吧。"]]},
+{p:"~だらけ",n:"滿是~(負面)",exp:"名詞+だらけ,到處都是(泥、錯誤等)。",ex:[["この作文は間違いだらけです。","kono sakubun wa machigai darake desu","這篇作文滿是錯誤。"]]},
+{p:"~がちです",n:"容易~(常常)",exp:"ます形去ます/名詞+がち,不好的傾向。",ex:[["冬は風邪をひきがちです。","fuyu wa kaze o hikigachi desu","冬天容易感冒。"]]},
+{p:"~気味です",n:"有點~的樣子",exp:"ます形去ます/名詞+気味,稍微帶有某狀態。",ex:[["少し疲れ気味です。","sukoshi tsukaregimi desu","有點疲倦。"]]},
+{p:"~さ",n:"~度(名詞化)",exp:"い形去い/な形+さ,把性質變成名詞。",ex:[["この山の高さは三千メートルです。","kono yama no takasa wa sanzen meetoru desu","這座山的高度是三千公尺。"]]},
+{p:"~おきに",n:"每隔~",exp:"數量詞+おきに,間隔重複。",ex:[["バスは十分おきに来ます。","basu wa juppun oki ni kimasu","公車每隔十分鐘來一班。"]]}
 ]
 };
 
@@ -2342,11 +2658,11 @@ function renderKanaQuizSetup(){
 }
 
 /* ---- JLPT 程度選擇(單字/文法/模擬測驗共用,設定會記住) ---- */
-function jlptLevel(){ return store.jlptLevel === "N4" ? "N4" : "N5"; }
-function vocabData(){ return jlptLevel() === "N4" ? VOCAB_N4 : VOCAB; }
-function grammarData(){ return jlptLevel() === "N4" ? GRAMMAR_N4 : GRAMMAR; }
+function jlptLevel(){ return ["N4","N3"].indexOf(store.jlptLevel) > -1 ? store.jlptLevel : "N5"; }
+function vocabData(){ const lv = jlptLevel(); return lv === "N3" ? VOCAB_N3 : (lv === "N4" ? VOCAB_N4 : VOCAB); }
+function grammarData(){ const lv = jlptLevel(); return lv === "N3" ? GRAMMAR_N3 : (lv === "N4" ? GRAMMAR_N4 : GRAMMAR); }
 function levelPillsHtml(){
-  return '<div class="level-row">' + ["N5","N4"].map(function(lv){
+  return '<div class="level-row">' + ["N5","N4","N3"].map(function(lv){
     return '<button type="button" class="level-pill' + (jlptLevel()===lv ? " active" : "") + '" data-lv="' + lv + '">' + lv + '</button>';
   }).join("") + '</div>';
 }
@@ -2919,6 +3235,28 @@ const LEVEL_GRAMMAR_N4 = [
 ["エアコンをつけた＿寝てしまいました。","まま",["まま","ばかり","ながら","あいだ"]],
 ["今年は去年＿寒くないです。","ほど",["ほど","より","まで","でも"]]
 ];
+const LEVEL_GRAMMAR_N3 = [
+["たまに朝ご飯を食べない＿があります。","こと",["こと","もの","わけ","はず"]],
+["そんなに急ぐ＿はありませんよ。","こと",["こと","はず","わけ","ため"]],
+["仕事は増える＿です。","ばかり",["ばかり","だけ","ながら","ほど"]],
+["先生の＿で、合格できました。","おかげ",["おかげ","せい","ため","くせ"]],
+["寝不足の＿で、頭が痛いです。","せい",["せい","おかげ","わけ","はず"]],
+["この歌を聞く＿に、学生時代を思い出します。","たび",["たび","うち","まま","ところ"]],
+["明るい＿に帰りましょう。","うち",["うち","あいだ","まえ","たび"]],
+["練習すれ＿するほど、上手になります。","ば",["ば","と","たら","なら"]],
+["時間＿あれば、どこへでも行きたいです。","さえ",["さえ","だけ","ばかり","こそ"]],
+["ドアを開けた＿、犬が飛び出しました。","とたん",["とたん","ながら","うちに","ばかり"]],
+["彼が嘘をつく＿がありません。","はず",["はず","わけ","こと","つもり"]],
+["田中さんが書いた＿ありません。","にちがい",["にちがい","にすぎ","しか","はずが"]],
+["肉が嫌いな＿ではありません。","わけ",["わけ","はず","こと","もの"]],
+["休む＿にはいきません。","わけ",["わけ","はず","こと","ところ"]],
+["子どものとき、野菜を食べ＿ました。","させられ",["させられ","させ","られ","され"]],
+["ここでは靴を脱ぐこと＿なっています。","に",["に","を","が","で"]],
+["約束は守る＿です。","べき",["べき","はず","わけ","ばかり"]],
+["国＿、習慣が違います。","によって",["によって","について","にとって","として"]],
+["わたし＿、家族が一番大切です。","にとって",["にとって","によって","に対して","として"]],
+["この作文は間違い＿です。","だらけ",["だらけ","ばかり","ずつ","がち"]]
+];
 const LEVEL_PHRASE = [
   ["在餐廳吃完想結帳,要說?","お会計お願いします",["お会計お願いします","いくらですか","いただきます","おはようございます"]],
   ["迷路了想問車站在哪,要說?","駅はどこですか",["駅はどこですか","切符をください","ここで降ります","何時ですか"]],
@@ -2929,13 +3267,13 @@ const LEVEL_PHRASE = [
 ];
 function buildLevelQuestions(){
   const qs = [];
-  if(jlptLevel() === "N4"){
+  if(jlptLevel() !== "N5"){
     const vp4 = vocabPool();
     shuffle(vp4).slice(0,8).forEach(w=>{
       const wrong = shuffle(vp4.filter(x=>x.zh!==w.zh)).slice(0,3).map(x=>x.zh);
       qs.push({q:w.jp, opts:shuffle([w.zh].concat(wrong)), ans:w.zh, cat:"語彙", speak:w.kana});
     });
-    shuffle(LEVEL_GRAMMAR_N4).slice(0,12).forEach(g=>{
+    shuffle(jlptLevel() === "N3" ? LEVEL_GRAMMAR_N3 : LEVEL_GRAMMAR_N4).slice(0,12).forEach(g=>{
       qs.push({q:g[0], opts:shuffle(g[2].slice()), ans:g[1], cat:"文法"});
     });
     return shuffle(qs);
@@ -2963,7 +3301,7 @@ function buildLevelQuestions(){
 }
 function levelRank(score){
   const lv = jlptLevel();
-  if(score>=18) return {label:lv+" 合格實力", emoji:"🌸", tip:lv==="N5" ? "基礎非常穩!把程度切到 N4 繼續前進吧。" : "N4 也穩了!下一站 N3,繼續加油。"};
+  if(score>=18) return {label:lv+" 合格實力", emoji:"🌸", tip:lv==="N5" ? "基礎非常穩!把程度切到 N4 繼續前進吧。" : (lv==="N4" ? "N4 也穩了!把程度切到 N3 繼續前進吧。" : "N3 也拿下了!N2 之路正式開始。")};
   if(score>=15) return {label:lv+" 衝刺中", emoji:"🎏", tip:"實力接近 "+lv+",把答錯的分類多練幾輪就到位了。"};
   if(score>=10) return {label:"初級進行中", emoji:"🍡", tip:"有一定基礎了!建議每天單字卡和文法各練一輪。"};
   if(score>=5)  return {label:"入門起步", emoji:"🍙", tip:"先把五十音表全部變綠,之後單字和文法會突然變簡單。"};
@@ -2976,7 +3314,7 @@ function renderLevelSetup(){
     last = '<p style="text-align:center; font-weight:700; color:var(--ink2); margin-bottom:4px;">上次結果:' + store.level.label + '(' + store.level.score + ' / 20・' + store.level.date + ')</p>';
   }
   box.innerHTML = '<div class="quiz-setup">' + last +
-    levelPillsHtml() + (jlptLevel()==="N4" ? '<p style="font-weight:700; margin-bottom:6px;">N4 模擬測驗 20 題:語彙 8、文法 12(題庫 32 條隨機),做完立刻評估你的 N4 實力。</p>' : '<p style="font-weight:700; margin-bottom:6px;">N5 模擬測驗 20 題:假名 8、語彙 6、文法 4、會話 2(文法題庫 20 條隨機),做完立刻評估你的 N5 實力。</p>') +
+    levelPillsHtml() + (jlptLevel()==="N3" ? '<p style="font-weight:700; margin-bottom:6px;">N3 模擬測驗 20 題:語彙 8、文法 12(題庫 20 條隨機),做完立刻評估你的 N3 實力。</p>' : jlptLevel()==="N4" ? '<p style="font-weight:700; margin-bottom:6px;">N4 模擬測驗 20 題:語彙 8、文法 12(題庫 32 條隨機),做完立刻評估你的 N4 實力。</p>' : '<p style="font-weight:700; margin-bottom:6px;">N5 模擬測驗 20 題:假名 8、語彙 6、文法 4、會話 2(文法題庫 20 條隨機),做完立刻評估你的 N5 實力。</p>') +
     '<button class="big-btn" id="lvStart">開始檢定</button></div>';
   box.querySelector("#lvStart").addEventListener("click", runLevelTest);
 }
@@ -3122,7 +3460,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.11.0・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v3.0.0・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
