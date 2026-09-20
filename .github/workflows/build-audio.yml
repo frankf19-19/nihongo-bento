@@ -31,7 +31,7 @@ jobs:
           import re, json, subprocess, os, struct, wave, sys
           s = open("index.html", encoding="utf-8").read()
           texts = set()
-          kana_set = set(); vocab_set = set(); grammar_set = set(); vocab_n4_set = set(); grammar_n4_set = set()
+          kana_set = set(); vocab_set = set(); grammar_set = set(); vocab_n4_set = set(); grammar_n4_set = set(); vocab_n3_set = set(); grammar_n3_set = set()
           m = re.search(r'const SEION_H = \[\.\.\."([^"]+)"\]', s); kana_set.update(list(m.group(1)))
           m = re.search(r'const SEION_K = \[\.\.\."([^"]+)"\]', s); kana_set.update(list(m.group(1)))
           m = re.search(r'const DAK_H = \[\.\.\."([^"]+)"\]', s); kana_set.update(list(m.group(1)))
@@ -46,6 +46,10 @@ jobs:
               vb4 = s.split("const VOCAB_N4 = {")[1].split("\n};")[0]
               for row in re.findall(r'\["([^"]+)","[^"]*","[^"]*","[^"]*"\]', vb4):
                   texts.add(row); vocab_n4_set.add(row)
+          if "const VOCAB_N3 = {" in s:
+              vb3 = s.split("const VOCAB_N3 = {")[1].split("\n};")[0]
+              for row in re.findall(r'\["([^"]+)","[^"]*","[^"]*","[^"]*"\]', vb3):
+                  texts.add(row); vocab_n3_set.add(row)
           ro_map = {}
           pb = s.split("const PHRASES = {")[1].split("};")[0]
           for jp, ro in re.findall(r'\["([^"]+)","([^"]+)","[^"]*"\]', pb):
@@ -62,6 +66,10 @@ jobs:
               gb4 = s.split("const GRAMMAR_N4 = {")[1].split("\n};")[0]
               for jp, ro in re.findall(r'\["([^"]+)","([^"]+)","[^"]*"\]', gb4):
                   texts.add(jp); ro_map[jp] = ro; grammar_n4_set.add(jp)
+          if "const GRAMMAR_N3 = {" in s:
+              gb3 = s.split("const GRAMMAR_N3 = {")[1].split("\n};")[0]
+              for jp, ro in re.findall(r'\["([^"]+)","([^"]+)","[^"]*"\]', gb3):
+                  texts.add(jp); ro_map[jp] = ro; grammar_n3_set.add(jp)
           texts.add("こんにちは")
           texts = sorted(texts)
           VOICE = "/tmp/htsvoice-tohoku-f01-master/tohoku-f01-neutral.htsvoice"
@@ -111,7 +119,7 @@ jobs:
                   out.append(p)
               return out
           KEEP = {"こんにちは": "konnichiwa", "こんばんは": "konbanwa"}
-          KANA_FIX = {"さんぎょう": "産業", "ゆしゅつします": "輸出します", "ゆにゅうします": "輸入します"}  # 片假名字面被誤斷詞時,改用漢字合成(標準答案不變)
+          KANA_FIX = {"さんぎょう": "産業", "ゆしゅつします": "輸出します", "ゆにゅうします": "輸入します", "きょうりょく": "協力", "ぼしゅうします": "募集します"}  # 片假名字面被誤斷詞時,改用漢字合成(標準答案不變)
           SENT_FIX = [("何ですか", "なんですか"), ("何でしょうか", "なんでしょうか"), ("日本の", "にほんの"), ("日本へ", "にほんへ"), ("日本に", "にほんに"), ("日本で", "にほんで"), ("お帰りに", "おかえりに")]
           plan = []
           for t in texts:
@@ -147,8 +155,10 @@ jobs:
           # ---- 分片:kana / vocab_n5 / grammar_n5 / phrases;各分片指紋比對,沒變就跳過 ----
           import hashlib
           def shard_of(t):
+              if t in grammar_n3_set: return "grammar_n3"
               if t in grammar_n4_set: return "grammar_n4"
               if t in grammar_set: return "grammar_n5"
+              if t in vocab_n3_set: return "vocab_n3"
               if t in vocab_n4_set: return "vocab_n4"
               if t in vocab_set: return "vocab_n5"
               if t in kana_set: return "kana"
