@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.10.0 — N4 詞彙第二波 ===== */
+/* ===== Build v2.11.0 — N4 文法第二波 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -665,7 +665,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.10.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.11.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -1703,7 +1703,13 @@ const GRAMMAR_N4 = {
 {p:"命令形・禁止形",n:"命令/禁止",exp:"命令形(急げ)語氣強;禁止形=辭書形+な(入るな)。",ex:[["危ないから、触るな。","abunai kara sawaru na","很危險,不要摸。"]]},
 {p:"~ほうがいいです",n:"最好~",exp:"た形+ほうがいいです(建議做);ない形+ないほうがいいです(建議不做)。",ex:[["早く寝たほうがいいですよ。","hayaku neta hou ga ii desu yo","最好早點睡喔。"]]},
 {p:"~すぎます",n:"太~",exp:"ます形去ます/形容詞去い+すぎます,表示過度。",ex:[["昨日は食べすぎました。","kinou wa tabesugimashita","昨天吃太多了。"]]},
-{p:"~やすい/~にくい",n:"容易~/難~",exp:"ます形去ます+やすい(容易)、にくい(不容易)。",ex:[["この薬は飲みやすいです。","kono kusuri wa nomiyasui desu","這個藥很好吞。"]]}
+{p:"~やすい/~にくい",n:"容易~/難~",exp:"ます形去ます+やすい(容易)、にくい(不容易)。",ex:[["この薬は飲みやすいです。","kono kusuri wa nomiyasui desu","這個藥很好吞。"]]},
+{p:"~ながら",n:"一邊~一邊",exp:"ます形去ます+ながら,同時做兩件事,重點在後句。",ex:[["音楽を聞きながら、勉強します。","ongaku o kikinagara benkyou shimasu","一邊聽音樂一邊讀書。"]]},
+{p:"~てあります",n:"~著(狀態)",exp:"他動詞て形+あります,表示有人為留下的狀態。",ex:[["壁にポスターがはってあります。","kabe ni posutaa ga hatte arimasu","牆上貼著海報。"]]},
+{p:"~ていきます/~てきます",n:"~下去/~起來",exp:"變化朝未來持續(ていきます)或從過去到現在(てきます)。",ex:[["これからも日本語を勉強していきます。","korekara mo nihongo o benkyou shite ikimasu","今後也會繼續學日語。"]]},
+{p:"~はじめます/~おわります",n:"開始~/~完",exp:"ます形去ます+始めます/終わります,複合動詞。",ex:[["雨が降りはじめました。","ame ga furihajimemashita","開始下雨了。"]]},
+{p:"~だします",n:"突然開始~",exp:"ます形去ます+出します,表示動作突然開始。",ex:[["赤ちゃんが泣きだしました。","akachan ga nakidashimashita","嬰兒突然哭了起來。"]]},
+{p:"~ずに",n:"不~就",exp:"ない形去ない+ずに(する→せずに),書面的「~ないで」。",ex:[["朝ご飯を食べずに出かけました。","asagohan o tabezu ni dekakemashita","沒吃早餐就出門了。"]]}
 ],
 "條件":[
 {p:"~と",n:"一~就~",exp:"辭書形+と,表示必然結果或自然現象。",ex:[["このボタンを押すと、お釣りが出ます。","kono botan o osu to otsuri ga demasu","一按這個按鈕,找零就會出來。"]]},
@@ -1714,7 +1720,8 @@ const GRAMMAR_N4 = {
 "授受表現":[
 {p:"~てあげます",n:"(我)幫~做",exp:"為別人做某事(說話者→他人)。",ex:[["友達に地図をかいてあげました。","tomodachi ni chizu o kaite agemashita","幫朋友畫了地圖。"]]},
 {p:"~てくれます",n:"(別人)幫我做",exp:"別人為我做某事,帶感謝語氣。",ex:[["姉が晩ご飯を作ってくれました。","ane ga bangohan o tsukutte kuremashita","姊姊幫我做了晚餐。"]]},
-{p:"~てもらいます",n:"請~幫忙做",exp:"請別人幫忙做,「人に~てもらいます」。",ex:[["先生に作文を直してもらいました。","sensei ni sakubun o naoshite moraimashita","請老師幫我改了作文。"]]}
+{p:"~てもらいます",n:"請~幫忙做",exp:"請別人幫忙做,「人に~てもらいます」。",ex:[["先生に作文を直してもらいました。","sensei ni sakubun o naoshite moraimashita","請老師幫我改了作文。"]]},
+{p:"~ていただけませんか",n:"能否請您~",exp:"「~てもらえませんか」的更客氣問法。",ex:[["もう少しゆっくり話していただけませんか。","mou sukoshi yukkuri hanashite itadakemasen ka","能否請您說慢一點?"]]}
 ],
 "推量・伝聞":[
 {p:"~そうです(樣態)",n:"看起來~",exp:"ます形去ます/形容詞去い+そうです,眼前的樣子。",ex:[["この料理はおいしそうですね。","kono ryouri wa oishisou desu ne","這道菜看起來很好吃呢。"]]},
@@ -1722,7 +1729,9 @@ const GRAMMAR_N4 = {
 {p:"~ようです",n:"好像~",exp:"根據觀察做的推測,語氣較客觀。",ex:[["だれもいないようです。","dare mo inai you desu","好像沒有人在。"]]},
 {p:"~らしいです",n:"似乎~",exp:"根據傳聞或跡象的推測。",ex:[["あの店は有名らしいです。","ano mise wa yuumei rashii desu","那家店似乎很有名。"]]},
 {p:"~かもしれません",n:"也許~",exp:"普通形+かもしれません,可能性不高的推測。",ex:[["午後は雪になるかもしれません。","gogo wa yuki ni naru kamo shiremasen","下午也許會下雪。"]]},
-{p:"~はずです",n:"應該~",exp:"有根據的判斷「照理說應該~」。",ex:[["彼は今日来るはずです。","kare wa kyou kuru hazu desu","他今天應該會來。"]]}
+{p:"~はずです",n:"應該~",exp:"有根據的判斷「照理說應該~」。",ex:[["彼は今日来るはずです。","kare wa kyou kuru hazu desu","他今天應該會來。"]]},
+{p:"~でしょう",n:"~吧(推測)",exp:"普通形+でしょう,對未來或不確定事的推測。",ex:[["明日はたぶん晴れるでしょう。","ashita wa tabun hareru deshou","明天大概會放晴吧。"]]},
+{p:"~と言っていました",n:"(某人)說~",exp:"轉述第三者說過的話。",ex:[["田中さんは来週来ると言っていました。","tanaka san wa raishuu kuru to itte imashita","田中先生說下週會來。"]]}
 ],
 "受身・使役・敬語":[
 {p:"受身形(被動)",n:"被~",exp:"一類あ段+れます、二類+られます:しかられます、食べられます。",ex:[["先生にしかられました。","sensei ni shikararemashita","被老師罵了。"]]},
@@ -1732,7 +1741,10 @@ const GRAMMAR_N4 = {
 {p:"お~ください",n:"請~(客氣)",exp:"お+ます形去ます+ください,更客氣的請求。",ex:[["こちらで少々お待ちください。","kochira de shoushou omachi kudasai","請在這邊稍候。"]]},
 {p:"いたします",n:"做(謙讓)",exp:"します的謙讓語,降低自己抬高對方。",ex:[["よろしくお願いいたします。","yoroshiku onegai itashimasu","懇請多多指教。"]]},
 {p:"~でございます",n:"是(鄭重)",exp:"です的鄭重說法,店員常用。",ex:[["こちらがメニューでございます。","kochira ga menyuu de gozaimasu","這是菜單(鄭重)。"]]},
-{p:"お~になります",n:"~(尊敬)",exp:"お+ます形去ます+になります,一般動詞的尊敬形。",ex:[["社長はもうお帰りになりました。","shachou wa mou okaeri ni narimashita","社長已經回去了(尊敬)。"]]}
+{p:"お~になります",n:"~(尊敬)",exp:"お+ます形去ます+になります,一般動詞的尊敬形。",ex:[["社長はもうお帰りになりました。","shachou wa mou okaeri ni narimashita","社長已經回去了(尊敬)。"]]},
+{p:"お/ご~します",n:"(謙讓)為您~",exp:"お+ます形去ます+します,自己為對方做事的謙讓說法。",ex:[["荷物をお持ちします。","nimotsu o omochi shimasu","我來幫您拿行李。"]]},
+{p:"~させてください",n:"請讓我~",exp:"使役て形+ください,請求對方允許。",ex:[["少し考えさせてください。","sukoshi kangaesasete kudasai","請讓我考慮一下。"]]},
+{p:"~なさい",n:"~吧(指示)",exp:"ます形去ます+なさい,長輩對晚輩的溫和命令。",ex:[["早く寝なさい。","hayaku nenasai","快點睡。"]]}
 ],
 "複文・その他":[
 {p:"~ので",n:"因為~",exp:"比「から」更客氣、客觀的理由。",ex:[["用事があるので、お先に失礼します。","youji ga aru node osaki ni shitsurei shimasu","因為有事,我先走了。"]]},
@@ -1745,7 +1757,21 @@ const GRAMMAR_N4 = {
 {p:"~ているところです",n:"正在~",exp:"強調「正處於做~的當下」。",ex:[["今、晩ご飯を作っているところです。","ima bangohan o tsukutte iru tokoro desu","現在正在做晚餐。"]]},
 {p:"~たばかりです",n:"剛~",exp:"た形+ばかり,表示動作剛完成不久。",ex:[["日本に来たばかりです。","nihon ni kita bakari desu","剛來日本不久。"]]},
 {p:"~んです",n:"~(說明語氣)",exp:"說明理由或尋求說明,口語必備。",ex:[["どうしたんですか。","doushita n desu ka","怎麼了嗎?"]]},
-{p:"~かどうか",n:"是否~",exp:"把問句放進句子裡:「~かどうか、わかりません」。",ex:[["間に合うかどうか、わかりません。","maniau ka dou ka wakarimasen","不知道趕不趕得上。"]]}
+{p:"~かどうか",n:"是否~",exp:"把問句放進句子裡:「~かどうか、わかりません」。",ex:[["間に合うかどうか、わかりません。","maniau ka dou ka wakarimasen","不知道趕不趕得上。"]]},
+{p:"~つもりです",n:"打算~",exp:"辭書形/ない形+つもりです,已決定的打算。",ex:[["夏休みに国へ帰るつもりです。","natsuyasumi ni kuni e kaeru tsumori desu","打算暑假回國。"]]},
+{p:"~予定です",n:"預定~",exp:"辭書形/名詞の+予定です,既定的行程安排。",ex:[["来週の土曜日に引っ越しする予定です。","raishuu no doyoubi ni hikkoshi suru yotei desu","預定下週六搬家。"]]},
+{p:"~ことにします",n:"決定~",exp:"辭書形+ことにします,自己做的決定。",ex:[["毎朝走ることにしました。","maiasa hashiru koto ni shimashita","決定每天早上跑步。"]]},
+{p:"~ことになりました",n:"(被)決定~",exp:"由外部決定的結果。",ex:[["大阪へ転勤することになりました。","oosaka e tenkin suru koto ni narimashita","決定要調職到大阪了。"]]},
+{p:"~ようにします",n:"盡量~",exp:"辭書形/ない形+ようにします,努力養成習慣。",ex:[["野菜をたくさん食べるようにしています。","yasai o takusan taberu you ni shite imasu","盡量多吃蔬菜。"]]},
+{p:"~ようになります",n:"變得會~",exp:"可能形+ようになります,能力或習慣的變化。",ex:[["漢字が読めるようになりました。","kanji ga yomeru you ni narimashita","變得看得懂漢字了。"]]},
+{p:"~ために",n:"為了~",exp:"辭書形/名詞の+ために,表示目的。",ex:[["家族のために働いています。","kazoku no tame ni hataraite imasu","為了家人而工作。"]]},
+{p:"疑問詞+~か",n:"~呢(內嵌問句)",exp:"把疑問句放進句子:「いつ~か、~」。",ex:[["電車がいつ来るか、わかりません。","densha ga itsu kuru ka wakarimasen","不知道電車什麼時候來。"]]},
+{p:"~たがっています",n:"(他人)想~",exp:"ます形去ます+たがっています,第三者的願望。",ex:[["娘は犬を飼いたがっています。","musume wa inu o kaitagatte imasu","女兒想養狗。"]]},
+{p:"~がします",n:"有~的感覺",exp:"におい/音/味/気+がします,感官感覺。",ex:[["いいにおいがしますね。","ii nioi ga shimasu ne","好香啊。"]]},
+{p:"~まま",n:"保持~的狀態",exp:"た形/名詞の+まま,狀態不變就做下一件事。",ex:[["エアコンをつけたまま寝てしまいました。","eakon o tsuketa mama nete shimaimashita","開著冷氣就睡著了。"]]},
+{p:"~ほど~ないです",n:"沒有~那麼",exp:"AはBほど~ない,比較中程度較低的一方。",ex:[["今年は去年ほど寒くないです。","kotoshi wa kyonen hodo samukunai desu","今年沒有去年那麼冷。"]]},
+{p:"~という~",n:"叫做~的",exp:"名詞+という+名詞,介紹名稱。",ex:[["ひまわりという店を知っていますか。","himawari to iu mise o shitte imasu ka","你知道叫「ひまわり」的店嗎?"]]},
+{p:"~までに",n:"在~之前",exp:"期限「までに」;持續到某時點用「まで」。",ex:[["五時までにレポートを出してください。","goji made ni repooto o dashite kudasai","請在五點前交報告。"]]}
 ]
 };
 
@@ -2879,7 +2905,19 @@ const LEVEL_GRAMMAR_N4 = [
 ["たくさん寝た＿、まだ眠いです。","のに",["のに","ので","から","し"]],
 ["ビールを冷やして＿ます。","おき",["おき","しまい","み","あり"]],
 ["財布を忘れて＿ました。","しまい",["しまい","おき","み","いき"]],
-["日本に来た＿です。","ばかり",["ばかり","ところ","はず","つもり"]]
+["日本に来た＿です。","ばかり",["ばかり","ところ","はず","つもり"]],
+["音楽を聞き＿、勉強します。","ながら",["ながら","たら","ので","まま"]],
+["これからも勉強して＿ます。","いき",["いき","き","み","おき"]],
+["朝ご飯を食べ＿に出かけました。","ず",["ず","ない","なく","ぬ"]],
+["荷物を＿持ちします。","お",["お","ご","て","に"]],
+["少し考え＿てください。","させ",["させ","られ","され","させられ"]],
+["もう少しゆっくり話して＿ませんか。","いただけ",["いただけ","いただき","もらい","あげ"]],
+["夏休みに国へ帰る＿です。","つもり",["つもり","ため","ところ","はず"]],
+["毎朝走ること＿しました。","に",["に","を","が","で"]],
+["漢字が読める＿になりました。","よう",["よう","こと","ため","ほど"]],
+["電車がいつ来る＿、わかりません。","か",["か","を","のに","ので"]],
+["エアコンをつけた＿寝てしまいました。","まま",["まま","ばかり","ながら","あいだ"]],
+["今年は去年＿寒くないです。","ほど",["ほど","より","まで","でも"]]
 ];
 const LEVEL_PHRASE = [
   ["在餐廳吃完想結帳,要說?","お会計お願いします",["お会計お願いします","いくらですか","いただきます","おはようございます"]],
@@ -2938,7 +2976,7 @@ function renderLevelSetup(){
     last = '<p style="text-align:center; font-weight:700; color:var(--ink2); margin-bottom:4px;">上次結果:' + store.level.label + '(' + store.level.score + ' / 20・' + store.level.date + ')</p>';
   }
   box.innerHTML = '<div class="quiz-setup">' + last +
-    levelPillsHtml() + (jlptLevel()==="N4" ? '<p style="font-weight:700; margin-bottom:6px;">N4 模擬測驗 20 題:語彙 8、文法 12(題庫 20 條隨機),做完立刻評估你的 N4 實力。</p>' : '<p style="font-weight:700; margin-bottom:6px;">N5 模擬測驗 20 題:假名 8、語彙 6、文法 4、會話 2(文法題庫 20 條隨機),做完立刻評估你的 N5 實力。</p>') +
+    levelPillsHtml() + (jlptLevel()==="N4" ? '<p style="font-weight:700; margin-bottom:6px;">N4 模擬測驗 20 題:語彙 8、文法 12(題庫 32 條隨機),做完立刻評估你的 N4 實力。</p>' : '<p style="font-weight:700; margin-bottom:6px;">N5 模擬測驗 20 題:假名 8、語彙 6、文法 4、會話 2(文法題庫 20 條隨機),做完立刻評估你的 N5 實力。</p>') +
     '<button class="big-btn" id="lvStart">開始檢定</button></div>';
   box.querySelector("#lvStart").addEventListener("click", runLevelTest);
 }
@@ -3084,7 +3122,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.10.0・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.11.0・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
