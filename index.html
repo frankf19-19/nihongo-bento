@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.7.8 — 單字庫擴充至 N5 ===== */
+/* ===== Build v2.8.0 — 分片語音引擎+N5 文法全套+N5 模擬測驗 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -262,6 +262,7 @@ p.page-sub{color:var(--ink2); margin:2px 0 20px; font-size:.93rem;}
 }
 .g-ex .jp{font-weight:900; font-size:1.02rem;}
 .g-ex .zh{color:var(--ink2); font-size:.88rem; font-weight:700;}
+.g-ex .ro{font-size:.78rem; color:var(--ink3); margin-top:1px;}
 /* ===== 會話 ===== */
 .phrase-row{
   background:var(--surface); border:2px solid var(--line); border-radius:18px;
@@ -435,7 +436,7 @@ footer{
   <button data-page="phrases">旅遊會話</button>
   <button data-page="dojo">会話道場</button>
   <button data-page="game">配對遊戲</button>
-  <button data-page="level">程度檢定</button>
+  <button data-page="level">N5 模擬測驗</button>
   <button data-page="progress">我的進度</button>
 </nav>
 
@@ -481,7 +482,7 @@ footer{
       <span class="b-glyph">進</span>
     </button>
     <button class="b-level" data-go="level">
-      <span class="b-title">🏅 日語程度檢定</span>
+      <span class="b-title">🏅 N5 模擬測驗</span>
       <span class="b-desc">20 題綜合測驗:假名・單字・文法・會話,測出你現在的程度</span>
       <span class="b-glyph">検</span>
     </button>
@@ -570,6 +571,7 @@ footer{
 <section id="page-grammar" hidden>
   <h2 class="page-title">基礎文法 10 選</h2>
   <p class="page-sub">初學最常用的 10 個句型,點開看說明和例句。</p>
+  <div class="subtabs" id="grammarTabs"></div>
   <div id="grammarList"></div>
 </section>
 
@@ -616,7 +618,7 @@ footer{
 
 <!-- ============ 程度檢定 ============ -->
 <section id="page-level" hidden>
-  <h2 class="page-title">日語程度檢定</h2>
+  <h2 class="page-title">N5 模擬測驗</h2>
   <p class="page-sub">20 題綜合測驗,涵蓋假名、單字、文法、會話,測完立刻給你程度評級和弱點分析。</p>
   <div class="quiz-box" id="levelBox"></div>
 </section>
@@ -655,7 +657,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.7.8・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.8.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -764,28 +766,89 @@ const VOCAB = {
 
 };
 
-const GRAMMAR = [
-  {p:"AはBです", n:"A是B", exp:"最基本的判斷句。「は」在這裡唸 wa,是提示主題的助詞;「です」讓句子變得有禮貌。否定形是「じゃありません」。",
-   ex:[["わたしは台湾人です。","我是台灣人。"],["これはラーメンじゃありません。","這不是拉麵。"]]},
-  {p:"AはBですか", n:"疑問句", exp:"句尾加「か」就變成問句,語調上揚,不需要問號也可以。回答用「はい(是)/いいえ(不是)」。",
-   ex:[["これはお茶ですか。","這是茶嗎?"],["はい、お茶です。","是的,是茶。"]]},
-  {p:"名詞 + も", n:"也", exp:"「も」取代「は」,表示「也」。前面提過某件事,後面說另一個相同情況時使用。",
-   ex:[["わたしも行きます。","我也去。"],["これも千円です。","這個也是一千日圓。"]]},
-  {p:"AのB", n:"A的B", exp:"「の」連接兩個名詞,表示所屬或修飾,和中文的「的」很像,但順序一樣是「擁有者の物品」。",
-   ex:[["わたしの本です。","是我的書。"],["日本のビールが好きです。","我喜歡日本的啤酒。"]]},
-  {p:"名詞 + を + 動詞ます", n:"做~", exp:"「を」標示動作的對象(受詞)。「~ます」是動詞的禮貌形,現在和未來都可以用。",
-   ex:[["ラーメンを食べます。","吃拉麵。"],["水を飲みます。","喝水。"]]},
-  {p:"場所 + へ / に 行きます", n:"去某地", exp:"「へ」(唸 e)和「に」都可以表示移動的方向或目的地,搭配「行きます(去)/来ます(來)/帰ります(回去)」。",
-   ex:[["東京へ行きます。","去東京。"],["ホテルに帰ります。","回飯店。"]]},
-  {p:"場所 + で + 動詞", n:"在某地做~", exp:"「で」標示動作發生的地點,注意和表示目的地的「に/へ」不同:有「做動作」就用「で」。",
-   ex:[["駅で友達に会います。","在車站和朋友見面。"],["コンビニでお茶を買います。","在便利商店買茶。"]]},
-  {p:"時間 + に", n:"在幾點", exp:"具體時刻(七時、三月三日)後面加「に」;「今日、明日、毎日」這類相對時間不加「に」。",
-   ex:[["七時に起きます。","七點起床。"],["明日、空港へ行きます。","明天去機場。"]]},
-  {p:"~があります / います", n:"有~;在~", exp:"表示存在。無生命的東西用「あります」,人和動物用「います」。地點用「に」標示。",
-   ex:[["駅にコンビニがあります。","車站有便利商店。"],["部屋に猫がいます。","房間裡有貓。"]]},
-  {p:"~てください", n:"請做~", exp:"動詞改成「て形」再加「ください」,是禮貌的請求。旅遊時超好用,例如請對方再說一次、請幫忙寫下來。",
-   ex:[["もう一度言ってください。","請再說一次。"],["ここに書いてください。","請寫在這裡。"]]}
-];
+const GRAMMAR = {
+"基本句型":[
+{p:"AはBです",n:"A是B",exp:"最基本的判斷句。「は」唸 wa,提示主題;「です」表示禮貌。",ex:[["わたしは学生です。","watashi wa gakusei desu","我是學生。"]]},
+{p:"AはBじゃありません",n:"A不是B",exp:"「です」的否定形。口語也常說「じゃないです」。",ex:[["これはお茶じゃありません。","kore wa ocha ja arimasen","這不是茶。"]]},
+{p:"AはBでした",n:"A(過去)是B",exp:"「です」的過去形;否定過去是「じゃありませんでした」。",ex:[["きのうは雨でした。","kinou wa ame deshita","昨天是雨天。"]]},
+{p:"~ですか",n:"疑問句",exp:"句尾加「か」變問句,語調上揚。回答用「はい/いいえ」。",ex:[["これはお茶ですか。","kore wa ocha desu ka","這是茶嗎?"]]},
+{p:"名詞+も",n:"也~",exp:"「も」取代「は」表示「也」,情況相同時使用。",ex:[["わたしも行きます。","watashi mo ikimasu","我也去。"]]},
+{p:"AのB",n:"A的B",exp:"「の」連接名詞表示所屬或修飾,順序同中文「A的B」。",ex:[["わたしの本です。","watashi no hon desu","是我的書。"]]},
+{p:"AとB",n:"A和B",exp:"「と」把名詞全部列出來,只用於名詞之間。",ex:[["パンと卵を買います。","pan to tamago o kaimasu","買麵包和蛋。"]]},
+{p:"AやB(など)",n:"A啦B啦",exp:"「や」舉例列出部分項目,暗示還有其他,和「と」不同。",ex:[["机の上に本やペンがあります。","tsukue no ue ni hon ya pen ga arimasu","桌上有書和筆等等。"]]},
+{p:"~ね/~よ",n:"語尾詞",exp:"「ね」尋求同意(~對吧);「よ」告知對方不知道的事。",ex:[["今日は暑いですね。","kyou wa atsui desu ne","今天很熱對吧。"]]},
+{p:"どうですか",n:"如何?",exp:"詢問對方的感想或狀況,也用於提議。",ex:[["日本の生活はどうですか。","nihon no seikatsu wa dou desu ka","日本的生活如何?"]]}
+],
+"助詞":[
+{p:"~を+動詞",n:"動作對象",exp:"「を」標示動作的受詞。",ex:[["ラーメンを食べます。","raamen o tabemasu","吃拉麵。"]]},
+{p:"場所へ/に行きます",n:"去某地",exp:"「へ」(唸e)和「に」表示移動方向,搭配行きます/来ます/帰ります。",ex:[["東京へ行きます。","toukyou e ikimasu","去東京。"]]},
+{p:"場所で+動詞",n:"在某地做~",exp:"「で」標示動作發生地點;只是存在用「に」。",ex:[["駅で友達に会います。","eki de tomodachi ni aimasu","在車站和朋友見面。"]]},
+{p:"時間に",n:"在幾點",exp:"具體時刻加「に」;今日、毎日等相對時間不加。",ex:[["七時に起きます。","shichiji ni okimasu","七點起床。"]]},
+{p:"~が",n:"主語標示",exp:"「が」標示主語,常用於存在、喜好、能力和疑問詞當主語時。",ex:[["ねこがいます。","neko ga imasu","有貓。"]]},
+{p:"AからBまで",n:"從A到B",exp:"「から」起點、「まで」終點,時間和地點都可用。",ex:[["九時から五時まで働きます。","kuji kara goji made hatarakimasu","從九點工作到五點。"]]},
+{p:"人と~",n:"和某人一起",exp:"「と」表示一起做動作的對象。",ex:[["家族と旅行します。","kazoku to ryokou shimasu","和家人去旅行。"]]},
+{p:"~で(手段)",n:"用~;搭~",exp:"「で」也表示手段、工具、交通方式。",ex:[["電車で会社へ行きます。","densha de kaisha e ikimasu","搭電車去公司。"]]},
+{p:"AよりB",n:"B比A~",exp:"「より」表示比較的基準。",ex:[["夏より冬が好きです。","natsu yori fuyu ga suki desu","比起夏天更喜歡冬天。"]]},
+{p:"~だけ",n:"只有~",exp:"「だけ」表示限定,只有這個。",ex:[["水だけ飲みます。","mizu dake nomimasu","只喝水。"]]},
+{p:"~ぐらい/ごろ",n:"大約",exp:"「ぐらい」大約的量;「ごろ」大約的時間點。",ex:[["三十分ぐらい歩きます。","sanjuppun gurai arukimasu","走大約三十分鐘。"]]},
+{p:"AかB",n:"A或B",exp:"「か」放在名詞之間表示選擇。",ex:[["お茶かコーヒーを飲みます。","ocha ka koohii o nomimasu","喝茶或咖啡。"]]},
+{p:"~の(準體)",n:"~的(東西)",exp:"「の」代替前面提過的名詞。",ex:[["この傘はわたしのです。","kono kasa wa watashi no desu","這把傘是我的。"]]}
+],
+"動詞變化":[
+{p:"~ます/ません",n:"禮貌形",exp:"「ます」現在/未來肯定;「ません」否定。",ex:[["今日は行きません。","kyou wa ikimasen","今天不去。"]]},
+{p:"~ました/ませんでした",n:"過去形",exp:"「ました」過去肯定;「ませんでした」過去否定。",ex:[["きのう映画を見ました。","kinou eiga o mimashita","昨天看了電影。"]]},
+{p:"~て形",n:"て形",exp:"動詞的連接形,是很多句型的基礎:て+ください/います等。",ex:[["ここに名前を書いてください。","koko ni namae o kaite kudasai","請在這裡寫名字。"]]},
+{p:"~ています",n:"正在~;狀態",exp:"表示正在進行的動作或持續的狀態。",ex:[["今、ご飯を食べています。","ima gohan o tabete imasu","現在正在吃飯。"]]},
+{p:"~てください",n:"請~",exp:"請求對方做某動作。",ex:[["ゆっくり話してください。","yukkuri hanashite kudasai","請說慢一點。"]]},
+{p:"~てもいいですか",n:"可以~嗎",exp:"請求許可。回答:いいですよ/すみません、ちょっと…。",ex:[["写真を撮ってもいいですか。","shashin o totte mo ii desu ka","可以拍照嗎?"]]},
+{p:"~てはいけません",n:"不可以~",exp:"表示禁止,語氣較強。",ex:[["ここでたばこを吸ってはいけません。","koko de tabako o sutte wa ikemasen","這裡不可以抽菸。"]]},
+{p:"~ないでください",n:"請不要~",exp:"請求對方不要做某動作。",ex:[["ここで写真を撮らないでください。","koko de shashin o toranaide kudasai","請不要在這裡拍照。"]]},
+{p:"~たいです",n:"想要~",exp:"表示自己想做的事,動詞ます形去ます+たい。",ex:[["すしを食べたいです。","sushi o tabetai desu","想吃壽司。"]]},
+{p:"~ましょう",n:"一起~吧",exp:"提議一起做某事。",ex:[["いっしょに帰りましょう。","issho ni kaerimashou","一起回家吧。"]]},
+{p:"~ませんか",n:"要不要~?",exp:"客氣地邀請對方。",ex:[["お茶を飲みませんか。","ocha o nomimasen ka","要不要喝杯茶?"]]},
+{p:"~たことがあります",n:"曾經~過",exp:"表示過去的經驗。",ex:[["日本へ行ったことがあります。","nihon e itta koto ga arimasu","去過日本。"]]},
+{p:"~てから",n:"~之後再",exp:"先做前項,再做後項,強調順序。",ex:[["手を洗ってから食べます。","te o aratte kara tabemasu","洗手之後再吃。"]]},
+{p:"~まえに",n:"~之前",exp:"「動詞辭書形+まえに」表示做某事之前。",ex:[["寝るまえに本を読みます。","neru mae ni hon o yomimasu","睡前看書。"]]},
+{p:"~ながら",n:"一邊~一邊",exp:"同一個人同時做兩個動作。",ex:[["音楽を聞きながら勉強します。","ongaku o kikinagara benkyou shimasu","一邊聽音樂一邊讀書。"]]},
+{p:"~かた",n:"~的方法",exp:"ます形去ます+かた,表示做法。",ex:[["この漢字の読みかたを教えてください。","kono kanji no yomikata o oshiete kudasai","請教我這個漢字的唸法。"]]}
+],
+"形容詞":[
+{p:"い形容詞+です",n:"い形容詞",exp:"以「い」結尾的形容詞,直接加です。",ex:[["この店は安いです。","kono mise wa yasui desu","這家店很便宜。"]]},
+{p:"い形→~くないです",n:"い形否定",exp:"去「い」加「くないです」。いい→よくないです。",ex:[["今日は寒くないです。","kyou wa samukunai desu","今天不冷。"]]},
+{p:"い形→~かったです",n:"い形過去",exp:"去「い」加「かったです」;否定過去「くなかったです」。",ex:[["旅行は楽しかったです。","ryokou wa tanoshikatta desu","旅行很開心。"]]},
+{p:"な形容詞+です",n:"な形容詞",exp:"接名詞時加「な」;句尾直接+です。",ex:[["この町は静かです。","kono machi wa shizuka desu","這個城鎮很安靜。"]]},
+{p:"な形→~じゃありません",n:"な形否定",exp:"和名詞一樣用「じゃありません」。",ex:[["ここは有名じゃありません。","koko wa yuumei ja arimasen","這裡不有名。"]]},
+{p:"~くて/~で",n:"形容詞連接",exp:"い形去い+くて、な形+で,把兩個形容詞連起來。",ex:[["この部屋は広くて明るいです。","kono heya wa hirokute akarui desu","這個房間又寬敞又明亮。"]]},
+{p:"~くなります",n:"變得~",exp:"い形去い+くなります、な形+になります,表示變化。",ex:[["だんだん暖かくなります。","dandan atatakaku narimasu","漸漸變暖和。"]]},
+{p:"どんな+名詞",n:"什麼樣的",exp:"詢問性質或種類。",ex:[["どんな音楽が好きですか。","donna ongaku ga suki desu ka","喜歡什麼樣的音樂?"]]},
+{p:"~がいちばん",n:"最~",exp:"「いちばん」表示最高級。",ex:[["すしがいちばん好きです。","sushi ga ichiban suki desu","最喜歡壽司。"]]},
+{p:"AとBとどちらが",n:"A和B哪個",exp:"兩者比較的問法,回答用「~のほうが」。",ex:[["犬とねことどちらが好きですか。","inu to neko to dochira ga suki desu ka","狗和貓喜歡哪個?"]]}
+],
+"存在・數量":[
+{p:"~があります",n:"有(物)",exp:"無生命的東西存在用あります,地點用「に」。",ex:[["駅にコンビニがあります。","eki ni konbini ga arimasu","車站有便利商店。"]]},
+{p:"~がいます",n:"有(人・動物)",exp:"人和動物的存在用います。",ex:[["部屋にねこがいます。","heya ni neko ga imasu","房間裡有貓。"]]},
+{p:"位置詞:上・下・中",n:"上面/下面/裡面",exp:"「名詞の+うえ/した/なか/まえ/うしろ/となり」表示位置。",ex:[["かばんの中に財布があります。","kaban no naka ni saifu ga arimasu","包包裡有錢包。"]]},
+{p:"~がほしいです",n:"想要(東西)",exp:"想要某物用ほしい;想做動作用~たい。",ex:[["新しい携帯がほしいです。","atarashii keitai ga hoshii desu","想要新手機。"]]},
+{p:"數量詞+動詞",n:"買三個~",exp:"數量詞直接放在動詞前,不加助詞。",ex:[["りんごを三つ買います。","ringo o mittsu kaimasu","買三顆蘋果。"]]},
+{p:"何人/何歳",n:"幾個人/幾歲",exp:"「なんにん」問人數、「なんさい」問年齡。",ex:[["家族は何人ですか。","kazoku wa nannin desu ka","家裡有幾個人?"]]},
+{p:"~回",n:"~次",exp:"「かい」是次數的量詞:一回、二回、三回。",ex:[["週に三回泳ぎます。","shuu ni sankai oyogimasu","一週游泳三次。"]]},
+{p:"~しかありません",n:"只有~(而已)",exp:"「しか+否定」強調數量少,語感比「だけ」更少。",ex:[["百円しかありません。","hyakuen shika arimasen","只有一百日圓。"]]}
+],
+"常用句型":[
+{p:"~をください",n:"請給我~",exp:"買東西、點餐最常用的句型。",ex:[["これをください。","kore o kudasai","請給我這個。"]]},
+{p:"~はどこですか",n:"~在哪裡",exp:"問地點的基本句型。",ex:[["トイレはどこですか。","toire wa doko desu ka","廁所在哪裡?"]]},
+{p:"~はいくらですか",n:"~多少錢",exp:"問價錢。",ex:[["これはいくらですか。","kore wa ikura desu ka","這個多少錢?"]]},
+{p:"もう~ました",n:"已經~了",exp:"「もう」+過去形表示動作已完成。",ex:[["もう昼ご飯を食べました。","mou hirugohan o tabemashita","已經吃過午餐了。"]]},
+{p:"まだ~ていません",n:"還沒~",exp:"「まだ」+ていません表示尚未完成,不用過去否定。",ex:[["まだ宿題をしていません。","mada shukudai o shite imasen","還沒寫作業。"]]},
+{p:"~から(原因)",n:"因為~",exp:"「句子+から」說明理由,理由放前面。",ex:[["暑いから、窓を開けます。","atsui kara mado o akemasu","因為很熱,所以開窗。"]]},
+{p:"~が(逆接)",n:"~但是",exp:"「句子+が」表示轉折,後面接相反的內容。",ex:[["日本語は難しいですが、面白いです。","nihongo wa muzukashii desu ga omoshiroi desu","日語很難,但是很有趣。"]]},
+{p:"そして/それから",n:"然後",exp:"連接前後兩件事;それから也可表示「之後」。",ex:[["朝ご飯を食べて、それから学校へ行きます。","asagohan o tabete sorekara gakkou e ikimasu","吃完早餐,然後去學校。"]]},
+{p:"でも",n:"可是",exp:"放在句首表示轉折,比「が」更口語。",ex:[["高いです。でも、買います。","takai desu demo kaimasu","很貴。可是還是要買。"]]},
+{p:"~でしょう",n:"~吧(推測)",exp:"表示推測,天氣預報常用。",ex:[["明日は晴れるでしょう。","ashita wa hareru deshou","明天應該會放晴吧。"]]},
+{p:"どうして/なぜ",n:"為什麼",exp:"問理由,回答用「~からです」。",ex:[["どうして遅れましたか。","doushite okuremashita ka","為什麼遲到了?"]]},
+{p:"~つもりです",n:"打算~",exp:"辭書形+つもり,表示計畫或打算。",ex:[["来年日本へ行くつもりです。","rainen nihon e iku tsumori desu","打算明年去日本。"]]}
+]
+};
 
 const PHRASES = {
   "打招呼":[
@@ -977,85 +1040,90 @@ try{
 const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 /* 內建語音庫:全部發音預先合成、打包成單一音檔放在網站自己身上,
    走媒體通道(靜音模式照播)、離線可用、不依賴任何外部服務 */
-let spriteMap = null, spriteAudio = null, spriteTimer = null, spriteVer = "";
-let spriteBuf = null, spriteLoading = false, spriteNode = null;
-function spriteSrc(){ return "./audio/sprite.mp3" + (spriteVer ? ("?v=" + spriteVer) : ""); }
-function ensureSpriteAudio(){
-  const want = spriteSrc();
-  if(!spriteAudio){
-    spriteAudio = new Audio(want);
-    spriteAudio.setAttribute("playsinline","");
-    spriteAudio.preload = "auto";
-  }else if(spriteAudio.getAttribute("data-src") !== want){
-    spriteAudio.src = want; /* 音檔更新時切換到配對的新版本 */
-  }
-  spriteAudio.setAttribute("data-src", want);
-  return spriteAudio;
-}
+let spriteMap = null, shardVers = {}, mapVer = "", spriteAudio = null, spriteTimer = null, spriteNode = null;
+const shardBufs = {}, shardLoading = {}, shardOrder = [];
+/* 分片語音庫:音檔按內容分成多個分片(kana/vocab/grammar/phrases…),
+   點到哪一片才下載解碼,記憶體有上限,單字庫再大也跑得動 */
 function loadSpriteMap(){
-  if(spriteMap || window.__mapLoading) return;
-  window.__mapLoading = true;
-  /* 時間表一律向網路拿最新版(離線時快取墊底);表內含音檔版本指紋,
-     音檔一律以指紋請求——兩者永遠成對,杜絕新舊錯配造成的亂放 */
+  if(window.__mapLoading) return; window.__mapLoading = true;
   fetch("./audio/sprite_map.json", {cache:"no-cache"})
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(m){
-      if(m && m.__v){ spriteVer = m.__v; delete m.__v; }
-      spriteMap = m; window.__mapLoading = false;
-      if(m){ ensureSpriteAudio(); loadSpriteBuffer(); } /* 預先載入並解碼配對音檔 */
+      window.__mapLoading = false;
+      if(m && m.__fmt === 2 && m.index){
+        spriteMap = m.index; shardVers = m.shards || {}; mapVer = m.__v || "";
+        loadShardBuffer("kana"); loadShardBuffer("phrases"); /* 常用分片先解碼 */
+      }
     })
-    .catch(function(){ window.__mapLoading = false; });
+    .catch(function(){ window.__mapLoading = false; setTimeout(loadSpriteMap, 8000); });
 }
-/* 把音檔一次解碼進記憶體,之後用 Web Audio 以「取樣點」精準切段播放。
-   iPhone 的 audio 元素對 MP3 跳段(currentTime)不精準,長檔會偏移好幾秒、
-   播到別句——Web Audio 定位毫秒不差,且點了即播 */
-function loadSpriteBuffer(){
-  if(spriteBuf || spriteLoading || !spriteVer) return;
-  spriteLoading = true;
-  fetch(spriteSrc())
+function shardSrc(sh){ return "./audio/" + sh + ".mp3?v=" + ((shardVers[sh] && shardVers[sh].v) || ""); }
+function touchShard(sh){
+  const i = shardOrder.indexOf(sh); if(i > -1) shardOrder.splice(i, 1);
+  shardOrder.push(sh);
+  while(shardOrder.length > 4){ const old = shardOrder.shift(); delete shardBufs[old]; }
+}
+function loadShardBuffer(sh){
+  if(shardBufs[sh] || shardLoading[sh] || !shardVers[sh]) return;
+  shardLoading[sh] = true;
+  fetch(shardSrc(sh))
     .then(function(r){ return r.arrayBuffer(); })
     .then(function(ab){
       const AC = window.AudioContext || window.webkitAudioContext;
       if(!window.__ac) window.__ac = new AC();
       return new Promise(function(res, rej){ window.__ac.decodeAudioData(ab, res, rej); });
     })
-    .then(function(buf){ spriteBuf = buf; spriteLoading = false; })
+    .then(function(buf){ shardBufs[sh] = buf; shardLoading[sh] = false; touchShard(sh); })
     .catch(function(){
-      spriteLoading = false;
-      /* 首次載入偶發失敗(如 SW 交接瞬間):稍後自動重試一次 */
-      if(!window.__bufRetry){ window.__bufRetry = true; setTimeout(loadSpriteBuffer, 4000); }
+      shardLoading[sh] = false;
+      if(!window["__r_" + sh]){ window["__r_" + sh] = 1; setTimeout(function(){ loadShardBuffer(sh); }, 4000); }
     });
 }
-/* 用 Web Audio 精準播放一段;成功回 true */
-function playViaBuffer(seg){
-  if(!spriteBuf || !window.__ac) return false;
+function playViaBuffer(sh, seg){
+  const buf = shardBufs[sh];
+  if(!buf || !window.__ac) return false;
   try{
     if(window.__ac.state === "suspended") window.__ac.resume();
     if(spriteNode){ try{ spriteNode.stop(); }catch(e2){} }
     const node = window.__ac.createBufferSource();
-    node.buffer = spriteBuf;
+    node.buffer = buf;
     node.connect(window.__ac.destination);
     node.start(0, seg[0] / 1000, seg[1] / 1000 + 0.05);
     spriteNode = node;
+    touchShard(sh);
     return true;
   }catch(e3){ return false; }
+}
+function ensureSpriteAudio(sh){
+  if(!spriteAudio){
+    spriteAudio = new Audio();
+    spriteAudio.preload = "auto";
+    spriteAudio.setAttribute("playsinline", "");
+  }
+  if(spriteAudio.dataset.sh !== sh){
+    spriteAudio.src = shardSrc(sh);
+    spriteAudio.dataset.sh = sh;
+    spriteAudio.load();
+  }
+  return spriteAudio;
 }
 function speakViaSprite(text){
   return new Promise(function(resolve, reject){
     try{
-      if(!spriteMap || !spriteMap[text]) return reject(new Error("無此語音"));
-      const seg = spriteMap[text];
-      /* 首選:Web Audio 取樣精準播放 */
-      if(playViaBuffer(seg)){ resolve(); return; }
-      if(!spriteBuf) loadSpriteBuffer();
+      if(!spriteMap){ loadSpriteMap(); reject(new Error("語音庫載入中")); return; }
+      const ent = spriteMap[text];
+      if(!ent){ reject(new Error("不在語音庫")); return; }
+      const sh = ent[0], seg = [ent[1], ent[2]];
+      if(playViaBuffer(sh, seg)){ resolve(); return; }
+      loadShardBuffer(sh);
       if(IS_IOS){
-        /* iPhone 的元素跳段不可靠,寧可等解碼完成再用精準引擎播(最多 6 秒) */
+        /* iPhone 的元素跳段不可靠,等該分片解碼完成再用精準引擎播(最多 6 秒) */
         let waited = 0;
         const iv = setInterval(function(){
           waited += 250;
-          if(spriteBuf){
+          if(shardBufs[sh]){
             clearInterval(iv);
-            if(playViaBuffer(seg)) resolve();
+            if(playViaBuffer(sh, seg)) resolve();
             else reject(new Error("引擎啟動失敗"));
           }else if(waited >= 6000){
             clearInterval(iv);
@@ -1065,24 +1133,24 @@ function speakViaSprite(text){
         return;
       }
       /* 非 iPhone 備援:audio 元素跳段播放 */
-      const a = ensureSpriteAudio();
-      clearTimeout(spriteTimer);
-      const go = function(){
-        try{
-          a.currentTime = seg[0] / 1000;
-          const pr = a.play();
-          if(pr && pr.then){
-            pr.then(function(){ resolve(); }).catch(function(){ reject(new Error("播放被擋")); });
-          }else{ resolve(); }
-          spriteTimer = setTimeout(function(){ try{ a.pause(); }catch(err){} }, seg[1] + 80);
-        }catch(e){ reject(e); }
-      };
-      if(a.readyState >= 2){ go(); }
+      const a = ensureSpriteAudio(sh);
+      if(spriteTimer){ clearInterval(spriteTimer); spriteTimer = null; }
+      const startSec = seg[0] / 1000, endSec = (seg[0] + seg[1]) / 1000 + 0.05;
+      let done = false;
+      function begin(){
+        a.currentTime = startSec;
+        a.play().then(function(){
+          spriteTimer = setInterval(function(){
+            if(a.currentTime >= endSec){ a.pause(); clearInterval(spriteTimer); spriteTimer = null; }
+          }, 40);
+          if(!done){ done = true; resolve(); }
+        }).catch(function(err){ if(!done){ done = true; reject(err); } });
+      }
+      if(a.readyState >= 2){ begin(); }
       else{
-        const tm = setTimeout(function(){ reject(new Error("音檔載入逾時")); }, 8000);
-        a.addEventListener("loadeddata", function h(){ clearTimeout(tm); a.removeEventListener("loadeddata", h); go(); });
-        a.addEventListener("error", function(){ clearTimeout(tm); reject(new Error("音檔載入失敗")); }, {once:true});
-        a.load();
+        const onCan = function(){ a.removeEventListener("canplay", onCan); begin(); };
+        a.addEventListener("canplay", onCan);
+        setTimeout(function(){ if(!done){ done = true; a.removeEventListener("canplay", onCan); reject(new Error("音檔載入逾時")); } }, 8000);
       }
     }catch(e){ reject(e); }
   });
@@ -1443,16 +1511,50 @@ fcEl.addEventListener("touchend", e=>{
 
 /* ================= 文法 ================= */
 const gList = document.getElementById("grammarList");
-GRAMMAR.forEach(g=>{
-  const item = document.createElement("div");
-  item.className = "grammar-item";
-  let exHtml = g.ex.map(x=>'<div class="g-ex"><div class="jp">'+x[0]+'</div><div class="zh">'+x[1]+'</div></div>').join("");
-  item.innerHTML =
-    '<button><span class="g-pattern">'+g.p+'</span><span class="g-name">'+g.n+'</span></button>' +
-    '<div class="grammar-body"><p class="g-exp">'+g.exp+'</p>'+exHtml+'</div>';
-  item.querySelector("button").addEventListener("click", ()=>{ item.classList.toggle("open"); touchStreak(); if(item.classList.contains("open")) logEvent("grammar", g.p); });
-  gList.appendChild(item);
+const gTabs = document.getElementById("grammarTabs");
+let grammarCat = Object.keys(GRAMMAR)[0];
+Object.keys(GRAMMAR).forEach((cat,i)=>{
+  const b = document.createElement("button");
+  b.textContent = cat + "(" + GRAMMAR[cat].length + ")"; b.dataset.gcat = cat;
+  if(i===0) b.classList.add("active");
+  gTabs.appendChild(b);
 });
+gTabs.addEventListener("click", e=>{
+  const b = e.target.closest("button[data-gcat]"); if(!b) return;
+  grammarCat = b.dataset.gcat;
+  gTabs.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
+  renderGrammar();
+});
+function renderGrammar(){
+  gList.innerHTML = "";
+  GRAMMAR[grammarCat].forEach(g=>{
+    const item = document.createElement("div");
+    item.className = "grammar-item";
+    item.innerHTML =
+      '<button><span class="g-pattern"></span><span class="g-name"></span></button>' +
+      '<div class="grammar-body"><p class="g-exp"></p></div>';
+    item.querySelector(".g-pattern").textContent = g.p;
+    item.querySelector(".g-name").textContent = g.n;
+    item.querySelector(".g-exp").textContent = g.exp;
+    const body = item.querySelector(".grammar-body");
+    g.ex.forEach(x=>{
+      const d = document.createElement("div");
+      d.className = "g-ex";
+      d.innerHTML = '<div class="jp"></div><div class="ro"></div><div class="zh"></div>';
+      d.children[0].textContent = x[0];
+      d.children[1].textContent = x[1];
+      d.children[2].textContent = x[2];
+      const sp = document.createElement("button");
+      sp.className = "re-speak"; sp.textContent = "🔊";
+      sp.addEventListener("click", function(ev){ ev.stopPropagation(); speak(x[0]); });
+      d.children[0].appendChild(sp);
+      body.appendChild(d);
+    });
+    item.querySelector("button").addEventListener("click", ()=>{ item.classList.toggle("open"); touchStreak(); if(item.classList.contains("open")) logEvent("grammar", g.p); });
+    gList.appendChild(item);
+  });
+}
+renderGrammar();
 
 /* ================= 旅遊會話 ================= */
 let phraseCat = Object.keys(PHRASES)[0];
@@ -1785,14 +1887,26 @@ function updateMatchInfo(){
 
 /* ================= 程度檢定 ================= */
 const LEVEL_GRAMMAR = [
-  ["わたし＿学生です。","は",["は","を","で","へ"]],
-  ["ラーメン＿食べます。","を",["を","は","に","の"]],
-  ["東京＿行きます。","へ",["へ","を","が","は"]],
-  ["駅＿友達に会います。","で",["で","を","へ","の"]],
-  ["七時＿起きます。","に",["に","で","を","へ"]],
-  ["部屋に猫＿います。","が",["が","を","へ","で"]],
-  ["これはわたし＿本です。","の",["の","が","を","に"]],
-  ["もう一度言って＿。","ください",["ください","です","ます","でした"]]
+["わたし＿学生です。","は",["は","を","で","へ"]],
+["ラーメン＿食べます。","を",["を","は","に","の"]],
+["東京＿行きます。","へ",["へ","を","が","は"]],
+["駅＿友達に会います。","で",["で","を","へ","の"]],
+["七時＿起きます。","に",["に","で","を","へ"]],
+["部屋に猫＿います。","が",["が","を","へ","で"]],
+["これはわたし＿本です。","の",["の","が","を","に"]],
+["もう一度言って＿。","ください",["ください","です","ます","でした"]],
+["九時＿五時まで働きます。","から",["から","まで","より","だけ"]],
+["電車＿会社へ行きます。","で",["で","に","を","が"]],
+["パン＿卵を買います。","と",["と","や","か","も"]],
+["きのう映画を見＿。","ました",["ました","ます","ません","ましょう"]],
+["写真を撮って＿いいですか。","も",["も","は","が","を"]],
+["すしを食べ＿です。","たい",["たい","たく","て","ない"]],
+["いっしょに帰り＿。","ましょう",["ましょう","ました","ません","たいです"]],
+["ここでたばこを吸って＿いけません。","は",["は","も","が","を"]],
+["夏＿冬が好きです。","より",["より","から","まで","だけ"]],
+["百円＿ありません。","しか",["しか","だけ","ぐらい","ごろ"]],
+["暑い＿、窓を開けます。","から",["から","が","でも","そして"]],
+["日本へ行った＿があります。","こと",["こと","もの","とき","ところ"]]
 ];
 const LEVEL_PHRASE = [
   ["在餐廳吃完想結帳,要說?","お会計お願いします",["お会計お願いします","いくらですか","いただきます","おはようございます"]],
@@ -1839,7 +1953,7 @@ function renderLevelSetup(){
     last = '<p style="text-align:center; font-weight:700; color:var(--ink2); margin-bottom:4px;">上次結果:' + store.level.label + '(' + store.level.score + ' / 20・' + store.level.date + ')</p>';
   }
   box.innerHTML = '<div class="quiz-setup">' + last +
-    '<p style="font-weight:700; margin-bottom:6px;">20 題綜合測驗:假名 8 題、單字 6 題、文法 4 題、會話 2 題,做完立刻告訴你目前的程度。</p>' +
+    '<p style="font-weight:700; margin-bottom:6px;">N5 模擬測驗 20 題:假名 8、語彙 6、文法 4、會話 2(文法題庫 20 條隨機),做完立刻評估你的 N5 實力。</p>' +
     '<button class="big-btn" id="lvStart">開始檢定</button></div>';
   box.querySelector("#lvStart").addEventListener("click", runLevelTest);
 }
@@ -1985,18 +2099,18 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.7.8・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.8.0・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
   lines.push("① 已送出「叮咚叮」測試音效——有聽到嗎?"); show();
   lines.push("② 語音庫時間表:載入中…"); show();
   if(!spriteMap){ loadSpriteMap(); await new Promise(function(r){ setTimeout(r, 2500); }); }
-  lines[lines.length-1] = "② 語音庫時間表:" + (spriteMap ? ("✅ 共 " + Object.keys(spriteMap).length + " 句・配對指紋 " + (spriteVer || "無")) : "❌ 載入失敗(音檔可能還在自動產生中,幾分鐘後再試)"); show();
-  if(spriteVer && !spriteBuf){ loadSpriteBuffer(); await new Promise(function(r){ setTimeout(r, 3000); }); }
+  lines[lines.length-1] = "② 語音庫時間表:" + (spriteMap ? ("✅ 共 " + Object.keys(spriteMap).length + " 句・分片 " + Object.keys(shardVers).length + " 個・指紋 " + (mapVer || "無")) : "❌ 載入失敗(音檔可能還在自動產生中,幾分鐘後再試)"); show();
+  if(mapVer && !shardBufs["phrases"]){ loadShardBuffer("phrases"); await new Promise(function(r){ setTimeout(r, 3000); }); }
   try{
     await speakViaSprite("こんにちは");
-    lines.push("③ 語音庫發音:✅ 已播出・引擎:" + (spriteBuf ? "精準緩衝" : "元素跳段") + "(應聽到 konnichiwa 女聲)"); show();
+    lines.push("③ 語音庫發音:✅ 已播出・引擎:" + (shardBufs["phrases"] ? "精準緩衝(分片)" : "元素跳段") + "(應聽到 konnichiwa 女聲)"); show();
   }catch(e){
     lines.push("③ 語音庫發音:❌ " + e.message + " → 改試系統語音(靜音模式下會無聲)"); show();
     speakViaSystem("こんにちは");
