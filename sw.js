@@ -1,5 +1,5 @@
-/* 日語便當 Nihongo Bento — Service Worker Build v2.8.0 */
-const CACHE = "nihongo-bento-v2.8.0";
+/* 日語便當 Nihongo Bento — Service Worker Build v2.8.1 */
+const CACHE = "nihongo-bento-v2.8.1";
 const ASSETS = [
   "./",
   "./index.html",
