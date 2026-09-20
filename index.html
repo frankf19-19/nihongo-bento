@@ -14,7 +14,7 @@
 <link rel="icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
-/* ===== Build v2.8.1 — 單字庫擴充至 N5 全量級 ===== */
+/* ===== Build v2.9.0 — N4 內容+程度選擇 ===== */
 :root{
   --bg:#FBEFF2; --dot:#F6DDE5;
   --surface:#FFFFFF; --surface2:#FFF7F9;
@@ -263,6 +263,9 @@ p.page-sub{color:var(--ink2); margin:2px 0 20px; font-size:.93rem;}
 .g-ex .jp{font-weight:900; font-size:1.02rem;}
 .g-ex .zh{color:var(--ink2); font-size:.88rem; font-weight:700;}
 .g-ex .ro{font-size:.78rem; color:var(--ink3); margin-top:1px;}
+.level-row{display:flex; gap:8px; justify-content:center; margin:0 0 10px;}
+.level-row .level-pill, .ai-pill{border:2px solid var(--line); background:var(--surface); color:var(--ink2); border-radius:999px; padding:7px 22px; font-weight:800; font-size:.95rem;}
+.level-row .level-pill.active, .ai-pill.active{background:var(--accent); border-color:var(--accent); color:#fff;}
 /* ===== 會話 ===== */
 .phrase-row{
   background:var(--surface); border:2px solid var(--line); border-radius:18px;
@@ -436,7 +439,7 @@ footer{
   <button data-page="phrases">旅遊會話</button>
   <button data-page="dojo">会話道場</button>
   <button data-page="game">配對遊戲</button>
-  <button data-page="level">N5 模擬測驗</button>
+  <button data-page="level">模擬測驗</button>
   <button data-page="progress">我的進度</button>
 </nav>
 
@@ -482,7 +485,7 @@ footer{
       <span class="b-glyph">進</span>
     </button>
     <button class="b-level" data-go="level">
-      <span class="b-title">🏅 N5 模擬測驗</span>
+      <span class="b-title">🏅 JLPT 模擬測驗</span>
       <span class="b-desc">20 題綜合測驗:假名・單字・文法・會話,測出你現在的程度</span>
       <span class="b-glyph">検</span>
     </button>
@@ -533,6 +536,7 @@ footer{
 <section id="page-vocab" hidden>
   <h2 class="page-title">N5 單字卡</h2>
   <p class="page-sub">點卡片翻面看中文意思,左右滑動換卡片,用「唸給我聽」練發音。</p>
+  <div id="vocabLevelRow"></div>
   <div class="subtabs" id="vocabCatTabs"></div>
   <div style="text-align:center; margin:-4px 0 12px;"><button class="toggle-romaji kanji-toggle" type="button">顯示漢字:開</button></div>
   <div class="flashcard-wrap">
@@ -571,6 +575,7 @@ footer{
 <section id="page-grammar" hidden>
   <h2 class="page-title">基礎文法 10 選</h2>
   <p class="page-sub">初學最常用的 10 個句型,點開看說明和例句。</p>
+  <div id="grammarLevelRow"></div>
   <div class="subtabs" id="grammarTabs"></div>
   <div id="grammarList"></div>
 </section>
@@ -598,6 +603,9 @@ footer{
     <button class="big-btn secondary" id="aiMic" style="flex:1; margin:0;">🎤 用說的(日文)</button>
     <button class="big-btn secondary" id="aiLang" style="width:auto; padding:11px 14px; margin:0;">切換中文</button>
   </div>
+  <div id="aiLevelRow" hidden style="margin-top:10px; text-align:center;">
+    <span style="font-weight:800; color:var(--ink2); font-size:.9rem; margin-right:6px;">AI 程度</span><span id="aiLevelPills"></span>
+  </div>
 </section>
 
 <!-- ============ 配對遊戲 ============ -->
@@ -618,7 +626,7 @@ footer{
 
 <!-- ============ 程度檢定 ============ -->
 <section id="page-level" hidden>
-  <h2 class="page-title">N5 模擬測驗</h2>
+  <h2 class="page-title">JLPT 模擬測驗</h2>
   <p class="page-sub">20 題綜合測驗,涵蓋假名、單字、文法、會話,測完立刻給你程度評級和弱點分析。</p>
   <div class="quiz-box" id="levelBox"></div>
 </section>
@@ -657,7 +665,7 @@ footer{
   <button data-page="progress"><span class="ic">📊</span>進度</button>
 </div>
 
-<footer>日語便當 Nihongo Bento・Build v2.8.1・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
+<footer>日語便當 Nihongo Bento・Build v2.9.0・可「加入主畫面」當 App 使用・發音由瀏覽器內建語音提供</footer>
 
 <script>
 "use strict";
@@ -1071,6 +1079,269 @@ const VOCAB = {
   ]
 
 };
+const VOCAB_N4 = {
+"動詞":[
+["あやまります","謝ります","ayamarimasu","道歉"],
+["えらびます","選びます","erabimasu","選擇"],
+["おくれます","遅れます","okuremasu","遲到"],
+["おこります","怒ります","okorimasu","生氣"],
+["おちます","落ちます","ochimasu","掉落"],
+["おどります","踊ります","odorimasu","跳舞"],
+["おどろきます","驚きます","odorokimasu","驚訝"],
+["おもいだします","思い出します","omoidashimasu","想起"],
+["かちます","勝ちます","kachimasu","贏"],
+["かよいます","通います","kayoimasu","通勤・往返"],
+["かんがえます","考えます","kangaemasu","思考"],
+["きまります","決まります","kimarimasu","(被)決定"],
+["きめます","決めます","kimemasu","決定"],
+["くらべます","比べます","kurabemasu","比較"],
+["こわします","壊します","kowashimasu","弄壞"],
+["こわれます","壊れます","kowaremasu","壞掉"],
+["さがします","探します","sagashimasu","尋找"],
+["さわります","触ります","sawarimasu","觸摸"],
+["しかります","叱ります","shikarimasu","責罵"],
+["しらべます","調べます","shirabemasu","調查"],
+["すてます","捨てます","sutemasu","丟棄"],
+["そだてます","育てます","sodatemasu","養育"],
+["たおれます","倒れます","taoremasu","倒下"],
+["たすけます","助けます","tasukemasu","幫助"],
+["ちがいます","違います","chigaimasu","不同"],
+["つたえます","伝えます","tsutaemasu","傳達"],
+["つづきます","続きます","tsuzukimasu","(自)繼續"],
+["つづけます","続けます","tsuzukemasu","(他)繼續"],
+["とどきます","届きます","todokimasu","送達"],
+["なおします","直します","naoshimasu","修理"],
+["なおります","治ります","naorimasu","痊癒"],
+["なくします","無くします","nakushimasu","弄丟"],
+["なれます","慣れます","naremasu","習慣"],
+["にげます","逃げます","nigemasu","逃跑"],
+["ぬすみます","盗みます","nusumimasu","偷"],
+["のこります","残ります","nokorimasu","剩下"],
+["はこびます","運びます","hakobimasu","搬運"],
+["はらいます","払います","haraimasu","付錢"],
+["ひっこします","引っ越します","hikkoshimasu","搬家"],
+["ひろいます","拾います","hiroimasu","撿"],
+["ふとります","太ります","futorimasu","變胖"],
+["まけます","負けます","makemasu","輸"],
+["みつかります","見つかります","mitsukarimasu","(被)找到"],
+["みつけます","見つけます","mitsukemasu","找到"],
+["むかえます","迎えます","mukaemasu","迎接"],
+["もどります","戻ります","modorimasu","返回"],
+["やせます","痩せます","yasemasu","變瘦"],
+["やめます","やめます","yamemasu","辭掉・放棄"],
+["ゆれます","揺れます","yuremasu","搖晃"],
+["よごれます","汚れます","yogoremasu","弄髒"],
+["わかれます","別れます","wakaremasu","分開"],
+["わります","割ります","warimasu","打破"],
+["われます","割れます","waremasu","破掉"],
+["おこします","起こします","okoshimasu","叫醒"],
+["じゅんびします","準備します","junbishimasu","準備"],
+["しゅっぱつします","出発します","shuppatsushimasu","出發"],
+["せつめいします","説明します","setsumeishimasu","說明"],
+["しょうかいします","紹介します","shoukaishimasu","介紹"],
+["よやくします","予約します","yoyakushimasu","預約"],
+["うんどうします","運動します","undoushimasu","運動"]
+],
+"名詞・生活":[
+["きぶん","気分","kibun","心情"],
+["きもち","気持ち","kimochi","感覺"],
+["ゆめ","夢","yume","夢"],
+["おと","音","oto","聲響"],
+["あじ","味","aji","味道"],
+["におい","匂い","nioi","氣味"],
+["ねだん","値段","nedan","價格"],
+["おつり","お釣り","otsuri","找零"],
+["けが","怪我","kega","受傷"],
+["ねつ","熱","netsu","發燒"],
+["くすり","薬","kusuri","藥"],
+["びょうき","病気","byouki","生病"],
+["よてい","予定","yotei","預定"],
+["ようじ","用事","youji","要事"],
+["やくそく","約束","yakusoku","約定"],
+["うそ","嘘","uso","謊話"],
+["じょうだん","冗談","joudan","玩笑"],
+["おみやげ","お土産","omiyage","伴手禮"],
+["おれい","お礼","orei","謝禮"],
+["おいわい","お祝い","oiwai","祝賀"],
+["るす","留守","rusu","不在家"],
+["ゆびわ","指輪","yubiwa","戒指"],
+["てぶくろ","手袋","tebukuro","手套"],
+["おもちゃ","おもちゃ","omocha","玩具"],
+["にんぎょう","人形","ningyou","娃娃"],
+["かびん","花瓶","kabin","花瓶"],
+["しゃしん","写真","shashin","照片"],
+["えいが","映画","eiga","電影"],
+["おんがく","音楽","ongaku","音樂"],
+["うた","歌","uta","歌"],
+["え","絵","e","畫"],
+["じ","字","ji","字"],
+["にっき","日記","nikki","日記"],
+["てちょう","手帳","techou","記事本"],
+["ふうとう","封筒","fuutou","信封"],
+["きって","切手","kitte","郵票"],
+["はがき","葉書","hagaki","明信片"],
+["にもつ","荷物","nimotsu","行李"],
+["かがく","科学","kagaku","科學"],
+["しゅみ","趣味","shumi","興趣"]
+],
+"名詞・社会":[
+["しゃちょう","社長","shachou","社長"],
+["ぶちょう","部長","buchou","部長"],
+["かちょう","課長","kachou","課長"],
+["じむしょ","事務所","jimusho","辦公室"],
+["かいぎ","会議","kaigi","會議"],
+["かいぎしつ","会議室","kaigishitsu","會議室"],
+["うけつけ","受付","uketsuke","櫃檯"],
+["きゅうりょう","給料","kyuuryou","薪水"],
+["しごと","仕事","shigoto","工作"],
+["こうじょう","工場","koujou","工廠"],
+["ぎじゅつ","技術","gijutsu","技術"],
+["さんぎょう","産業","sangyou","產業"],
+["けいざい","経済","keizai","經濟"],
+["せいじ","政治","seiji","政治"],
+["ぶんか","文化","bunka","文化"],
+["れきし","歴史","rekishi","歷史"],
+["しゃかい","社会","shakai","社會"],
+["せかい","世界","sekai","世界"],
+["じんこう","人口","jinkou","人口"],
+["ほうりつ","法律","houritsu","法律"],
+["きそく","規則","kisoku","規則"],
+["しけん","試験","shiken","考試"],
+["じゅぎょう","授業","jugyou","上課"],
+["しゅくだい","宿題","shukudai","作業"],
+["せいせき","成績","seiseki","成績"],
+["てん","点","ten","分數"],
+["こうこう","高校","koukou","高中"],
+["ちゅうがっこう","中学校","chuugakkou","國中"],
+["しょうがっこう","小学校","shougakkou","小學"],
+["にゅうがく","入学","nyuugaku","入學"],
+["そつぎょう","卒業","sotsugyou","畢業"],
+["せんもん","専門","senmon","專業"],
+["けんきゅう","研究","kenkyuu","研究"],
+["りゅうがく","留学","ryuugaku","留學"],
+["きょういく","教育","kyouiku","教育"],
+["あんない","案内","annai","導覽"],
+["れんらく","連絡","renraku","聯絡"],
+["そうだん","相談","soudan","商量"],
+["へんじ","返事","henji","回覆"],
+["けいかく","計画","keikaku","計畫"]
+],
+"い形容詞":[
+["あさい","浅い","asai","淺"],
+["ふかい","深い","fukai","深"],
+["かたい","硬い","katai","硬"],
+["やわらかい","柔らかい","yawarakai","軟"],
+["うすい","薄い","usui","薄"],
+["こまかい","細かい","komakai","細小"],
+["ふとい","太い","futoi","粗"],
+["ほそい","細い","hosoi","細長"],
+["きびしい","厳しい","kibishii","嚴格"],
+["さびしい","寂しい","sabishii","寂寞"],
+["はずかしい","恥ずかしい","hazukashii","害羞"],
+["うつくしい","美しい","utsukushii","美麗"],
+["めずらしい","珍しい","mezurashii","稀奇"],
+["すごい","すごい","sugoi","厲害"],
+["ひどい","ひどい","hidoi","過分・嚴重"],
+["ただしい","正しい","tadashii","正確"],
+["にがい","苦い","nigai","苦"],
+["すっぱい","酸っぱい","suppai","酸"]
+],
+"な形容詞":[
+["しんぱい","心配","shinpai","擔心"],
+["あんぜん","安全","anzen","安全"],
+["きけん","危険","kiken","危險"],
+["じゆう","自由","jiyuu","自由"],
+["ふくざつ","複雑","fukuzatsu","複雜"],
+["かんたん","簡単","kantan","簡單"],
+["とくべつ","特別","tokubetsu","特別"],
+["ていねい","丁寧","teinei","有禮貌"],
+["まじめ","真面目","majime","認真"],
+["ねっしん","熱心","nesshin","熱心"],
+["てきとう","適当","tekitou","適當"],
+["じゅうぶん","十分","juubun","充分"],
+["むり","無理","muri","勉強・不可能"],
+["だいじ","大事","daiji","重要"]
+],
+"副詞・接続":[
+["やっと","やっと","yatto","終於"],
+["ずっと","ずっと","zutto","一直"],
+["きゅうに","急に","kyuuni","突然"],
+["とうとう","とうとう","toutou","終於(結果)"],
+["なかなか","なかなか","nakanaka","相當;(不)容易"],
+["ほとんど","ほとんど","hotondo","幾乎"],
+["かならず","必ず","kanarazu","一定"],
+["ぜひ","ぜひ","zehi","務必"],
+["たしか","確か","tashika","好像・記得"],
+["もし","もし","moshi","如果"],
+["それに","それに","soreni","而且"],
+["それで","それで","sorede","所以"],
+["だから","だから","dakara","所以"],
+["しかし","しかし","shikashi","但是"],
+["けれども","けれども","keredomo","不過"],
+["ところで","ところで","tokorode","對了(換話題)"],
+["まず","まず","mazu","首先"],
+["つぎに","次に","tsugini","接著"],
+["さいごに","最後に","saigoni","最後"],
+["さっき","さっき","sakki","剛才"],
+["しばらく","しばらく","shibaraku","一陣子"],
+["そろそろ","そろそろ","sorosoro","差不多該"],
+["どんどん","どんどん","dondon","不斷地"],
+["しっかり","しっかり","shikkari","好好地"],
+["はっきり","はっきり","hakkiri","清楚地"],
+["べつに","別に","betsuni","並(不)"],
+["やはり","やはり","yahari","還是・果然"],
+["たいてい","大抵","taitei","大多"],
+["ちょうど","ちょうど","choudo","剛好"],
+["すっかり","すっかり","sukkari","完全"]
+],
+"時間・程度":[
+["あいだ","間","aida","之間"],
+["うち","うち","uchi","之內;家"],
+["とちゅう","途中","tochuu","途中"],
+["さいきん","最近","saikin","最近"],
+["さいしょ","最初","saisho","最初"],
+["さいご","最後","saigo","最後"],
+["むかし","昔","mukashi","以前"],
+["しょうらい","将来","shourai","將來"],
+["こんど","今度","kondo","這次・下次"],
+["たまに","たまに","tamani","偶爾"],
+["いちど","一度","ichido","一次"],
+["なんども","何度も","nandomo","好幾次"],
+["やすみ","休み","yasumi","休假・休息"],
+["ひるやすみ","昼休み","hiruyasumi","午休"],
+["ゆうべ","昨夜","yuube","昨晚"],
+["けさ","今朝","kesa","今天早上"],
+["こんや","今夜","konya","今晚"],
+["とし","年","toshi","年・年齡"],
+["はじめ","初め","hajime","開始"],
+["おわり","終わり","owari","結束"]
+],
+"カタカナ語":[
+["アルバイト","アルバイト","arubaito","打工"],
+["レシート","レシート","reshiito","收據"],
+["プレゼント","プレゼント","purezento","禮物"],
+["カラオケ","カラオケ","karaoke","卡拉OK"],
+["コンサート","コンサート","konsaato","演唱會"],
+["ニュース","ニュース","nyuusu","新聞"],
+["ドラマ","ドラマ","dorama","連續劇"],
+["アニメ","アニメ","anime","動畫"],
+["ゲーム","ゲーム","geemu","遊戲"],
+["インターネット","インターネット","intaanetto","網路"],
+["メール","メール","meeru","電子郵件"],
+["パスワード","パスワード","pasuwaado","密碼"],
+["スマホ","スマホ","sumaho","智慧手機"],
+["サイズ","サイズ","saizu","尺寸"],
+["セール","セール","seeru","特價"],
+["メニュー","メニュー","menyuu","菜單"],
+["レジ","レジ","reji","收銀台"],
+["ガソリン","ガソリン","gasorin","汽油"],
+["チケット","チケット","chiketto","票"],
+["スーツ","スーツ","suutsu","西裝"],
+["ハンカチ","ハンカチ","hankachi","手帕"],
+["アクセサリー","アクセサリー","akusesarii","飾品"],
+["ボーナス","ボーナス","boonasu","獎金"]
+]
+};
 
 const GRAMMAR = {
 "基本句型":[
@@ -1153,6 +1424,64 @@ const GRAMMAR = {
 {p:"~でしょう",n:"~吧(推測)",exp:"表示推測,天氣預報常用。",ex:[["明日は晴れるでしょう。","ashita wa hareru deshou","明天應該會放晴吧。"]]},
 {p:"どうして/なぜ",n:"為什麼",exp:"問理由,回答用「~からです」。",ex:[["どうして遅れましたか。","doushite okuremashita ka","為什麼遲到了?"]]},
 {p:"~つもりです",n:"打算~",exp:"辭書形+つもり,表示計畫或打算。",ex:[["来年日本へ行くつもりです。","rainen nihon e iku tsumori desu","打算明年去日本。"]]}
+]
+};
+const GRAMMAR_N4 = {
+"動詞のかたち":[
+{p:"辞書形+ことができます",n:"能夠~",exp:"表示能力或可能。動詞用辭書形(原形)。",ex:[["日本語を話すことができます。","nihongo o hanasu koto ga dekimasu","能說日語。"]]},
+{p:"~なければなりません",n:"必須~",exp:"ない形去ない+なければなりません,表示義務。",ex:[["明日までに出さなければなりません。","ashita made ni dasanakereba narimasen","必須在明天之前交出來。"]]},
+{p:"~なくてもいいです",n:"不~也可以",exp:"ない形去ない+なくてもいいです,表示不必要。",ex:[["靴を脱がなくてもいいです。","kutsu o nuganakute mo ii desu","不脫鞋也可以。"]]},
+{p:"た形+あとで",n:"~之後",exp:"た形+あとで,表示動作之後。",ex:[["仕事が終わったあとで、飲みに行きます。","shigoto ga owatta ato de nomi ni ikimasu","工作結束後去喝一杯。"]]},
+{p:"~たり~たりします",n:"又~又~",exp:"列舉幾個代表性動作,た形+り。",ex:[["休みの日は映画を見たり、買い物したりします。","yasumi no hi wa eiga o mitari kaimono shitari shimasu","假日會看看電影、買買東西。"]]},
+{p:"~し、~し",n:"既~又~",exp:"列舉理由,普通形+し。",ex:[["この店は安いし、おいしいし、よく来ます。","kono mise wa yasui shi oishii shi yoku kimasu","這家店又便宜又好吃,所以常來。"]]},
+{p:"可能形",n:"會・能~",exp:"一類動詞え段+ます、二類+られます:読めます、食べられます。",ex:[["漢字が少し読めます。","kanji ga sukoshi yomemasu","看得懂一點漢字。"]]},
+{p:"意向形+と思っています",n:"打算~",exp:"意向形(〜よう)+と思っています,表示打算。",ex:[["来年、日本で働こうと思っています。","rainen nihon de hatarakou to omotte imasu","打算明年在日本工作。"]]},
+{p:"命令形・禁止形",n:"命令/禁止",exp:"命令形(急げ)語氣強;禁止形=辭書形+な(入るな)。",ex:[["危ないから、触るな。","abunai kara sawaru na","很危險,不要摸。"]]},
+{p:"~ほうがいいです",n:"最好~",exp:"た形+ほうがいいです(建議做);ない形+ないほうがいいです(建議不做)。",ex:[["早く寝たほうがいいですよ。","hayaku neta hou ga ii desu yo","最好早點睡喔。"]]},
+{p:"~すぎます",n:"太~",exp:"ます形去ます/形容詞去い+すぎます,表示過度。",ex:[["昨日は食べすぎました。","kinou wa tabesugimashita","昨天吃太多了。"]]},
+{p:"~やすい/~にくい",n:"容易~/難~",exp:"ます形去ます+やすい(容易)、にくい(不容易)。",ex:[["この薬は飲みやすいです。","kono kusuri wa nomiyasui desu","這個藥很好吞。"]]}
+],
+"條件":[
+{p:"~と",n:"一~就~",exp:"辭書形+と,表示必然結果或自然現象。",ex:[["このボタンを押すと、お釣りが出ます。","kono botan o osu to otsuri ga demasu","一按這個按鈕,找零就會出來。"]]},
+{p:"~ば",n:"如果~",exp:"ば形:行けば、食べれば、安ければ。一般條件。",ex:[["急げば、間に合いますよ。","isogeba maniaimasu yo","快一點的話來得及喔。"]]},
+{p:"~たら",n:"~的話;~之後",exp:"た形+ら,口語最常用的條件;也表「之後」。",ex:[["雨が降ったら、行きません。","ame ga futtara ikimasen","下雨的話就不去。"]]},
+{p:"~なら",n:"如果是~",exp:"針對對方提到的話題給建議。",ex:[["京都なら、秋がいちばんきれいですよ。","kyouto nara aki ga ichiban kirei desu yo","說到京都的話,秋天最美喔。"]]}
+],
+"授受表現":[
+{p:"~てあげます",n:"(我)幫~做",exp:"為別人做某事(說話者→他人)。",ex:[["友達に地図をかいてあげました。","tomodachi ni chizu o kaite agemashita","幫朋友畫了地圖。"]]},
+{p:"~てくれます",n:"(別人)幫我做",exp:"別人為我做某事,帶感謝語氣。",ex:[["姉が晩ご飯を作ってくれました。","ane ga bangohan o tsukutte kuremashita","姊姊幫我做了晚餐。"]]},
+{p:"~てもらいます",n:"請~幫忙做",exp:"請別人幫忙做,「人に~てもらいます」。",ex:[["先生に作文を直してもらいました。","sensei ni sakubun o naoshite moraimashita","請老師幫我改了作文。"]]}
+],
+"推量・伝聞":[
+{p:"~そうです(樣態)",n:"看起來~",exp:"ます形去ます/形容詞去い+そうです,眼前的樣子。",ex:[["この料理はおいしそうですね。","kono ryouri wa oishisou desu ne","這道菜看起來很好吃呢。"]]},
+{p:"~そうです(傳聞)",n:"聽說~",exp:"普通形+そうです,轉述聽來的消息。",ex:[["天気予報によると、明日は雨だそうです。","tenkiyohou ni yoru to ashita wa ame da sou desu","據天氣預報說,明天會下雨。"]]},
+{p:"~ようです",n:"好像~",exp:"根據觀察做的推測,語氣較客觀。",ex:[["だれもいないようです。","dare mo inai you desu","好像沒有人在。"]]},
+{p:"~らしいです",n:"似乎~",exp:"根據傳聞或跡象的推測。",ex:[["あの店は有名らしいです。","ano mise wa yuumei rashii desu","那家店似乎很有名。"]]},
+{p:"~かもしれません",n:"也許~",exp:"普通形+かもしれません,可能性不高的推測。",ex:[["午後は雪になるかもしれません。","gogo wa yuki ni naru kamo shiremasen","下午也許會下雪。"]]},
+{p:"~はずです",n:"應該~",exp:"有根據的判斷「照理說應該~」。",ex:[["彼は今日来るはずです。","kare wa kyou kuru hazu desu","他今天應該會來。"]]}
+],
+"受身・使役・敬語":[
+{p:"受身形(被動)",n:"被~",exp:"一類あ段+れます、二類+られます:しかられます、食べられます。",ex:[["先生にしかられました。","sensei ni shikararemashita","被老師罵了。"]]},
+{p:"使役形",n:"讓・叫~做",exp:"一類あ段+せます、二類+させます。",ex:[["母はわたしに野菜を食べさせます。","haha wa watashi ni yasai o tabesasemasu","媽媽叫我吃蔬菜。"]]},
+{p:"いらっしゃいます",n:"在・來・去(尊敬)",exp:"います/来ます/行きます的尊敬語。",ex:[["先生は教室にいらっしゃいます。","sensei wa kyoushitsu ni irasshaimasu","老師在教室(尊敬)。"]]},
+{p:"おっしゃいます",n:"說(尊敬)",exp:"言います的尊敬語。",ex:[["お名前は何とおっしゃいますか。","onamae wa nan to osshaimasu ka","請問您貴姓大名?"]]},
+{p:"お~ください",n:"請~(客氣)",exp:"お+ます形去ます+ください,更客氣的請求。",ex:[["こちらで少々お待ちください。","kochira de shoushou omachi kudasai","請在這邊稍候。"]]},
+{p:"いたします",n:"做(謙讓)",exp:"します的謙讓語,降低自己抬高對方。",ex:[["よろしくお願いいたします。","yoroshiku onegai itashimasu","懇請多多指教。"]]},
+{p:"~でございます",n:"是(鄭重)",exp:"です的鄭重說法,店員常用。",ex:[["こちらがメニューでございます。","kochira ga menyuu de gozaimasu","這是菜單(鄭重)。"]]},
+{p:"お~になります",n:"~(尊敬)",exp:"お+ます形去ます+になります,一般動詞的尊敬形。",ex:[["社長はもうお帰りになりました。","shachou wa mou okaeri ni narimashita","社長已經回去了(尊敬)。"]]}
+],
+"複文・その他":[
+{p:"~ので",n:"因為~",exp:"比「から」更客氣、客觀的理由。",ex:[["用事があるので、お先に失礼します。","youji ga aru node osaki ni shitsurei shimasu","因為有事,我先走了。"]]},
+{p:"~のに",n:"明明~卻",exp:"表示與預期相反,帶意外或不滿。",ex:[["たくさん寝たのに、まだ眠いです。","takusan neta noni mada nemui desu","明明睡很多,卻還是很睏。"]]},
+{p:"~とき",n:"~的時候",exp:"辭書形/た形+とき,表示時點。",ex:[["国へ帰るとき、お土産を買います。","kuni e kaeru toki omiyage o kaimasu","回國的時候會買伴手禮。"]]},
+{p:"~あいだに",n:"趁~期間",exp:"在某段時間內完成另一件事。",ex:[["子どもが寝ているあいだに、掃除しました。","kodomo ga nete iru aida ni souji shimashita","趁孩子睡覺時打掃了。"]]},
+{p:"~ておきます",n:"預先~",exp:"為了之後方便,事先做好準備。",ex:[["ビールを冷やしておきます。","biiru o hiyashite okimasu","先把啤酒冰起來。"]]},
+{p:"~てしまいます",n:"~完了;不小心~",exp:"表示完了或遺憾,口語「~ちゃいます」。",ex:[["財布を忘れてしまいました。","saifu o wasurete shimaimashita","不小心忘了帶錢包。"]]},
+{p:"~てみます",n:"~看看",exp:"嘗試做某事。",ex:[["この服を着てみてもいいですか。","kono fuku o kite mite mo ii desu ka","可以試穿這件衣服嗎?"]]},
+{p:"~ているところです",n:"正在~",exp:"強調「正處於做~的當下」。",ex:[["今、晩ご飯を作っているところです。","ima bangohan o tsukutte iru tokoro desu","現在正在做晚餐。"]]},
+{p:"~たばかりです",n:"剛~",exp:"た形+ばかり,表示動作剛完成不久。",ex:[["日本に来たばかりです。","nihon ni kita bakari desu","剛來日本不久。"]]},
+{p:"~んです",n:"~(說明語氣)",exp:"說明理由或尋求說明,口語必備。",ex:[["どうしたんですか。","doushita n desu ka","怎麼了嗎?"]]},
+{p:"~かどうか",n:"是否~",exp:"把問句放進句子裡:「~かどうか、わかりません」。",ex:[["間に合うかどうか、わかりません。","maniau ka dou ka wakarimasen","不知道趕不趕得上。"]]}
 ]
 };
 
@@ -1722,6 +2051,29 @@ function renderKanaQuizSetup(){
   });
 }
 
+/* ---- JLPT 程度選擇(單字/文法/模擬測驗共用,設定會記住) ---- */
+function jlptLevel(){ return store.jlptLevel === "N4" ? "N4" : "N5"; }
+function vocabData(){ return jlptLevel() === "N4" ? VOCAB_N4 : VOCAB; }
+function grammarData(){ return jlptLevel() === "N4" ? GRAMMAR_N4 : GRAMMAR; }
+function levelPillsHtml(){
+  return '<div class="level-row">' + ["N5","N4"].map(function(lv){
+    return '<button type="button" class="level-pill' + (jlptLevel()===lv ? " active" : "") + '" data-lv="' + lv + '">' + lv + '</button>';
+  }).join("") + '</div>';
+}
+function setLevelPillsUI(){
+  document.querySelectorAll(".level-pill").forEach(function(b){ if(!b.classList.contains("ai-pill")) b.classList.toggle("active", b.dataset.lv === jlptLevel()); });
+}
+document.addEventListener("click", function(e){
+  const b = e.target.closest(".level-pill"); if(!b || b.classList.contains("ai-pill")) return;
+  store.jlptLevel = b.dataset.lv; saveStore();
+  setLevelPillsUI(); sfx("tap");
+  rebuildVocabTabs(); renderFlashcard();
+  renderGrammarTabs(); renderGrammar();
+  const vq = document.getElementById("vocabQuizBox");
+  if(vq && vq.querySelector("#vqStart")) renderVocabQuizSetup();
+  const lb = document.getElementById("levelBox");
+  if(lb && lb.querySelector("#lvStart")) renderLevelSetup();
+});
 /* ---- 漢字顯示開關(單字卡/單字測驗/程度檢定共用,設定會記住) ---- */
 function kanjiOn(){ return store.kanjiOn !== false; }
 function setKanjiToggleUI(){
@@ -1741,12 +2093,12 @@ document.addEventListener("click", function(e){
 /* ---- 單字測驗 ---- */
 function vocabPool(){
   const pool = [];
-  Object.values(VOCAB).forEach(list=>list.forEach(w=>pool.push({jp: kanjiOn() ? (w[1]+"("+w[0]+")") : w[0], zh:w[3], kana:w[0]})));
+  Object.values(vocabData()).forEach(list=>list.forEach(w=>pool.push({jp: kanjiOn() ? (w[1]+"("+w[0]+")") : w[0], zh:w[3], kana:w[0]})));
   return pool;
 }
 function renderVocabQuizSetup(){
   const box = document.getElementById("vocabQuizBox");
-  box.innerHTML = '<div class="quiz-setup"><p style="font-weight:700; margin-bottom:6px;">共 '+vocabPool().length+' 個單字隨機出題,每次 10 題。</p><div style="margin-bottom:12px;"><button class="toggle-romaji kanji-toggle" type="button">顯示漢字:開</button></div><button class="big-btn" id="vqStart">開始測驗</button></div>';
+  box.innerHTML = '<div class="quiz-setup">' + levelPillsHtml() + '<p style="font-weight:700; margin-bottom:6px;">' + jlptLevel() + ' 單字共 '+vocabPool().length+' 個隨機出題,每次 10 題。</p><div style="margin-bottom:12px;"><button class="toggle-romaji kanji-toggle" type="button">顯示漢字:開</button></div><button class="big-btn" id="vqStart">開始測驗</button></div>';
   setKanjiToggleUI();
   box.querySelector("#vqStart").addEventListener("click", ()=>{
     makeQuiz(box, vocabPool(), "jp", "zh", {
@@ -1759,12 +2111,20 @@ function renderVocabQuizSetup(){
 /* ================= 單字卡 ================= */
 let vocabCat = Object.keys(VOCAB)[0], fcIdx = 0;
 const catTabs = document.getElementById("vocabCatTabs");
-Object.keys(VOCAB).forEach((cat,i)=>{
-  const b = document.createElement("button");
-  b.textContent = cat; b.dataset.cat = cat;
-  if(i===0) b.classList.add("active");
-  catTabs.appendChild(b);
-});
+function rebuildVocabTabs(){
+  const data = vocabData();
+  if(!data[vocabCat]){ vocabCat = Object.keys(data)[0]; fcIdx = 0; }
+  if(fcIdx >= data[vocabCat].length) fcIdx = 0;
+  document.getElementById("vocabLevelRow").innerHTML = levelPillsHtml();
+  catTabs.innerHTML = "";
+  Object.keys(data).forEach(cat=>{
+    const b = document.createElement("button");
+    b.textContent = cat; b.dataset.cat = cat;
+    if(cat===vocabCat) b.classList.add("active");
+    catTabs.appendChild(b);
+  });
+}
+rebuildVocabTabs();
 catTabs.addEventListener("click", e=>{
   const b = e.target.closest("button[data-cat]"); if(!b) return;
   vocabCat = b.dataset.cat; fcIdx = 0;
@@ -1773,7 +2133,7 @@ catTabs.addEventListener("click", e=>{
 });
 const fcEl = document.getElementById("flashcard");
 function renderFlashcard(){
-  const list = VOCAB[vocabCat];
+  const list = vocabData()[vocabCat];
   const w = list[fcIdx];
   fcEl.classList.remove("flipped");
   document.getElementById("fcFrontMain").textContent = kanjiOn() ? w[1] : w[0];
@@ -1784,19 +2144,19 @@ function renderFlashcard(){
 }
 fcEl.addEventListener("click", e=>{
   if(e.target.id==="fcSpeak") return;
-  fcEl.classList.toggle("flipped"); touchStreak(); logEvent("card", VOCAB[vocabCat][fcIdx][1]);
+  fcEl.classList.toggle("flipped"); touchStreak(); logEvent("card", vocabData()[vocabCat][fcIdx][1]);
 });
 fcEl.addEventListener("keydown", e=>{
   if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fcEl.classList.toggle("flipped"); }
 });
 document.getElementById("fcSpeak").addEventListener("click", e=>{
-  e.stopPropagation(); speak(VOCAB[vocabCat][fcIdx][0]); touchStreak(); logEvent("speak", VOCAB[vocabCat][fcIdx][0]);
+  e.stopPropagation(); speak(vocabData()[vocabCat][fcIdx][0]); touchStreak(); logEvent("speak", vocabData()[vocabCat][fcIdx][0]);
 });
 document.getElementById("fcPrev").addEventListener("click", ()=>{
-  const n = VOCAB[vocabCat].length; fcIdx = (fcIdx-1+n)%n; renderFlashcard();
+  const n = vocabData()[vocabCat].length; fcIdx = (fcIdx-1+n)%n; renderFlashcard();
 });
 document.getElementById("fcNext").addEventListener("click", ()=>{
-  const n = VOCAB[vocabCat].length; fcIdx = (fcIdx+1)%n; renderFlashcard();
+  const n = vocabData()[vocabCat].length; fcIdx = (fcIdx+1)%n; renderFlashcard();
 });
 let fcTouchX = null, fcTouchY = null;
 fcEl.addEventListener("touchstart", e=>{
@@ -1808,7 +2168,7 @@ fcEl.addEventListener("touchend", e=>{
   const dy = e.changedTouches[0].clientY - fcTouchY;
   fcTouchX = null;
   if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)*1.5){
-    const n = VOCAB[vocabCat].length;
+    const n = vocabData()[vocabCat].length;
     fcIdx = dx < 0 ? (fcIdx+1)%n : (fcIdx-1+n)%n;
     renderFlashcard();
     try{ if(navigator.vibrate) navigator.vibrate(8); }catch(err){}
@@ -1819,12 +2179,19 @@ fcEl.addEventListener("touchend", e=>{
 const gList = document.getElementById("grammarList");
 const gTabs = document.getElementById("grammarTabs");
 let grammarCat = Object.keys(GRAMMAR)[0];
-Object.keys(GRAMMAR).forEach((cat,i)=>{
-  const b = document.createElement("button");
-  b.textContent = cat + "(" + GRAMMAR[cat].length + ")"; b.dataset.gcat = cat;
-  if(i===0) b.classList.add("active");
-  gTabs.appendChild(b);
-});
+function renderGrammarTabs(){
+  const data = grammarData();
+  if(!data[grammarCat]) grammarCat = Object.keys(data)[0];
+  document.getElementById("grammarLevelRow").innerHTML = levelPillsHtml();
+  gTabs.innerHTML = "";
+  Object.keys(data).forEach(cat=>{
+    const b = document.createElement("button");
+    b.textContent = cat + "(" + data[cat].length + ")"; b.dataset.gcat = cat;
+    if(cat===grammarCat) b.classList.add("active");
+    gTabs.appendChild(b);
+  });
+}
+renderGrammarTabs();
 gTabs.addEventListener("click", e=>{
   const b = e.target.closest("button[data-gcat]"); if(!b) return;
   grammarCat = b.dataset.gcat;
@@ -1833,7 +2200,7 @@ gTabs.addEventListener("click", e=>{
 });
 function renderGrammar(){
   gList.innerHTML = "";
-  GRAMMAR[grammarCat].forEach(g=>{
+  grammarData()[grammarCat].forEach(g=>{
     const item = document.createElement("div");
     item.className = "grammar-item";
     item.innerHTML =
@@ -1949,6 +2316,7 @@ dojoTabsEl.addEventListener("click", e=>{
   if(b.dataset.dojo === "ai"){ startAiChat(); return; }
   document.getElementById("aiInputRow").hidden = true;
   document.getElementById("aiMicRow").hidden = true;
+  document.getElementById("aiLevelRow").hidden = true;
   dojoScene = +b.dataset.dojo;
   startDojo();
 });
@@ -2004,6 +2372,17 @@ function initDojo(){
 
 /* ---- AI 自由對話 ---- */
 const AI_ENDPOINT = "https://nihongo-ai.frankccc199.workers.dev"; /* Cloudflare Workers AI 後端 */
+function aiLevel(){ return ["N5","N4","N3","N2","N1"].indexOf(store.aiLevel) > -1 ? store.aiLevel : "N5"; }
+function renderAiLevelPills(){
+  const box = document.getElementById("aiLevelPills"); if(!box) return;
+  box.innerHTML = ["N5","N4","N3","N2","N1"].map(function(lv){
+    return '<button type="button" class="level-pill ai-pill' + (aiLevel()===lv ? " active" : "") + '" data-ailv="' + lv + '" style="padding:5px 12px; margin:0 3px; font-size:.85rem;">' + lv + '</button>';
+  }).join("");
+}
+document.addEventListener("click", function(e){
+  const b = e.target.closest(".ai-pill"); if(!b) return;
+  store.aiLevel = b.dataset.ailv; saveStore(); renderAiLevelPills(); sfx("tap");
+});
 let aiHistory = [], aiBusy = false;
 function plainBubble(kind, text, speakText){
   const chat = document.getElementById("dojoChat");
@@ -2049,6 +2428,8 @@ function startAiChat(){
   }
   row.hidden = false;
   document.getElementById("aiMicRow").hidden = !(window.SpeechRecognition || window.webkitSpeechRecognition);
+  document.getElementById("aiLevelRow").hidden = false;
+  renderAiLevelPills();
   aiHistory = [];
   aiReplyBubble("こんにちは!今日は何を話しますか?\nkonnichiwa! kyou wa nani o hanashimasu ka?\n你好!今天想聊什麼呢?");
   aiHistory.push({role:"assistant", content:"こんにちは!今日は何を話しますか?"});
@@ -2064,7 +2445,7 @@ async function aiSendMsg(){
   aiBusy = true;
   const thinking = plainBubble("bot", "…考え中…");
   try{
-    const res = await fetch(AI_ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({messages: aiHistory.slice(-12)})});
+    const res = await fetch(AI_ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({messages: aiHistory.slice(-12), level: aiLevel()})});
     const data = await res.json();
     thinking.remove();
     if(data && data.reply){
@@ -2214,6 +2595,28 @@ const LEVEL_GRAMMAR = [
 ["暑い＿、窓を開けます。","から",["から","が","でも","そして"]],
 ["日本へ行った＿があります。","こと",["こと","もの","とき","ところ"]]
 ];
+const LEVEL_GRAMMAR_N4 = [
+["日本語を話す＿ができます。","こと",["こと","もの","ため","はず"]],
+["明日までに出さ＿なりません。","なければ",["なければ","なくても","ないで","なくて"]],
+["靴を脱が＿もいいです。","なくて",["なくて","ないで","なければ","ずに"]],
+["仕事が終わった＿で、飲みに行きます。","あと",["あと","まえ","とき","あいだ"]],
+["休みの日は映画を見＿、買い物したりします。","たり",["たり","ても","たら","ながら"]],
+["急げ＿、間に合いますよ。","ば",["ば","と","たら","なら"]],
+["雨が降っ＿、行きません。","たら",["たら","ば","と","ので"]],
+["京都＿、秋がいちばんきれいですよ。","なら",["なら","たら","ば","のに"]],
+["姉が晩ご飯を作って＿ました。","くれ",["くれ","あげ","もらい","やり"]],
+["先生に作文を直して＿ました。","もらい",["もらい","くれ","あげ","させ"]],
+["この料理はおいし＿ですね。","そう",["そう","よう","らしい","はず"]],
+["明日は雨だ＿です。","そう",["そう","よう","みたい","ばかり"]],
+["午後は雪になる＿しれません。","かも",["かも","はず","そう","わけ"]],
+["先生に＿ました。","しかられ",["しかられ","しからせ","しかり","しかって"]],
+["母はわたしに野菜を食べ＿ます。","させ",["させ","られ","てくれ","ておき"]],
+["用事がある＿、お先に失礼します。","ので",["ので","のに","でも","けど"]],
+["たくさん寝た＿、まだ眠いです。","のに",["のに","ので","から","し"]],
+["ビールを冷やして＿ます。","おき",["おき","しまい","み","あり"]],
+["財布を忘れて＿ました。","しまい",["しまい","おき","み","いき"]],
+["日本に来た＿です。","ばかり",["ばかり","ところ","はず","つもり"]]
+];
 const LEVEL_PHRASE = [
   ["在餐廳吃完想結帳,要說?","お会計お願いします",["お会計お願いします","いくらですか","いただきます","おはようございます"]],
   ["迷路了想問車站在哪,要說?","駅はどこですか",["駅はどこですか","切符をください","ここで降ります","何時ですか"]],
@@ -2224,6 +2627,17 @@ const LEVEL_PHRASE = [
 ];
 function buildLevelQuestions(){
   const qs = [];
+  if(jlptLevel() === "N4"){
+    const vp4 = vocabPool();
+    shuffle(vp4).slice(0,8).forEach(w=>{
+      const wrong = shuffle(vp4.filter(x=>x.zh!==w.zh)).slice(0,3).map(x=>x.zh);
+      qs.push({q:w.jp, opts:shuffle([w.zh].concat(wrong)), ans:w.zh, cat:"語彙", speak:w.kana});
+    });
+    shuffle(LEVEL_GRAMMAR_N4).slice(0,12).forEach(g=>{
+      qs.push({q:g[0], opts:shuffle(g[2].slice()), ans:g[1], cat:"文法"});
+    });
+    return shuffle(qs);
+  }
   const kanaPick = (list, n) => shuffle(list).slice(0,n).forEach(k=>{
     const wrong = shuffle(list.filter(x=>x.romaji!==k.romaji)).slice(0,3).map(x=>x.romaji);
     qs.push({q:k.kana, big:true, opts:shuffle([k.romaji].concat(wrong)), ans:k.romaji, cat:"假名", speak:k.kana});
@@ -2246,8 +2660,9 @@ function buildLevelQuestions(){
   return shuffle(qs);
 }
 function levelRank(score){
-  if(score>=18) return {label:"N5 合格實力", emoji:"🌸", tip:"基礎非常穩!可以開始接觸 N4 文法和更長的句子了。"};
-  if(score>=15) return {label:"N5 衝刺中", emoji:"🎏", tip:"實力接近 N5,把答錯的分類多練幾輪就到位了。"};
+  const lv = jlptLevel();
+  if(score>=18) return {label:lv+" 合格實力", emoji:"🌸", tip:lv==="N5" ? "基礎非常穩!把程度切到 N4 繼續前進吧。" : "N4 也穩了!下一站 N3,繼續加油。"};
+  if(score>=15) return {label:lv+" 衝刺中", emoji:"🎏", tip:"實力接近 "+lv+",把答錯的分類多練幾輪就到位了。"};
   if(score>=10) return {label:"初級進行中", emoji:"🍡", tip:"有一定基礎了!建議每天單字卡和文法各練一輪。"};
   if(score>=5)  return {label:"入門起步", emoji:"🍙", tip:"先把五十音表全部變綠,之後單字和文法會突然變簡單。"};
   return {label:"五十音修行中", emoji:"🌱", tip:"從五十音表開始,每天點一點、唸一唸,很快就有感覺。"};
@@ -2259,7 +2674,7 @@ function renderLevelSetup(){
     last = '<p style="text-align:center; font-weight:700; color:var(--ink2); margin-bottom:4px;">上次結果:' + store.level.label + '(' + store.level.score + ' / 20・' + store.level.date + ')</p>';
   }
   box.innerHTML = '<div class="quiz-setup">' + last +
-    '<p style="font-weight:700; margin-bottom:6px;">N5 模擬測驗 20 題:假名 8、語彙 6、文法 4、會話 2(文法題庫 20 條隨機),做完立刻評估你的 N5 實力。</p>' +
+    levelPillsHtml() + (jlptLevel()==="N4" ? '<p style="font-weight:700; margin-bottom:6px;">N4 模擬測驗 20 題:語彙 8、文法 12(題庫 20 條隨機),做完立刻評估你的 N4 實力。</p>' : '<p style="font-weight:700; margin-bottom:6px;">N5 模擬測驗 20 題:假名 8、語彙 6、文法 4、會話 2(文法題庫 20 條隨機),做完立刻評估你的 N5 實力。</p>') +
     '<button class="big-btn" id="lvStart">開始檢定</button></div>';
   box.querySelector("#lvStart").addEventListener("click", runLevelTest);
 }
@@ -2405,7 +2820,7 @@ document.getElementById("soundTestBtn").addEventListener("click", async function
   const out = document.getElementById("soundTestOut");
   const lines = [];
   const show = function(){ out.innerHTML = lines.join("<br>"); };
-  lines.push("版本:v2.8.1・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
+  lines.push("版本:v2.9.0・裝置判定:" + (IS_IOS ? "iPhone/iPad" : "非 iOS")); show();
   lines.push("audioSession API:" + (navigator.audioSession ? ("有(" + navigator.audioSession.type + ")") : "無(iOS 16.4 以下或非 Safari 引擎)")); show();
   setPlaybackSession(); engageMediaChannel();
   sfx("great");
